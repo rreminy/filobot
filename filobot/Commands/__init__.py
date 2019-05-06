@@ -1,0 +1,1 @@
+from .hunts import Hunts

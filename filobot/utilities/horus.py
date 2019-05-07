@@ -13,18 +13,28 @@ class Horus:
     def __init__(self):
         self._log = logging.getLogger(__name__)
 
-        with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'marks_info.json')) as json_file:
+        # with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'marks_info.json')) as json_file:
+        #     self.marks_info = json.load(json_file)
+
+        with open('data\\marks_info.json') as json_file:
             self.marks_info = json.load(json_file)
 
-        # with open('data\\marks_info.json') as json_file:
-        #     self.marks_info = json.load(json_file)
+        self._cached_response = None
+        self._cached_time = time.time()
 
     def load(self, world: str):
         """
         Load Horus data on the specified world
         """
         # Currently hardcoded to the Crystal DC; we might add support for other DC's later
-        crystal = json.load(urllib.request.urlopen(self.ENDPOINT))
+        if self._cached_response is not None and (time.time() + 10) >= self._cached_time:
+            self._log.info('Using cached response')
+            crystal = self._cached_response
+        else:
+            self._log.info('Querying Horus')
+            crystal = json.load(urllib.request.urlopen(self.ENDPOINT))
+            self._cached_response = crystal
+            self._cached_time = time.time()
 
         if world not in crystal.keys():
             raise LookupError(f"""World {world} does not exist""")

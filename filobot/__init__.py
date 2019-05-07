@@ -9,6 +9,7 @@ from configparser import ConfigParser
 from discord.ext import commands
 from discord.ext.commands import CommandError
 from filobot.Commands import Hunts
+from filobot.utilities.manager import HuntManager
 
 # Load our configuration
 config = ConfigParser()
@@ -31,8 +32,8 @@ log.addHandler(ch)
 #     log.info('Creating new database')
 #     db.create_tables([DiscordUser, Actions])
 
-bot = commands.Bot(command_prefix='%')
-bot.add_cog(Hunts(bot, config))
+bot = commands.Bot(command_prefix='f.')
+bot.add_cog(Hunts(bot, HuntManager(bot)))
 # bot.add_cog(Utility(bot, config))
 # bot.add_cog(Reactions(bot, config))
 

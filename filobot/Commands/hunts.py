@@ -1,19 +1,16 @@
 import json
 import os
-import re
 import logging
 import sys
 import time
-
 import arrow
 import discord
 import typing
 
 from configparser import ConfigParser
 from discord.ext import commands
-from discord.ext.commands import CommandError
-
 from filobot.utilities.horus import Horus, HorusHunt
+from filobot.utilities.manager import HuntManager
 from filobot.utilities.xivhunt import XivHunt
 
 
@@ -72,9 +69,11 @@ class Hunts(commands.Cog):
         'Deidar': 'https://i.imgtc.com/dM4sjSQ.png'                     # B
     }
 
-    def __init__(self, bot: discord.ext.commands.Bot, config: ConfigParser):
+    def __init__(self, bot: discord.ext.commands.Bot, hunt_manager: HuntManager):
         self._log = logging.getLogger(__name__)
         self.bot = bot
+
+        self.hunt_manager = hunt_manager
 
         with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'marks_info.json')) as json_file:
             self.marks_info = json.load(json_file)
@@ -114,46 +113,49 @@ class Hunts(commands.Cog):
         await ctx.send("No hunt by that name found - please check your spelling and try again")
 
     @commands.command()
-    async def status(self, ctx: commands.context.Context, world: str, *, name: str):
+    async def status(self, ctx: commands.context.Context, world: str, *, hunt_name: str):
         """
         Retrieve the status of the specified hunt target
         """
+        # Make sure the world is properly formatted
+        world = world.lstrip().rstrip().lower().title()
+
         try:
-            xivhunt = XivHunt().load(world)
-            horus   = Horus().load(world)
-        except LookupError as e:
+            horus, xivhunt = self.hunt_manager.get(world, hunt_name)
+        except KeyError as e:
             self._log.info(e)
-            await ctx.send("No world by that name found on the Crystal DC - please check your spelling and try again")
+            await ctx.send(
+                "No world or hunt by that name found on the Crystal DC - please check your spelling and try again"
+            )
             return
 
-        if name not in horus:
-            await ctx.send("No hunt by that name found - please check your spelling and try again")
-            return
+        embed = discord.Embed(title=horus.name, description=f"""Rank {horus.rank}""")
+        embed.set_thumbnail(url=horus.image)
 
-        hunt = horus[name]  # type: HorusHunt
-        embed = discord.Embed(title=hunt.name, description=f"""Rank {hunt.rank}""")
-        embed.set_thumbnail(url=hunt.image)
-
-        if hunt.status == hunt.STATUS_OPENED:
+        if horus.status == horus.STATUS_OPENED:
             embed.colour = self.COLOR_OPEN
-        elif hunt.status == hunt.STATUS_MAXED:
+        elif horus.status == horus.STATUS_MAXED:
             embed.colour = self.COLOR_MAXED
-        elif hunt.status == hunt.STATUS_DIED:
+        elif horus.status == horus.STATUS_DIED:
             embed.colour = self.COLOR_DIED
         else:
             embed.colour = self.COLOR_CLOSED
 
-        embed.add_field(name='Status', value=hunt.status.title(), inline=False)
-        if xivhunt[name]['coords']:
+        embed.add_field(name='Status', value=horus.status.title(), inline=False)
+        if xivhunt['coords']:
             # Parse the time in a human friendly format
-            hours, minutes = xivhunt[name]['last_seen'].split(':')
+            hours, minutes = xivhunt['last_seen'].split(':')
             seconds = (int(hours) * 3600) + (int(minutes) * 60)
             ls_human = arrow.get(time.time() - seconds).humanize()
 
             embed.add_field(name='Last seen', value=ls_human)
-            embed.add_field(name='Coords', value=xivhunt[name]['coords'])
+            embed.add_field(name='Coords', value=xivhunt['coords'])
 
         await ctx.send(embed=embed)
+
+    # @commands.command()
+    # async def status(self, ctx: commands.context.Context, world: str, *, name: str):
+    #     pass
 
     # @Commands.Cog.listener()
     # async def on_ready(self):

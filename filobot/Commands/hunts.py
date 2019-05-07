@@ -3,6 +3,9 @@ import os
 import re
 import logging
 import sys
+import time
+
+import arrow
 import discord
 import typing
 
@@ -10,12 +13,20 @@ from configparser import ConfigParser
 from discord.ext import commands
 from discord.ext.commands import CommandError
 
+from filobot.utilities.horus import Horus, HorusHunt
+from filobot.utilities.xivhunt import XivHunt
+
 
 class Hunts(commands.Cog):
 
     COLOR_A = 0xFB6107
     COLOR_S = 0xF3DE2C
     COLOR_B = 0x7CB518
+
+    COLOR_OPEN      = 0x7CB518
+    COLOR_MAXED     = 0x275DAD
+    COLOR_DIED      = 0xFB6107
+    COLOR_CLOSED    = 0x5B616A
 
     MAPS = {
         # The Lochs
@@ -101,6 +112,48 @@ class Hunts(commands.Cog):
                 return
 
         await ctx.send("No hunt by that name found - please check your spelling and try again")
+
+    @commands.command()
+    async def status(self, ctx: commands.context.Context, world: str, *, name: str):
+        """
+        Retrieve the status of the specified hunt target
+        """
+        try:
+            xivhunt = XivHunt().load(world)
+            horus   = Horus().load(world)
+        except LookupError as e:
+            self._log.info(e)
+            await ctx.send("No world by that name found on the Crystal DC - please check your spelling and try again")
+            return
+
+        if name not in horus:
+            await ctx.send("No hunt by that name found - please check your spelling and try again")
+            return
+
+        hunt = horus[name]  # type: HorusHunt
+        embed = discord.Embed(title=hunt.name, description=f"""Rank {hunt.rank}""")
+        embed.set_thumbnail(url=hunt.image)
+
+        if hunt.status == hunt.STATUS_OPENED:
+            embed.colour = self.COLOR_OPEN
+        elif hunt.status == hunt.STATUS_MAXED:
+            embed.colour = self.COLOR_MAXED
+        elif hunt.status == hunt.STATUS_DIED:
+            embed.colour = self.COLOR_DIED
+        else:
+            embed.colour = self.COLOR_CLOSED
+
+        embed.add_field(name='Status', value=hunt.status.title(), inline=False)
+        if xivhunt[name]['coords']:
+            # Parse the time in a human friendly format
+            hours, minutes = xivhunt[name]['last_seen'].split(':')
+            seconds = (int(hours) * 3600) + (int(minutes) * 60)
+            ls_human = arrow.get(time.time() - seconds).humanize()
+
+            embed.add_field(name='Last seen', value=ls_human)
+            embed.add_field(name='Coords', value=xivhunt[name]['coords'])
+
+        await ctx.send(embed=embed)
 
     # @Commands.Cog.listener()
     # async def on_ready(self):

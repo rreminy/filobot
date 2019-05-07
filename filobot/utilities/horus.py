@@ -49,11 +49,10 @@ class Horus:
 
 class HorusHunt:
 
-    STATUS_MAXED  = 'maxed'   # Force spawn
+    STATUS_MAXED  = 'spawn forced'
     STATUS_OPENED = 'open'
-    STATUS_CLOSED = 'closed'  # ???
-    STATUS_DIED   = 'died'
-    STATUS_SOON   = 'soon'
+    STATUS_CLOSED = 'closed'
+    STATUS_DIED   = 'dead'
 
     def __init__(self, hunt_data, timer_data):
         # Hunt data

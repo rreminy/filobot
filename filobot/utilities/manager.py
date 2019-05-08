@@ -6,6 +6,8 @@ import typing
 import yaml
 
 from discord.ext.commands import Bot
+
+from filobot.utilities import hunt_embed
 from filobot.utilities.horus import HorusHunt
 from .xivhunt import XivHunt
 from .horus import Horus
@@ -32,7 +34,10 @@ class HuntManager:
 
     WORLDS = ('Any', 'Balmung', 'Brynhildr', 'Coeurl', 'Diabolos', 'Goblin', 'Malboro', 'Mateus', 'Zalera')
 
-    CONDITIONS = ('deaths', 'openings', 'finds')
+    COND_DEAD = 'deaths'
+    COND_OPEN = 'openings'
+    COND_FIND = 'finds'
+    CONDITIONS = (COND_DEAD, COND_OPEN, COND_FIND)
 
     def __init__(self, bot: Bot):
         self._log = logging.getLogger(__name__)
@@ -191,7 +196,20 @@ class HuntManager:
 
                 hunt = self._marks_info[old.name.lower()]
                 if hunt['Channel'] in sub:
-                    print('-INSERT ANNOUNCEMENT HERE-')
+                    sub_conditions = sub[hunt['Channel']]
+                    embed = hunt_embed(new.name, new)
+
+                    if new.status == new.STATUS_OPENED and self.COND_OPEN in sub_conditions:
+                        await self.bot.get_channel(channel_id).send("A hunt has opened!", embed=embed)
+                        break
+
+                    if new.status == new.STATUS_MAXED and self.COND_OPEN in sub_conditions:
+                        await self.bot.get_channel(channel_id).send("A hunts maximum spawn window has been reached!", embed=embed)
+                        break
+
+                    if new.status == new.STATUS_DIED and self.COND_DEAD in sub_conditions:
+                        await self.bot.get_channel(channel_id).send("A hunt has died!", embed=embed)
+                        break
 
     async def on_find(self, world: str, hunt: dict):
         pass

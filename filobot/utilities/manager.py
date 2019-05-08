@@ -264,15 +264,15 @@ class HuntManager:
                     embed = hunt_embed(new.name, new)
 
                     if new.status == new.STATUS_OPENED and self.COND_OPEN in sub_conditions:
-                        await self.bot.get_channel(channel_id).send("A hunt has opened!", embed=embed)
+                        await self.bot.get_channel(channel_id).send(f"""A hunt has opened on {world}!""", embed=embed)
                         break
 
                     if new.status == new.STATUS_MAXED and self.COND_OPEN in sub_conditions:
-                        await self.bot.get_channel(channel_id).send("A hunts maximum spawn window has been reached!", embed=embed)
+                        await self.bot.get_channel(channel_id).send(f"""A hunts maximum spawn window has been reached on {world}!""", embed=embed)
                         break
 
                     if new.status == new.STATUS_DIED and self.COND_DEAD in sub_conditions:
-                        await self.bot.get_channel(channel_id).send("A hunt has died!", embed=embed)
+                        await self.bot.get_channel(channel_id).send(f"""A hunt has died on {world}!""", embed=embed)
                         break
 
     async def on_find(self, world: str, hunt: dict):

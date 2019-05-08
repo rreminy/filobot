@@ -77,3 +77,35 @@ class Hunts(commands.Cog):
         Allowed categories: SB_A, SB_S, HW_A, HW_S, ARR_A, ARR_S
         """
         await self.hunt_manager.unsubscribe(ctx.channel.id, world, category)
+
+    @commands.command(name='sub-list')
+    async def sub_list(self, ctx: commands.context.Context):
+        """
+        List all enabled subscriptions for this channel
+        """
+        try:
+            subs = await self.hunt_manager.get_subscriptions(ctx.channel.id)
+        except KeyError as e:
+            self._log.info(e)
+            await ctx.channel.send(
+                    "No subscriptions have been specified for this channel"
+            )
+            return
+
+        await ctx.send('```' + str(subs) + '```')
+
+    @commands.command(name='sub-clear')
+    async def sub_clear(self, ctx: commands.context.Context):
+        """
+        Clear all enabled subscriptions for this channel
+        """
+        try:
+            await self.hunt_manager.clear_subscriptions(ctx.channel.id)
+        except KeyError as e:
+            self._log.info(e)
+            await ctx.channel.send(
+                    "No subscriptions have been specified for this channel"
+            )
+            return
+
+        await ctx.send("Subscriptions for this channel have been cleared")

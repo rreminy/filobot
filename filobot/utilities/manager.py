@@ -188,6 +188,25 @@ class HuntManager:
         await self.bot.get_channel(channel).send(f"""Unsubscribed channel from {str(sub).replace('_', ' ').title()}-Rank hunts on {world}""")
         self._save_config()
 
+    async def get_subscriptions(self, channel: int) -> dict:
+        """
+        Get all subscriptions for the specified channel
+        """
+        if channel not in self._subscriptions:
+            raise KeyError
+
+        return self._subscriptions[channel]
+
+    async def clear_subscriptions(self, channel: int) -> None:
+        """
+        Clear all subscriptions for the specified channel
+        """
+        if channel not in self._subscriptions:
+            raise KeyError
+
+        del self._subscriptions[channel]
+        self._save_config()
+
     async def on_change(self, world: str, old: HorusHunt, new: HorusHunt):
         for channel_id, subs in self._subscriptions.items():
             for _world, sub in subs.items():

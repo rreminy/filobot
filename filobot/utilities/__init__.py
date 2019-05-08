@@ -105,6 +105,13 @@ def hunt_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: typing.Op
 
                 embed.add_field(name='Status', value=horus.status.title(), inline=False)
 
+                if horus.last_mark:
+                    last_mark = arrow.get(horus.last_mark / 1000).humanize()
+                    footer = f"""Marked {last_mark}"""
+                    if horus.last_try_user != 'N/A':
+                        footer = footer + f""" by {horus.last_try_user}"""
+                    embed.set_footer(text=footer)
+
             if xivhunt is not None and xivhunt['coords']:
                 # Parse the time in a human friendly format
                 hours, minutes = xivhunt['last_seen'].split(':')

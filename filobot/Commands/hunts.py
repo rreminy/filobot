@@ -155,12 +155,13 @@ class Hunts(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command()
-    async def sub(self, ctx: commands.context.Context, world: str, category: str):
+    async def sub(self, ctx: commands.context.Context, world: str, category: str, *, conditions: typing.Optional[str] = 'all'):
         """
         Subscribe the channel to hunt events
         Allowed categories: SB_A, SB_S, HW_A, HW_S, ARR_A, ARR_S
+        Allowed conditions: FINDS, DEATHS, OPENINGS
         """
-        await self.hunt_manager.subscribe(ctx.channel.id, world, category)
+        await self.hunt_manager.subscribe(ctx.channel.id, world, category, conditions)
 
     @commands.command()
     async def unsub(self, ctx: commands.context.Context, world: str, category: str):

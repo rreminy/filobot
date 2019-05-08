@@ -13,11 +13,11 @@ class Horus:
     def __init__(self):
         self._log = logging.getLogger(__name__)
 
-        # with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'marks_info.json')) as json_file:
-        #     self.marks_info = json.load(json_file)
-
-        with open('data\\marks_info.json') as json_file:
+        with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'marks_info.json')) as json_file:
             self.marks_info = json.load(json_file)
+
+        # with open('data\\marks_info.json') as json_file:
+        #     self.marks_info = json.load(json_file)
 
         self._cached_response = None
         self._cached_time = time.time()
@@ -27,8 +27,8 @@ class Horus:
         Load Horus data on the specified world
         """
         # Currently hardcoded to the Crystal DC; we might add support for other DC's later
-        if self._cached_response is not None and (time.time() + 10) >= self._cached_time:
-            self._log.info('Using cached response')
+        if self._cached_response is not None and (time.time() <= self._cached_time + 30):
+            self._log.debug('Using cached Horus response')
             crystal = self._cached_response
         else:
             self._log.info('Querying Horus')
@@ -43,7 +43,7 @@ class Horus:
         hunts = {}
         for id, timer in timers.items():
             hunt_data = self.id_to_hunt(id)
-            hunts[hunt_data['Name']] = HorusHunt(hunt_data, timer)
+            hunts[hunt_data['Name'].lstrip().rstrip().lower()] = HorusHunt(hunt_data, timer)
 
         return hunts
 

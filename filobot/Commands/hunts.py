@@ -27,7 +27,7 @@ class Hunts(commands.Cog):
 
     MAPS = {
         # The Lochs
-        'Salt and Light': 'https://i.imgtc.com/1Zee4RA.png',            # S
+        'Salt And Light': 'https://i.imgtc.com/1Zee4RA.png',            # S
         'Mahisha': 'https://i.imgtc.com/BCwWHco.png',                   # A
         'Luminare': 'https://i.imgtc.com/BCwWHco.png',                  # A
         'Kiwa': 'https://i.imgtc.com/ANGgY98.png',                      # B
@@ -38,14 +38,14 @@ class Hunts(commands.Cog):
         'Orcus': 'https://i.imgtc.com/1LrMJ9l.png',                     # A
         'Erle': 'https://i.imgtc.com/1LrMJ9l.png',                      # A
         'Oezulem': 'https://i.imgtc.com/dIuffN3.png',                   # B
-        'Shadow-dweller Yamini': 'https://i.imgtc.com/dIuffN3.png',     # B
+        'Shadow-Dweller Yamini': 'https://i.imgtc.com/dIuffN3.png',     # B
 
         # The Peaks
         'Bone Crawler': 'https://i.imgtc.com/qIYyQpr.png',              # S
         'Vochstein': 'https://i.imgtc.com/x3CqhLq.png',                 # A
         'Aqrabuamelu': 'https://i.imgtc.com/x3CqhLq.png',               # A
         'Buccaboo': 'https://i.imgtc.com/srFwFdZ.png',                  # B
-        'Gwas-y-neidr': 'https://i.imgtc.com/srFwFdZ.png',              # B
+        'Gwas-Y-Neidr': 'https://i.imgtc.com/srFwFdZ.png',              # B
 
         # The Azim Steppe
         'Orghana': 'https://i.imgtc.com/tzrfRth.png',                   # S
@@ -84,12 +84,12 @@ class Hunts(commands.Cog):
         Return information on the specified hunt target
         """
         for _id, mark in self.marks_info.items():
-            if name == mark['Name']:
+            if name.lstrip().rstrip().lower() == mark['Name'].lower():
                 embed = discord.Embed(title=mark['Name'], description=f"""Rank {mark['Rank']}""")
                 embed.set_thumbnail(url=mark['Image'])
 
-                if name in self.MAPS:
-                    embed.set_image(url=self.MAPS[name])
+                if name.title() in self.MAPS:
+                    embed.set_image(url=self.MAPS[name.title()])
 
                 if mark['Rank'] == 'A':
                     embed.colour = self.COLOR_A
@@ -119,6 +119,7 @@ class Hunts(commands.Cog):
         """
         # Make sure the world is properly formatted
         world = world.lstrip().rstrip().lower().title()
+        hunt_name = hunt_name.lstrip().rstrip().lower()
 
         try:
             horus, xivhunt = self.hunt_manager.get(world, hunt_name)
@@ -152,6 +153,22 @@ class Hunts(commands.Cog):
             embed.add_field(name='Coords', value=xivhunt['coords'])
 
         await ctx.send(embed=embed)
+
+    @commands.command()
+    async def sub(self, ctx: commands.context.Context, world: str, category: str):
+        """
+        Subscribe the channel to hunt events
+        Allowed categories: SB_A, SB_S, HW_A, HW_S, ARR_A, ARR_S
+        """
+        await self.hunt_manager.subscribe(ctx.channel.id, world, category)
+
+    @commands.command()
+    async def unsub(self, ctx: commands.context.Context, world: str, category: str):
+        """
+        Subscribe the channel to hunt events
+        Allowed categories: SB_A, SB_S, HW_A, HW_S, ARR_A, ARR_S
+        """
+        await self.hunt_manager.unsubscribe(ctx.channel.id, world, category)
 
     # @commands.command()
     # async def status(self, ctx: commands.context.Context, world: str, *, name: str):

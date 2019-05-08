@@ -60,6 +60,7 @@ class HuntManager:
             # Look for updated Horus entries
             for name, hunt in horus.items():  # type: str, HorusHunt
                 if name in self._hunts[world]['horus'] and hunt.status != self._hunts[world]['horus'][name].status:
+                    print(f"""Hunt status for {hunt.name} on {world} changed - {self._hunts[world]['horus'][name].status.title()} => {hunt.status.title()}""")
                     self._changed[world][name] = hunt
 
             # Check and see if hunts have been found on XIVHunt
@@ -67,55 +68,74 @@ class HuntManager:
                 if name in self._hunts[world]['xivhunt'] and hunt['status'] == 'seen':
                     # First time seeing this hunt?
                     if self._hunts[world]['xivhunt'][name]['status'] != 'seen':
-                        self._log.info(f"""Hunt seen for the first time! {hunt['name']} on {world}""")
+                        print(f"""Hunt seen for the first time! {name.title()} on {world}""")
                         self._found[world][name] = hunt
 
             self._hunts[world]['xivhunt'] = xivhunt
             self._hunts[world]['horus']   = horus
 
-    def subscribe(self, channel: int, world: str, subscription: str):
+    async def subscribe(self, channel: int, world: str, subscription: str):
+        world = world.lstrip().rstrip().lower().title()
+        if world not in self.WORLDS:
+            await self.bot.get_channel(channel).send(
+                "No world by that name found on the Crystal DC - please check your spelling and try again"
+            )
+            return
+
         if channel not in self._subscriptions:
             self._subscriptions[channel] = {}
 
         if world not in self._subscriptions[channel]:
             self._subscriptions[channel][world] = []
 
-        sub = getattr(self, f"""SUB_{subscription.upper()}""")
-        if sub is None:
-            self.bot.get_channel(channel).send(
+        try:
+            sub = getattr(self, f"""SUB_{subscription.upper()}""")
+        except AttributeError:
+            await self.bot.get_channel(channel).send(
                 "Invalid subscription provided, valid subscriptions are: sb_a, sb_s, hw_a, hw_s, arr_a, arr_s"
             )
             return
 
         if sub in self._subscriptions[channel][world]:
-            self.bot.get_channel(channel).send(
+            await self.bot.get_channel(channel).send(
                 "This channel is already subscribed to this feed. If you want unsubscribe, use the unsub command"
             )
             return
 
         self._subscriptions[channel][world].append(sub)
-        self.bot.get_channel(channel).send(f"""Subscribed channel to {str(sub).replace('_', ' ').title()} hunts""")
+        await self.bot.get_channel(channel).send(f"""Subscribed channel to {str(sub).replace('_', ' ').title()} rank hunts""")
         self._save_config()
 
-    def unsubscribe(self, channel: int, world: str, subscription: str):
+    async def unsubscribe(self, channel: int, world: str, subscription: str):
+        if world not in self.WORLDS:
+            await self.bot.get_channel(channel).send(
+                "No world by that name found on the Crystal DC - please check your spelling and try again"
+            )
+            return
+
         if channel not in self._subscriptions or world not in self._subscriptions[channel]:
-            self.bot.get_channel(channel).send(
+            await self.bot.get_channel(channel).send(
                 "No subscriptions have been specified for this channel"
             )
             return
 
-        sub = getattr(self, f"""SUB_{subscription.upper()}""")
-        if sub is None:
-            self.bot.get_channel(channel).send(
+        try:
+            sub = getattr(self, f"""SUB_{subscription.upper()}""")
+        except AttributeError:
+            await self.bot.get_channel(channel).send(
                 "Invalid subscription provided, valid subscriptions are: sb_a, sb_s, hw_a, hw_s, arr_a, arr_s"
             )
             return
 
         if sub not in self._subscriptions[channel][world]:
-            self.bot.get_channel(channel).send(
+            await self.bot.get_channel(channel).send(
                 "This channel is not subscribed to that feed"
             )
             return
+
+        del self._subscriptions[channel][world][sub]
+        await self.bot.get_channel(channel).send(f"""Unsubscribed channel from {str(sub).replace('_', ' ').title()} rank hunts""")
+        self._save_config()
 
     def _load_config(self):
         pass
@@ -123,5 +143,5 @@ class HuntManager:
             self._subscriptions = json.load(json_file)
 
     def _save_config(self):
-        with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'subscriptions.json')) as json_file:
+        with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'subscriptions.json'), 'w') as json_file:
             json_file.write(json.dumps(self._subscriptions))

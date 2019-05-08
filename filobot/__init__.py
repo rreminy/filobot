@@ -1,13 +1,8 @@
-import os
-import sys
-
-import discord
+import asyncio
 import logging
 import typing
-
 from configparser import ConfigParser
 from discord.ext import commands
-from discord.ext.commands import CommandError
 from filobot.Commands import Hunts
 from filobot.utilities.manager import HuntManager
 
@@ -28,14 +23,9 @@ ch.setFormatter(logFormat)
 
 log.addHandler(ch)
 
-# if not os.path.isfile(db_path):
-#     log.info('Creating new database')
-#     db.create_tables([DiscordUser, Actions])
-
 bot = commands.Bot(command_prefix='f.')
-bot.add_cog(Hunts(bot, HuntManager(bot)))
-# bot.add_cog(Utility(bot, config))
-# bot.add_cog(Reactions(bot, config))
+hunt_manager = HuntManager(bot)
+bot.add_cog(Hunts(bot, hunt_manager))
 
 
 @bot.event
@@ -45,3 +35,12 @@ async def on_ready():
     print('Filo is ready for action!')
     print('------')
 
+
+async def update_hunts():
+    await bot.wait_until_ready()
+
+    while not bot.is_closed():
+        hunt_manager.recheck()
+        await asyncio.sleep(15.0)
+
+bot.loop.create_task(update_hunts())

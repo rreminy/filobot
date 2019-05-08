@@ -95,6 +95,7 @@ class XivHunt:
         if world not in self.WORLDS:
             raise LookupError(f"""World {world} does not exist""")
 
+        self._log.info(f"""Querying XIVHunt for hunts on world {world}""")
         page = urllib.request.urlopen(self.WORLDS[world])
         soup = BeautifulSoup(page, 'html.parser')
 
@@ -139,7 +140,7 @@ class XivHunt:
 
                 last_seen, coords = match[0]
 
-            hunts[name] = {
+            hunts[name.lstrip().rstrip().lower()] = {
                 'rank': rank,
                 'status': status,
                 'last_seen': last_seen,

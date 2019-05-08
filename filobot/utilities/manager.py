@@ -32,7 +32,7 @@ class HuntManager:
 
     SB_ZONES = ('The Ruby Sea', 'Yanxia', 'The Azim Steppe', 'The Fringes', 'The Peaks', 'The Lochs')
 
-    WORLDS = ('Any', 'Balmung', 'Brynhildr', 'Coeurl', 'Diabolos', 'Goblin', 'Malboro', 'Mateus', 'Zalera')
+    WORLDS = ('Balmung', 'Brynhildr', 'Coeurl', 'Diabolos', 'Goblin', 'Malboro', 'Mateus', 'Zalera')
 
     COND_DEAD = 'deaths'
     COND_OPEN = 'openings'
@@ -151,6 +151,51 @@ class HuntManager:
 
         self._subscriptions[channel][world][sub] = conditions
         await self.bot.get_channel(channel).send(f"""Subscribed channel to {str(sub).replace('_', ' ').title()}-Rank hunts on {world}""")
+        self._save_config()
+
+    async def subscribe_all(self, channel: int, subscription: str, conditions: typing.Optional[str] = 'all'):
+        """
+        Subscribe a channel to hunt events on all worlds
+        """
+        # Validate subscription channel
+        try:
+            sub = getattr(self, f"""SUB_{subscription.upper()}""")
+        except AttributeError:
+            await self.bot.get_channel(channel).send(
+                "Invalid subscription provided, valid subscriptions are: sb_a, sb_s, hw_a, hw_s, arr_a, arr_s"
+            )
+            return
+
+        # Validate conditions
+        if conditions == 'all':
+            conditions = list(self.CONDITIONS)
+        else:
+            conditions = conditions.replace(' ', '').split(',')
+            _invalid_conditions = set(conditions) - set(self.CONDITIONS)
+            if _invalid_conditions:
+                await self.bot.get_channel(channel).send(
+                        "Invalid conditions supplied: " + str(_invalid_conditions)
+                )
+                return
+
+        # Init our channel/world if needed
+        if channel not in self._subscriptions:
+            self._subscriptions[channel] = {}
+
+        for world in self.WORLDS:
+            if world not in self._subscriptions[channel]:
+                self._subscriptions[channel][world] = {}
+
+            # Already subscribed? Overwrite it
+            if sub in self._subscriptions[channel][world]:
+                self._log.warning(f"""Overwriting subscriptions for {world} on channel {channel}""")
+                del self._subscriptions[channel][world][sub]
+
+            self._subscriptions[channel][world][sub] = conditions
+
+        await self.bot.get_channel(channel).send(
+            f"""Subscribed channel to {str(sub).replace('_', ' ').title()}-Rank hunts on **all worlds**"""
+        )
         self._save_config()
 
     async def unsubscribe(self, channel: int, world: str, subscription: str):

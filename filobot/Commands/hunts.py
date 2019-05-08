@@ -70,6 +70,15 @@ class Hunts(commands.Cog):
         """
         await self.hunt_manager.subscribe(ctx.channel.id, world, category, conditions)
 
+    @commands.command(name='sub-all')
+    async def sub_all(self, ctx: commands.context.Context, category: str, *, conditions: typing.Optional[str] = 'all'):
+        """
+        Subscribe the channel to hunt events on ALL Crystal DC worlds
+        Allowed categories: SB_A, SB_S, HW_A, HW_S, ARR_A, ARR_S
+        Allowed conditions: FINDS, DEATHS, OPENINGS
+        """
+        await self.hunt_manager.subscribe_all(ctx.channel.id, category, conditions)
+
     @commands.command()
     async def unsub(self, ctx: commands.context.Context, world: str, category: str):
         """

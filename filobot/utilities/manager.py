@@ -97,7 +97,7 @@ class HuntManager:
                     if self._hunts[world]['xivhunt'][name]['status'] != 'seen':
                         print(f"""Hunt seen for the first time! {name.title()} on {world}""")
                         self._found[world][name] = hunt
-                        await self.on_find(world, hunt)
+                        await self.on_find(world, name, hunt)
 
             self._hunts[world]['xivhunt'] = xivhunt
             self._hunts[world]['horus']   = horus
@@ -253,6 +253,9 @@ class HuntManager:
         self._save_config()
 
     async def on_change(self, world: str, old: HorusHunt, new: HorusHunt):
+        """
+        Hunt status change event handler
+        """
         for channel_id, subs in self._subscriptions.items():
             for _world, sub in subs.items():
                 if _world != world:
@@ -264,19 +267,34 @@ class HuntManager:
                     embed = hunt_embed(new.name, new)
 
                     if new.status == new.STATUS_OPENED and self.COND_OPEN in sub_conditions:
-                        await self.bot.get_channel(channel_id).send(f"""A hunt has opened on {world}!""", embed=embed)
+                        await self.bot.get_channel(channel_id).send(f"""A hunt has opened on **{world}**!""", embed=embed)
                         break
 
                     if new.status == new.STATUS_MAXED and self.COND_OPEN in sub_conditions:
-                        await self.bot.get_channel(channel_id).send(f"""A hunts maximum spawn window has been reached on {world}!""", embed=embed)
+                        await self.bot.get_channel(channel_id).send(f"""A hunts maximum spawn window has been reached on **{world}**!""", embed=embed)
                         break
 
                     if new.status == new.STATUS_DIED and self.COND_DEAD in sub_conditions:
-                        await self.bot.get_channel(channel_id).send(f"""A hunt has died on {world}!""", embed=embed)
+                        await self.bot.get_channel(channel_id).send(f"""A hunt has died on **{world}**!""", embed=embed)
                         break
 
-    async def on_find(self, world: str, hunt: dict):
-        pass
+    async def on_find(self, world: str, name: str, xivhunt: dict):
+        """
+        Hunt found event handler
+        """
+        for channel_id, subs in self._subscriptions.items():
+            for _world, sub in subs.items():
+                if _world != world:
+                    continue
+
+                hunt = self._marks_info[name.lower()]
+                if hunt['Channel'] in sub:
+                    sub_conditions = sub[hunt['Channel']]
+                    embed = hunt_embed(name, xivhunt=xivhunt)
+
+                    if self.COND_FIND in sub_conditions:
+                        await self.bot.get_channel(channel_id).send(f"""A hunt has been found on **{world}**!""", embed=embed)
+                        break
 
     def _load_config(self):
         """

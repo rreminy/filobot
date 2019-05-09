@@ -2,18 +2,12 @@ import json
 import os
 import logging
 import sys
-import time
-import arrow
 import discord
 import typing
 
-from configparser import ConfigParser
 from discord.ext import commands
-
 from filobot.utilities import hunt_embed
-from filobot.utilities.horus import Horus, HorusHunt
 from filobot.utilities.manager import HuntManager
-from filobot.utilities.xivhunt import XivHunt
 
 
 class Hunts(commands.Cog):
@@ -62,6 +56,7 @@ class Hunts(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command()
+    @commands.has_permissions(administrator=True)
     async def sub(self, ctx: commands.context.Context, world: str, category: str, *, conditions: typing.Optional[str] = 'all'):
         """
         Subscribe the channel to hunt events
@@ -71,6 +66,7 @@ class Hunts(commands.Cog):
         await self.hunt_manager.subscribe(ctx.channel.id, world, category, conditions)
 
     @commands.command(name='sub-all')
+    @commands.has_permissions(administrator=True)
     async def sub_all(self, ctx: commands.context.Context, category: str, *, conditions: typing.Optional[str] = 'all'):
         """
         Subscribe the channel to hunt events on ALL Crystal DC worlds
@@ -80,6 +76,7 @@ class Hunts(commands.Cog):
         await self.hunt_manager.subscribe_all(ctx.channel.id, category, conditions)
 
     @commands.command()
+    @commands.has_permissions(administrator=True)
     async def unsub(self, ctx: commands.context.Context, world: str, category: str):
         """
         Subscribe the channel to hunt events
@@ -88,6 +85,7 @@ class Hunts(commands.Cog):
         await self.hunt_manager.unsubscribe(ctx.channel.id, world, category)
 
     @commands.command(name='sub-list')
+    @commands.has_permissions(administrator=True)
     async def sub_list(self, ctx: commands.context.Context):
         """
         List all enabled subscriptions for this channel
@@ -104,6 +102,7 @@ class Hunts(commands.Cog):
         await ctx.send('```' + str(subs) + '```')
 
     @commands.command(name='sub-clear')
+    @commands.has_permissions(administrator=True)
     async def sub_clear(self, ctx: commands.context.Context):
         """
         Clear all enabled subscriptions for this channel

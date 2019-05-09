@@ -6,7 +6,6 @@ import typing
 import yaml
 
 from discord.ext.commands import Bot
-
 from filobot.utilities import hunt_embed
 from filobot.utilities.horus import HorusHunt
 from .xivhunt import XivHunt

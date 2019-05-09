@@ -1,6 +1,5 @@
 import asyncio
 import logging
-import typing
 from configparser import ConfigParser
 from discord.ext import commands
 from filobot.Commands import Hunts
@@ -36,11 +35,15 @@ async def on_ready():
     print('------')
 
 
+# noinspection PyBroadException
 async def update_hunts():
     await bot.wait_until_ready()
 
     while not bot.is_closed():
-        hunt_manager.recheck()
+        try:
+            await hunt_manager.recheck()
+        except Exception:
+            log.exception('Exception thrown while reloading hunts')
         await asyncio.sleep(15.0)
 
 bot.loop.create_task(update_hunts())

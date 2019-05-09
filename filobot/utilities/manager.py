@@ -3,6 +3,8 @@ import logging
 import os
 import sys
 import typing
+
+import discord
 import yaml
 
 from discord.ext.commands import Bot
@@ -54,6 +56,9 @@ class HuntManager:
         self._hunts = {}
         self._changed = {}
         self._found = {}
+
+        # Logged notifications for editing later
+        self._notifications = {}
 
     def get(self, world: str, hunt_name: str) -> typing.Tuple[HorusHunt, dict]:
         """
@@ -264,16 +269,23 @@ class HuntManager:
                 if hunt['Channel'] in sub:
                     sub_conditions = sub[hunt['Channel']]
                     embed = hunt_embed(new.name, new)
+                    notification = self.get_notification(channel_id, world, new.name)
 
                     if new.status == new.STATUS_OPENED and self.COND_OPEN in sub_conditions:
                         await self.bot.get_channel(channel_id).send(f"""A hunt has opened on **{world}**!""", embed=embed)
                         break
 
-                    if new.status == new.STATUS_MAXED and self.COND_OPEN in sub_conditions:
+                    if new.status == new.STATUS_MAXED and self.COND_OPEN in sub_conditions and notification is None:
                         await self.bot.get_channel(channel_id).send(f"""A hunts maximum spawn window has been reached on **{world}**!""", embed=embed)
                         break
 
                     if new.status == new.STATUS_DIED and self.COND_DEAD in sub_conditions:
+                        # If we previously sent a notification that the hunt was found, edit that message instead of
+                        # sending a new one
+                        if notification:
+                            notification.edit(f"""A scouted hunt has died on **{world}**!""", embed=embed)
+                            break
+
                         await self.bot.get_channel(channel_id).send(f"""A hunt has died on **{world}**!""", embed=embed)
                         break
 
@@ -287,13 +299,45 @@ class HuntManager:
                     continue
 
                 hunt = self._marks_info[name.lower()]
+                if hunt['Rank'] not in ('A', 'S'):
+                    self._log.debug(f"""Ignoring notifications for {hunt['Rank']} rank hunts""")
+                    break
+
                 if hunt['Channel'] in sub:
                     sub_conditions = sub[hunt['Channel']]
                     embed = hunt_embed(name, xivhunt=xivhunt)
 
                     if self.COND_FIND in sub_conditions:
-                        await self.bot.get_channel(channel_id).send(f"""A hunt has been found on **{world}**!""", embed=embed)
+                        message = await self.bot.get_channel(channel_id).send(f"""A hunt has been found on **{world}**!""", embed=embed)
+                        await self.log_notification(message, channel_id, world, name)
                         break
+
+    async def log_notification(self, message: discord.Message, channel: int, world: str, hunt_name: str) -> None:
+        """
+        Log a hunt found notification for editing later
+        """
+        hunt_name = hunt_name.lower()
+        if channel not in self._notifications:
+            self._notifications[channel] = {}
+        if world not in self._notifications[channel]:
+            self._notifications[channel][world] = {}
+
+        self._notifications[channel][world][hunt_name] = message
+        self._log.debug("Notification message logged: " + repr(message))
+
+    async def get_notification(self, channel: int, world: str, hunt_name: str) -> typing.Optional[discord.Message]:
+        """
+        Attempt to retrieve a notification message for a previously located hunt
+        NOTE: Notifications are automatically purged after retrieved using this method
+        """
+        hunt_name = hunt_name.lower()
+        if channel not in self._notifications or world not in self._notifications[channel]:
+            return None
+
+        if hunt_name in self._notifications[channel][world]:
+            message = self._notifications[channel][world][hunt_name]
+            del self._notifications[channel][world][hunt_name]
+            return message
 
     def _load_config(self):
         """

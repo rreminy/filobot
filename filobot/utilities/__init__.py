@@ -89,8 +89,10 @@ def hunt_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: typing.Op
                 if mark['Tips']:
                     embed.add_field(name='Tips', value=mark['Tips'])
 
-                if hunt_name.title() in MAPS:
-                    embed.set_image(url=MAPS[hunt_name.title()])
+                # Don't show the map if the hunt location has already been found
+                if xivhunt is None or not xivhunt['coords']:
+                    if hunt_name.title() in MAPS:
+                        embed.set_image(url=MAPS[hunt_name.title()])
 
             if horus is not None:
                 # Horus status based color-coding

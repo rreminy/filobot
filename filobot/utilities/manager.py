@@ -57,6 +57,9 @@ class HuntManager:
         self._changed = {}
         self._found = {}
 
+        # Callbacks
+        self._recheck_cbs = []
+
         # Logged notifications for editing later
         self._notifications = {}
 
@@ -75,9 +78,6 @@ class HuntManager:
         Calls on_change and on_find events respectively
         """
         for world in self.WORLDS:
-            if world == 'Any':
-                continue
-
             if world not in self._hunts:
                 self._hunts[world] = {'horus': {}, 'xivhunt': []}
 
@@ -105,6 +105,18 @@ class HuntManager:
 
             self._hunts[world]['xivhunt'] = xivhunt
             self._hunts[world]['horus']   = horus
+            await self.on_recheck(world, horus, xivhunt)
+
+    async def on_recheck(self, world: str, horus: HorusHunt, xivhunt: dict):
+        for callback in self._recheck_cbs:
+            await callback(world, horus, xivhunt)
+
+    def add_recheck_cb(self, callback: typing.Callable):
+        if callback in self._recheck_cbs:
+            self._log.warning('Callback already defined: ' + repr(callback))
+            return
+
+        self._recheck_cbs.append(callback)
 
     async def subscribe(self, channel: int, world: str, subscription: str, conditions: typing.Optional[str] = 'all'):
         """

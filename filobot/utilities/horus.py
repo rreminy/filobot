@@ -16,9 +16,6 @@ class Horus:
         with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'marks_info.json')) as json_file:
             self.marks_info = json.load(json_file)
 
-        # with open('data\\marks_info.json') as json_file:
-        #     self.marks_info = json.load(json_file)
-
         self._cached_response = None
         self._cached_time = time.time()
 

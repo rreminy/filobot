@@ -269,7 +269,7 @@ class HuntManager:
                 if hunt['Channel'] in sub:
                     sub_conditions = sub[hunt['Channel']]
                     embed = hunt_embed(new.name, new)
-                    notification = self.get_notification(channel_id, world, new.name)
+                    notification = await self.get_notification(channel_id, world, new.name)
 
                     if new.status == new.STATUS_OPENED and self.COND_OPEN in sub_conditions:
                         await self.bot.get_channel(channel_id).send(f"""A hunt has opened on **{world}**!""", embed=embed)
@@ -283,7 +283,7 @@ class HuntManager:
                         # If we previously sent a notification that the hunt was found, edit that message instead of
                         # sending a new one
                         if notification:
-                            notification.edit(f"""A scouted hunt has died on **{world}**!""", embed=embed)
+                            await notification.edit(content=f"""A scouted hunt has died on **{world}**!""", embed=embed)
                             break
 
                         await self.bot.get_channel(channel_id).send(f"""A hunt has died on **{world}**!""", embed=embed)

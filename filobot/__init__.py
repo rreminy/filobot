@@ -3,6 +3,7 @@ import logging
 from configparser import ConfigParser
 from discord.ext import commands
 from filobot.Commands import Hunts
+from filobot.Commands.admin import Admin
 from filobot.utilities.manager import HuntManager
 
 # Load our configuration
@@ -25,6 +26,7 @@ log.addHandler(ch)
 bot = commands.Bot(command_prefix='f.')
 hunt_manager = HuntManager(bot)
 bot.add_cog(Hunts(bot, hunt_manager))
+bot.add_cog(Admin(bot))
 
 
 @bot.event

@@ -114,6 +114,8 @@ def hunt_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: typing.Op
                     embed.set_footer(text=footer)
 
             if xivhunt is not None and xivhunt['coords']:
+                embed.colour = COLOR_OPEN
+
                 # Parse the time in a human friendly format
                 hours, minutes = xivhunt['last_seen'].split(':')
                 seconds = (int(hours) * 3600) + (int(minutes) * 60)

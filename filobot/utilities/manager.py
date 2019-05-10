@@ -118,6 +118,24 @@ class HuntManager:
 
         self._recheck_cbs.append(callback)
 
+    async def set_notifier(self, channel: int, role: discord.Role) -> None:
+        # Init our channel/world if needed
+        if channel not in self._subscriptions:
+            self._subscriptions[channel] = {}
+
+        self._subscriptions[channel]['_notifier'] = role.mention
+        self._save_config()
+
+    async def remove_notifier(self, channel: int) -> None:
+        # Init our channel/world if needed
+        if channel not in self._subscriptions:
+            self._subscriptions[channel] = {}
+
+        if '_notifier' in self._subscriptions[channel]:
+            del self._subscriptions[channel]['_notifier']
+
+        self._save_config()
+
     async def subscribe(self, channel: int, world: str, subscription: str, conditions: typing.Optional[str] = 'all'):
         """
         Subscribe a channel to hunt events
@@ -306,6 +324,8 @@ class HuntManager:
         Hunt found event handler
         """
         for channel_id, subs in self._subscriptions.items():
+            role_mention = subs['_notifier'] if '_notifier' in subs else None
+
             for _world, sub in subs.items():
                 if _world != world:
                     continue
@@ -320,7 +340,10 @@ class HuntManager:
                     embed = hunt_embed(name, xivhunt=xivhunt)
 
                     if self.COND_FIND in sub_conditions:
-                        message = await self.bot.get_channel(channel_id).send(f"""A hunt has been found on **{world}**!""", embed=embed)
+                        content = f"""A hunt has been found on **{world}**!"""
+                        if role_mention:
+                            content = f"""{role_mention} {content}"""
+                        message = await self.bot.get_channel(channel_id).send(content, embed=embed)
                         await self.log_notification(message, channel_id, world, name)
                         break
 

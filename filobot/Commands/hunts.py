@@ -57,6 +57,20 @@ class Hunts(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(administrator=True)
+    async def notify(self, ctx: commands.context.Context, role: typing.Optional[discord.Role]):
+        """
+        Adds a role to mention when hunts are found in this channel
+        """
+        if not role:
+            await self.hunt_manager.remove_notifier(ctx.channel.id)
+            await ctx.send("Channel notifier cleared")
+            return
+
+        await self.hunt_manager.set_notifier(ctx.channel.id, role)
+        await ctx.send("Members of this role will now be notified whenever a new hunt is found. To undo this, run the notify command again without any arguments")
+
+    @commands.command()
+    @commands.has_permissions(administrator=True)
     async def sub(self, ctx: commands.context.Context, world: str, category: str, *, conditions: typing.Optional[str] = 'all'):
         """
         Subscribe the channel to hunt events

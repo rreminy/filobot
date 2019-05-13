@@ -7,7 +7,7 @@ import discord
 from discord.ext import commands
 from filobot.Commands import Hunts
 from filobot.Commands.admin import Admin
-from filobot.Commands.tracker import Tracker
+from filobot.Commands.scouting import Scouting
 from filobot.utilities.manager import HuntManager
 
 # Load our configuration
@@ -30,11 +30,11 @@ log.addHandler(ch)
 bot = commands.Bot(command_prefix='f.')
 hunt_manager = HuntManager(bot)
 bot.add_cog(Hunts(bot, hunt_manager))
-bot.add_cog(Tracker(bot, hunt_manager))
+bot.add_cog(Scouting(bot, hunt_manager))
 bot.add_cog(Admin(bot))
 
 
-GAMES = ("with moogles", "in Totomo Omo's estate", "in the Izakaya Pub", "pranks on Joel Cleveland", "with the hunt tracker")
+GAMES = ("with moogles", "in Totomo Omo's estate", "in the Izakaya Pub", "pranks on Joel Cleveland'", "with the hunt tracker")
 
 
 @bot.event
@@ -61,8 +61,11 @@ async def update_game():
     await bot.wait_until_ready()
 
     while not bot.is_closed():
-        game = random.choice(GAMES)
-        await bot.change_presence(activity=discord.Game(name=game))
+        try:
+            game = random.choice(GAMES)
+            await bot.change_presence(activity=discord.Game(name=game))
+        except Exception:
+            log.exception('Exception thrown while changing game status')
         await asyncio.sleep(60.0)
 
 bot.loop.create_task(update_hunts())

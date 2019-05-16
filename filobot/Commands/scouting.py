@@ -1,0 +1,146 @@
+import os
+import logging
+import re
+import sys
+import arrow
+import pystache
+import discord
+import typing
+
+from discord.ext import commands
+from filobot.utilities import hunt_embed
+from filobot.utilities.horus import HorusHunt
+from filobot.utilities.manager import HuntManager
+
+
+class Scouting(commands.Cog):
+
+    _message: typing.Optional[discord.Message]
+
+    HUNTS = {
+        'erle': {'loc': None, 'scout': None},
+        'orcus': {'loc': None, 'scout': None},
+
+        'aqrabuamelu': {'loc': None, 'scout': None},
+        'vochstein': {'loc': None, 'scout': None},
+
+        'luminare': {'loc': None, 'scout': None},
+        'mahisha': {'loc': None, 'scout': None},
+
+
+        'funa yurei': {'loc': None, 'scout': None},
+        'oni yumemi': {'loc': None, 'scout': None},
+
+        'angada': {'loc': None, 'scout': None},
+        'gajasura': {'loc': None, 'scout': None},
+
+        'girimekhala': {'loc': None, 'scout': None},
+        'sum': {'loc': None, 'scout': None},
+    }
+
+    ALIASES = [('aqra', 'aqrabuamelu'), ('voch', 'vochstein'), ('lumi', 'luminare'), ('mahi', 'mahisha'),
+               ('funa', 'funa yurei'), ('oni', 'oni yumemi'), ('anga', 'angada'), ('gaja', 'gajasura'),
+               ('giri', 'girimekhala')]
+
+    # _RE = re.compile(r"^(?P<hunt>[\w\s]+)\s+[^\w\s]+\s*\W?(?P<zone>[\w\s]+)\s(?P<coords>\([^\\)]+\))(\s+\W*(?P<scout>[\w\s]+))?.*$")
+    _RE = re.compile(r"^(?P<hunt>[a-zA-Z\s]+)\s*\D+(?P<coords>[\d\\.]+\s*,\s*[\d\\.]+)(\s+\W*(?P<scout>[\w\s]+))?")
+
+    def __init__(self, bot: discord.ext.commands.Bot, hunt_manager: HuntManager):
+        self._log = logging.getLogger(__name__)
+        self.bot = bot
+
+        self.hunt_manager = hunt_manager
+        self._hunts = self.HUNTS.copy()
+        self.started = False
+        self._message = None
+
+        with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'scouting.md'), encoding='utf8') as tf:
+            self.template = tf.read()
+
+    @commands.command()
+    async def start(self, ctx: commands.context.Context):
+        """
+        Start a new scouting session
+        """
+        if self.started:
+            await ctx.send("A scouting session has already been started - run **f.cancel** first to start a new session")
+            return
+
+        self._hunts = self.HUNTS.copy()
+        self.started = True
+
+        await ctx.message.delete()
+        self._message = await ctx.send(f"""@here {ctx.author.mention} has started a new scouting session! Please check the Party Finder to join in.\n{self.render()}""")
+
+    @commands.command()
+    async def add(self, ctx: commands.context.Context, *, entry: str):
+        """
+        Add a hunt entry to the scouting list
+        """
+        entry = re.sub(r"Z: \d+\.\d+", '', entry).strip()  # Strip height index from flags
+        match = self._RE.match(entry)
+
+        if not match:
+            await ctx.message.delete()
+            await ctx.send("Unable to parse hunt location — Make sure your hunts are formatted properly. For example..\n```Erle - The Fringes ( 14.5  , 12.4 ) (Scouting Player)```", delete_after=10.0)
+            return
+
+        hunt    = match.group('hunt').lower().strip()
+        coords  = f"""( {match.group('coords')} )"""
+        scout   = match.group('scout') or ctx.author.display_name
+
+        if hunt not in self.HUNTS.keys():
+            # Shortened hunt name?
+            for alias, replacement in self.ALIASES:
+                if hunt == alias:
+                    hunt = replacement
+                    break
+            else:
+                await ctx.message.delete()
+                await ctx.send("Unknown hunt target: " + hunt, delete_after=10.0)
+                return
+
+        # Update hunt entry
+        self._hunts[hunt] = {'loc': coords, 'scout': scout}
+        await ctx.message.delete()
+        await self._message.edit(content=self.render())
+
+    @commands.command()
+    async def end(self, ctx: commands.context.Context):
+        """
+        Cancel a previously initialized scouting session
+        """
+        scouts = set()
+        for hunt in self._hunts.values():
+            if hunt['scout']:
+                scouts.add(hunt['scout'])
+
+        scouts = "\n* ".join(scouts)
+        scouts = f"""\n```markdown\nScouts: \n* {scouts}```""" if scouts else ''
+
+        now = arrow.now().format("MMM Do, H:mma ZZZ")
+        await self._message.edit(content=f"""Scouting concluded **{now}**{scouts}""")
+        self._reset()
+
+        await ctx.message.delete()
+
+    @commands.command()
+    async def cancel(self, ctx: commands.context.Context):
+        """
+        Cancel a previously initialized scouting session
+        """
+        await self._message.delete()
+        self._reset()
+
+        await ctx.message.delete()
+        await ctx.send("Scouting cancelled!", delete_after=5.0)
+
+    def render(self):
+        template = pystache.render(self.template, {'hunts': self._hunts})
+        return f"""{template}\nTo add an entry to this list, use the `f.add` command\n```f.add Erle - The Fringes ( 14.5  , 12.4 )\nf.add Giri -- The Fringes ( 14.5  , 12.4 ) (Scouter Name)```\n\nOnce the train has concluded, use `f.end` to log the time of completion."""
+
+    def _reset(self):
+        self._hunts = self.HUNTS.copy()
+        self.started = False
+        self._message = None
+

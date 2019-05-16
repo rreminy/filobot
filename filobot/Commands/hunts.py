@@ -131,3 +131,11 @@ class Hunts(commands.Cog):
             return
 
         await ctx.send("Subscriptions for this channel have been cleared")
+
+    @commands.command()
+    async def stats(self, ctx: commands.context.Context):
+        """
+        How many hunts has Filo relayed?
+        """
+        a_count, s_count = await self.hunt_manager.count()
+        await ctx.send(f"""I have relayed a total of **{"{:,}".format(a_count)} A-Ranks** and **{"{:,}".format(s_count)} S-Ranks**!""")

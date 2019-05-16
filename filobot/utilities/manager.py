@@ -286,6 +286,22 @@ class HuntManager:
         del self._subscriptions[channel]
         self._save_config()
 
+    async def count(self) -> typing.Tuple[int, int]:
+        """
+        Return the total number of A-Ranks and S-Ranks relayed by Filo
+        """
+        a_count = 0
+        s_count = 0
+
+        for channel_id, subs in self._subscriptions.items():
+            if '_a_count' in subs:
+                a_count = subs['_a_count'] + a_count
+
+            if '_s_count' in subs:
+                s_count = subs['_s_count'] + s_count
+
+        return (a_count, s_count)
+
     async def on_change(self, world: str, old: HorusHunt, new: HorusHunt):
         """
         Hunt status change event handler
@@ -345,6 +361,14 @@ class HuntManager:
                             content = f"""{role_mention} {content}"""
                         message = await self.bot.get_channel(channel_id).send(content, embed=embed)
                         await self.log_notification(message, channel_id, world, name)
+
+                        # Relay counter
+                        _counter_key = f"""_{hunt['Rank'].lower()}_count"""
+                        if _counter_key not in self._subscriptions[channel_id]:
+                            self._subscriptions[channel_id][_counter_key] = 1
+                        else:
+                            self._subscriptions[channel_id][_counter_key] = self._subscriptions[channel_id][_counter_key] + 1
+                        self._save_config()
                         break
 
     async def log_notification(self, message: discord.Message, channel: int, world: str, hunt_name: str) -> None:

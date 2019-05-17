@@ -99,6 +99,7 @@ class Scouting(commands.Cog):
         hunt    = match.group('hunt').lower().strip()
         coords  = f"""( {match.group('coords')} )"""
         scout   = match.group('scout') or ctx.author.display_name
+        scout   = scout[:30]
 
         if hunt not in self.HUNTS.keys():
             # Shortened hunt name?

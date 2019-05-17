@@ -177,7 +177,7 @@ class Scouting(commands.Cog):
             await ctx.send("You cannot restore a previous hunt session when another is already in progress!", delete_after=10.0)
             return
 
-        self._hunts = self._previous_message
+        self._hunts = self._previous_hunts
         self._message = self._previous_message
         self.started = True
 
@@ -230,7 +230,7 @@ class Scouting(commands.Cog):
         """
         self.started = False
 
-        self._previous_hunts = self._hunts
+        self._previous_hunts = self._hunts.copy()
         self._hunts = self.HUNTS.copy()
 
         self._previous_message = self._message

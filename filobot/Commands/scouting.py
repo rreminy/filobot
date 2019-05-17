@@ -59,6 +59,8 @@ class Scouting(commands.Cog):
         self._message = None
         self._previous_message = None
 
+        self._action_logs = []
+
         with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'scouting.md'), encoding='utf8') as tf:
             self.template = tf.read()
 
@@ -73,6 +75,10 @@ class Scouting(commands.Cog):
 
         self._hunts = self.HUNTS.copy()
         self.started = True
+
+        # Log the action
+        _action = f"""{ctx.author.name}#{ctx.author.discriminator} has initialized a new scouting session"""
+        self._log_action(_action)
 
         await ctx.message.delete()
         self._message = await ctx.send(f"""@here {ctx.author.mention} has started a new scouting session! Please check the Party Finder to join in.\n{self.render()}""")
@@ -105,6 +111,10 @@ class Scouting(commands.Cog):
                 await ctx.send("Unknown hunt target: " + hunt, delete_after=10.0)
                 return
 
+        # Log the action
+        _action = f"""{ctx.author.name}#{ctx.author.discriminator} scouted hunt target {hunt.title()} {coords} — {scout}"""
+        self._log_action(_action)
+
         # Update hunt entry
         self._hunts[hunt] = {'loc': coords, 'scout': scout}
         await ctx.message.delete()
@@ -115,6 +125,14 @@ class Scouting(commands.Cog):
         """
         Close an active scouting session and log the completion time
         """
+        if not self.started:
+            await ctx.send("There is no active scouting session to conclude.", delete_after=5.0)
+            return
+
+        # Log the action
+        _action = f"""{ctx.author.name}#{ctx.author.discriminator} has concluded a scouting session"""
+        self._log_action(_action)
+
         scouts = set()
         for hunt in self._hunts.values():
             if hunt['scout']:
@@ -135,7 +153,16 @@ class Scouting(commands.Cog):
         Cancel a previously initialized scouting session
         """
         await self._message.delete()
+
+        if not self.started:
+            await ctx.send("There is no active scouting session to cancel.", delete_after=5.0)
+            return
+
         self._reset()
+
+        # Log the action
+        _action = f"""{ctx.author.name}#{ctx.author.discriminator} has cancelled an active hunting session"""
+        self._log_action(_action)
 
         await ctx.message.delete()
         await ctx.send("Scouting cancelled!", delete_after=5.0)
@@ -154,9 +181,31 @@ class Scouting(commands.Cog):
         self._message = self._previous_message
         self.started = True
 
+        # Log the action
+        _action = f"""{ctx.author.name}#{ctx.author.discriminator} restored a previous scouting session"""
+        self._log_action(_action)
+
         await ctx.message.delete()
         await ctx.send("Scouting restored!", delete_after=5.0)
         await self._message.edit(content=self.render())
+
+    @commands.command()
+    async def logs(self, ctx: commands.context.Context):
+        """
+        Display the scouting action logs
+        """
+        await ctx.message.delete()
+
+        if not self._action_logs:
+            await ctx.send("Not actions have been performed yet!")
+            return
+
+        message = "```markdown\nAction logs:"
+        for action in self._action_logs:
+            message = message + f"""\n* {action}"""
+        message = message + "\n```"
+
+        await ctx.send(message)
 
     def render(self) -> str:
         """
@@ -165,13 +214,25 @@ class Scouting(commands.Cog):
         template = pystache.render(self.template, {'hunts': self._hunts})
         return f"""{template}\nTo add an entry to this list, use the `f.add` command\n```f.add Erle - The Fringes ( 14.5  , 12.4 )\nf.add Giri -- The Fringes ( 14.5  , 12.4 ) (Scouter Name)```\n\nOnce the train has concluded, use `f.end` to log the time of completion."""
 
+    def _log_action(self, action: str):
+        """
+        Log a scouting action
+        """
+        print(action)
+        self._action_logs.append(action)
+
+        if len(self._action_logs) > 15:
+            del self._action_logs[0]
+
     def _reset(self) -> None:
         """
         Reset scouting data after a session has concluded
         """
+        self.started = False
+
         self._previous_hunts = self._hunts
         self._hunts = self.HUNTS.copy()
-        self.started = False
+
         self._previous_message = self._message
         self._message = None
 

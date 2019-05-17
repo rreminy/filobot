@@ -16,6 +16,7 @@ from filobot.utilities.manager import HuntManager
 class Scouting(commands.Cog):
 
     _message: typing.Optional[discord.Message]
+    _previous_message: typing.Optional[discord.Message]
 
     HUNTS = {
         'erle': {'loc': None, 'scout': None},
@@ -48,11 +49,15 @@ class Scouting(commands.Cog):
     def __init__(self, bot: discord.ext.commands.Bot, hunt_manager: HuntManager):
         self._log = logging.getLogger(__name__)
         self.bot = bot
-
         self.hunt_manager = hunt_manager
-        self._hunts = self.HUNTS.copy()
+
         self.started = False
+
+        self._hunts = self.HUNTS.copy()
+        self._previous_hunts = None
+
         self._message = None
+        self._previous_message = None
 
         with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'scouting.md'), encoding='utf8') as tf:
             self.template = tf.read()
@@ -108,7 +113,7 @@ class Scouting(commands.Cog):
     @commands.command()
     async def end(self, ctx: commands.context.Context):
         """
-        Cancel a previously initialized scouting session
+        Close an active scouting session and log the completion time
         """
         scouts = set()
         for hunt in self._hunts.values():
@@ -135,12 +140,38 @@ class Scouting(commands.Cog):
         await ctx.message.delete()
         await ctx.send("Scouting cancelled!", delete_after=5.0)
 
-    def render(self):
+    @commands.command()
+    async def restore(self, ctx: commands.context.Context) -> None:
+        """
+        Restore a previously concluded hunt
+        """
+        if self.started:
+            await self._message.delete()
+            await ctx.send("You cannot restore a previous hunt session when another is already in progress!", delete_after=10.0)
+            return
+
+        self._hunts = self._previous_message
+        self._message = self._previous_message
+        self.started = True
+
+        await ctx.message.delete()
+        await ctx.send("Scouting restored!", delete_after=5.0)
+        await self._message.edit(content=self.render())
+
+    def render(self) -> str:
+        """
+        Render the scouting manager template
+        """
         template = pystache.render(self.template, {'hunts': self._hunts})
         return f"""{template}\nTo add an entry to this list, use the `f.add` command\n```f.add Erle - The Fringes ( 14.5  , 12.4 )\nf.add Giri -- The Fringes ( 14.5  , 12.4 ) (Scouter Name)```\n\nOnce the train has concluded, use `f.end` to log the time of completion."""
 
-    def _reset(self):
+    def _reset(self) -> None:
+        """
+        Reset scouting data after a session has concluded
+        """
+        self._previous_hunts = self._hunts
         self._hunts = self.HUNTS.copy()
         self.started = False
+        self._previous_message = self._message
         self._message = None
 

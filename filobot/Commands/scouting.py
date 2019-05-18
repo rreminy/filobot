@@ -143,7 +143,7 @@ class Scouting(commands.Cog):
         scouts = f"""\n```markdown\nScouts: \n* {scouts}```""" if scouts else ''
 
         now = arrow.now().format("MMM Do, H:mma ZZZ")
-        await self._message.edit(content=f"""Scouting concluded **{now}**{scouts}""")
+        await self._message.edit(content=f"""Hunt session concluded **{now}**{scouts}""")
         self._reset()
 
         await ctx.message.delete()

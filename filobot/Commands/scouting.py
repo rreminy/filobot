@@ -44,7 +44,7 @@ class Scouting(commands.Cog):
                ('giri', 'girimekhala')]
 
     # _RE = re.compile(r"^(?P<hunt>[\w\s]+)\s+[^\w\s]+\s*\W?(?P<zone>[\w\s]+)\s(?P<coords>\([^\\)]+\))(\s+\W*(?P<scout>[\w\s]+))?.*$")
-    _RE = re.compile(r"^(?P<hunt>[a-zA-Z\s]+)\s*\D+(?P<coords>[\d\\.]+\s*,\s*[\d\\.]+)(\s+\W*(?P<scout>[\w\s]+))?")
+    _RE = re.compile(r"^(?P<hunt>[a-zA-Z\s]+)\s*\D+(?P<coords>[\d\\.]+\s*,\s*[\d\\.]+)(\s+\W*(?P<scout>[\w\s']+))?")
 
     def __init__(self, bot: discord.ext.commands.Bot, hunt_manager: HuntManager):
         self._log = logging.getLogger(__name__)

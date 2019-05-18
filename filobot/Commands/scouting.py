@@ -17,6 +17,8 @@ class Scouting(commands.Cog):
 
     _message: typing.Optional[discord.Message]
     _previous_message: typing.Optional[discord.Message]
+    _channel: typing.Optional[discord.TextChannel]
+    _previous_channel: typing.Optional[discord.TextChannel]
 
     HUNTS = {
         'erle': {'loc': None, 'scout': None},
@@ -43,6 +45,8 @@ class Scouting(commands.Cog):
                ('funa', 'funa yurei'), ('oni', 'oni yumemi'), ('anga', 'angada'), ('gaja', 'gajasura'),
                ('giri', 'girimekhala')]
 
+    REFRESH_AFTER = 6  # messages
+
     # _RE = re.compile(r"^(?P<hunt>[\w\s]+)\s+[^\w\s]+\s*\W?(?P<zone>[\w\s]+)\s(?P<coords>\([^\\)]+\))(\s+\W*(?P<scout>[\w\s]+))?.*$")
     _RE = re.compile(r"^(?P<hunt>[a-zA-Z\s]+)\s*\D+(?P<coords>[\d\\.]+\s*,\s*[\d\\.]+)(\s+\W*(?P<scout>[\w\s']+))?")
 
@@ -58,6 +62,11 @@ class Scouting(commands.Cog):
 
         self._message = None
         self._previous_message = None
+        self._channel = None
+        self._previous_channel = None
+
+        # Off-topic banter counter; after self.REFRESH_AFTER messages, the scouting tracker is reposted
+        self._banter_count = 0
 
         self._action_logs = []
 
@@ -75,6 +84,7 @@ class Scouting(commands.Cog):
 
         self._hunts = self.HUNTS.copy()
         self.started = True
+        self._channel = ctx.channel
 
         # Log the action
         _action = f"""{ctx.author.name}#{ctx.author.discriminator} has initialized a new scouting session"""
@@ -180,6 +190,7 @@ class Scouting(commands.Cog):
 
         self._hunts = self._previous_hunts
         self._message = self._previous_message
+        self._channel = self._previous_channel
         self.started = True
 
         # Log the action
@@ -189,6 +200,22 @@ class Scouting(commands.Cog):
         await ctx.message.delete()
         await ctx.send("Scouting restored!", delete_after=5.0)
         await self._message.edit(content=self.render())
+
+    @commands.command()
+    async def refresh(self, ctx: commands.context.Context):
+        """
+        Delete and repost the scouting tracker as the most recent message
+        Forcefully deletes and reposts the scouting tracker in the event it becomes buried in off-topic banter
+        Note: This is normally done automatically after 6 messages
+        """
+        await ctx.message.delete()
+
+        if not self.started:
+            await ctx.send("There's no active scouting session to refresh!", delete_after=10.0)
+            return
+
+        await self._message.delete()
+        self._message = await ctx.send(self.render())
 
     @commands.command()
     async def logs(self, ctx: commands.context.Context):
@@ -207,6 +234,28 @@ class Scouting(commands.Cog):
         message = message + "\n```"
 
         await ctx.send(message)
+
+    @commands.Cog.listener('on_message')
+    async def check_refresh(self, message: discord.message.Message):
+        """
+        Check whether or not the scouting tracker should be automatically refreshed
+        """
+        if not self.started or message.channel.id != self._channel.id:
+            return
+
+        if message.author.id == self.bot.user.id:
+            return
+
+        ctx = await self.bot.get_context(message)
+        if ctx.valid:
+            return
+
+        self._banter_count = self._banter_count + 1
+
+        if self._banter_count > self.REFRESH_AFTER:
+            await self._message.delete()
+            self._message = await ctx.send(self.render())
+            self._banter_count = 0
 
     def render(self) -> str:
         """
@@ -236,4 +285,8 @@ class Scouting(commands.Cog):
 
         self._previous_message = self._message
         self._message = None
+        self._previous_channel = self._channel
+        self._channel = None
+
+        self._banter_count = 0
 

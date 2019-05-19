@@ -3,13 +3,13 @@ import logging
 import os
 import sys
 import typing
-
 import discord
-import yaml
 
 from discord.ext.commands import Bot
 from filobot.utilities import hunt_embed
 from filobot.utilities.horus import HorusHunt
+from filobot.models import Subscriptions, SubscriptionsMeta
+from peewee import fn
 from .xivhunt import XivHunt
 from .horus import Horus
 
@@ -47,8 +47,8 @@ class HuntManager:
         self.xivhunt = XivHunt()
         self.horus = Horus()
 
-        self._subscriptions = {}
-        self._load_config()
+        self._subscriptions = list(Subscriptions.select())
+        self._subscriptions_meta = list(SubscriptionsMeta.select())
 
         self._marks_info = {}
         self._load_marks()
@@ -119,29 +119,39 @@ class HuntManager:
         self._recheck_cbs.append(callback)
 
     async def set_notifier(self, channel: int, role: discord.Role) -> None:
+        """
+        Set channel notifier
+        """
         # Init our channel/world if needed
-        if channel not in self._subscriptions:
-            self._subscriptions[channel] = {}
+        SubscriptionsMeta.delete().where(
+                (SubscriptionsMeta.channel_id == channel)
+                & (SubscriptionsMeta.name == 'notifier')
+        ).execute()
+        SubscriptionsMeta.insert({
+            'channel_id': channel,
+            'name'      : 'notifier',
+            'value'     : role.mention
+        }).execute()
 
-        self._subscriptions[channel]['_notifier'] = role.mention
-        self._save_config()
+        self._reload()
 
     async def remove_notifier(self, channel: int) -> None:
-        # Init our channel/world if needed
-        if channel not in self._subscriptions:
-            self._subscriptions[channel] = {}
+        """
+        Remove notifier from channel
+        """
+        SubscriptionsMeta.delete().where(
+                (SubscriptionsMeta.channel_id == channel)
+                & (SubscriptionsMeta.name == 'notifier')
+        ).execute()
 
-        if '_notifier' in self._subscriptions[channel]:
-            del self._subscriptions[channel]['_notifier']
-
-        self._save_config()
+        self._reload()
 
     async def subscribe(self, channel: int, world: str, subscription: str, conditions: typing.Optional[str] = 'all'):
         """
         Subscribe a channel to hunt events
         """
         # Validate world
-        world = world.lstrip().rstrip().lower().title()
+        world = world.strip().lower().title()
         if world not in self.WORLDS:
             await self.bot.get_channel(channel).send(
                 "No world by that name found on the Crystal DC - please check your spelling and try again"
@@ -169,23 +179,27 @@ class HuntManager:
                 )
                 return
 
-        # Init our channel/world if needed
-        if channel not in self._subscriptions:
-            self._subscriptions[channel] = {}
-
-        if world not in self._subscriptions[channel]:
-            self._subscriptions[channel][world] = {}
-
         # Already subscribed?
-        if sub in self._subscriptions[channel][world]:
+        if Subscriptions.select().where(
+                (Subscriptions.channel_id == channel)
+                & (Subscriptions.world == world)
+                & (Subscriptions.category == sub)
+        ).count():
             await self.bot.get_channel(channel).send(
                 "This channel is already subscribed to this feed. If you want unsubscribe, use the unsub command"
             )
             return
 
-        self._subscriptions[channel][world][sub] = conditions
+        for condition in conditions:
+            Subscriptions.insert({
+                'channel_id': channel,
+                'world'     : world,
+                'category'  : sub,
+                'event'     : condition
+            }).execute()
+
         await self.bot.get_channel(channel).send(f"""Subscribed channel to {str(sub).replace('_', ' ').title()}-Rank hunts on {world}""")
-        self._save_config()
+        self._reload()
 
     async def subscribe_all(self, channel: int, subscription: str, conditions: typing.Optional[str] = 'all'):
         """
@@ -212,40 +226,35 @@ class HuntManager:
                 )
                 return
 
-        # Init our channel/world if needed
-        if channel not in self._subscriptions:
-            self._subscriptions[channel] = {}
-
         for world in self.WORLDS:
-            if world not in self._subscriptions[channel]:
-                self._subscriptions[channel][world] = {}
-
             # Already subscribed? Overwrite it
-            if sub in self._subscriptions[channel][world]:
-                self._log.warning(f"""Overwriting subscriptions for {world} on channel {channel}""")
-                del self._subscriptions[channel][world][sub]
+            Subscriptions.delete().where(
+                    (Subscriptions.channel_id == channel)
+                    & (Subscriptions.world == world)
+                    & (Subscriptions.category == sub)
+            )
 
-            self._subscriptions[channel][world][sub] = conditions
+            for condition in conditions:
+                Subscriptions.insert({
+                    'channel_id': channel,
+                    'world'     : world,
+                    'category'  : sub,
+                    'event'     : condition
+                }).execute()
 
         await self.bot.get_channel(channel).send(
             f"""Subscribed channel to {str(sub).replace('_', ' ').title()}-Rank hunts on **all worlds**"""
         )
-        self._save_config()
+        self._reload()
 
     async def unsubscribe(self, channel: int, world: str, subscription: str):
         """
         Unsubscribe a channel from hunt events
         """
-        world = world.lstrip().rstrip().lower().title()
+        world = world.strip().lower().title()
         if world not in self.WORLDS:
             await self.bot.get_channel(channel).send(
                 "No world by that name found on the Crystal DC - please check your spelling and try again"
-            )
-            return
-
-        if channel not in self._subscriptions or world not in self._subscriptions[channel]:
-            await self.bot.get_channel(channel).send(
-                "No subscriptions have been specified for this channel"
             )
             return
 
@@ -257,48 +266,34 @@ class HuntManager:
             )
             return
 
-        if sub not in self._subscriptions[channel][world]:
-            await self.bot.get_channel(channel).send(
-                "This channel is not subscribed to that feed"
-            )
-            return
+        Subscriptions.delete().where(
+                (Subscriptions.channel_id == channel)
+                & (Subscriptions.world == world)
+                & (Subscriptions.category == sub)
+        ).execute()
 
-        del self._subscriptions[channel][world][sub]
         await self.bot.get_channel(channel).send(f"""Unsubscribed channel from {str(sub).replace('_', ' ').title()}-Rank hunts on {world}""")
-        self._save_config()
+        self._reload()
 
-    async def get_subscriptions(self, channel: int) -> dict:
+    async def get_subscriptions(self, channel: int) -> typing.List[Subscriptions]:
         """
         Get all subscriptions for the specified channel
         """
-        if channel not in self._subscriptions:
-            raise KeyError
-
-        return self._subscriptions[channel]
+        return list(Subscriptions.select().where(Subscriptions.channel_id == channel))
 
     async def clear_subscriptions(self, channel: int) -> None:
         """
         Clear all subscriptions for the specified channel
         """
-        if channel not in self._subscriptions:
-            raise KeyError
-
-        del self._subscriptions[channel]
-        self._save_config()
+        Subscriptions.delete().where(Subscriptions.channel_id == channel).execute()
+        self._reload()
 
     async def count(self) -> typing.Tuple[int, int]:
         """
         Return the total number of A-Ranks and S-Ranks relayed by Filo
         """
-        a_count = 0
-        s_count = 0
-
-        for channel_id, subs in self._subscriptions.items():
-            if '_a_count' in subs:
-                a_count = subs['_a_count'] + a_count
-
-            if '_s_count' in subs:
-                s_count = subs['_s_count'] + s_count
+        a_count = list(SubscriptionsMeta.select(fn.SUM(SubscriptionsMeta.value).alias('total')).where(SubscriptionsMeta.name == 'a_count'))[0].total
+        s_count = list(SubscriptionsMeta.select(fn.SUM(SubscriptionsMeta.value).alias('total')).where(SubscriptionsMeta.name == 's_count'))[0].total
 
         return (a_count, s_count)
 
@@ -306,70 +301,80 @@ class HuntManager:
         """
         Hunt status change event handler
         """
-        for channel_id, subs in self._subscriptions.items():
-            for _world, sub in subs.items():
-                if _world != world:
-                    continue
+        hunt = self._marks_info[old.name.lower()]
+        subs = Subscriptions.select().where(
+                (Subscriptions.world == world)
+                & (Subscriptions.category == hunt['Channel'])
+        )
+        embed = hunt_embed(new.name, new)
 
-                hunt = self._marks_info[old.name.lower()]
-                if hunt['Channel'] in sub:
-                    sub_conditions = sub[hunt['Channel']]
-                    embed = hunt_embed(new.name, new)
-                    notification = await self.get_notification(channel_id, world, new.name)
+        for sub in subs:  # type: Subscriptions
+            print(vars(sub))
+            if new.status == new.STATUS_OPENED and self.COND_OPEN == sub.event:
+                await self.bot.get_channel(sub.channel_id).send(f"""A hunt has opened on **{world}**!""", embed=embed)
+                break
 
-                    if new.status == new.STATUS_OPENED and self.COND_OPEN in sub_conditions:
-                        await self.bot.get_channel(channel_id).send(f"""A hunt has opened on **{world}**!""", embed=embed)
-                        break
+            if new.status == new.STATUS_MAXED and self.COND_OPEN == sub.event:
+                await self.bot.get_channel(sub.channel_id).send(
+                    f"""A hunts maximum spawn window has been reached on **{world}**!""", embed=embed)
+                break
 
-                    if new.status == new.STATUS_MAXED and self.COND_OPEN in sub_conditions and notification is None:
-                        await self.bot.get_channel(channel_id).send(f"""A hunts maximum spawn window has been reached on **{world}**!""", embed=embed)
-                        break
+            if new.status == new.STATUS_DIED and self.COND_DEAD == sub.event:
+                # If we previously sent a notification that the hunt was found, edit that message instead of
+                # sending a new one
+                notification = await self.get_notification(sub.channel_id, world, new.name)
+                if notification:
+                    await notification.edit(content=f"""A scouted hunt has died on **{world}**!""", embed=embed)
+                    break
 
-                    if new.status == new.STATUS_DIED and self.COND_DEAD in sub_conditions:
-                        # If we previously sent a notification that the hunt was found, edit that message instead of
-                        # sending a new one
-                        if notification:
-                            await notification.edit(content=f"""A scouted hunt has died on **{world}**!""", embed=embed)
-                            break
-
-                        await self.bot.get_channel(channel_id).send(f"""A hunt has died on **{world}**!""", embed=embed)
-                        break
+                await self.bot.get_channel(sub.channel_id).send(f"""A hunt has died on **{world}**!""", embed=embed)
+                break
 
     async def on_find(self, world: str, name: str, xivhunt: dict):
         """
         Hunt found event handler
         """
-        for channel_id, subs in self._subscriptions.items():
-            role_mention = subs['_notifier'] if '_notifier' in subs else None
+        hunt = self._marks_info[name.lower()]
+        if hunt['Rank'] not in ('A', 'S'):
+            self._log.debug(f"""Ignoring notifications for {hunt['Rank']} rank hunts""")
+            return
 
-            for _world, sub in subs.items():
-                if _world != world:
-                    continue
+        subs = Subscriptions.select().where(
+                (Subscriptions.world == world)
+                & (Subscriptions.category == hunt['Channel'])
+        )
+        embed = hunt_embed(name, xivhunt=xivhunt)
 
-                hunt = self._marks_info[name.lower()]
-                if hunt['Rank'] not in ('A', 'S'):
-                    self._log.debug(f"""Ignoring notifications for {hunt['Rank']} rank hunts""")
-                    break
+        for sub in subs:  # type: Subscriptions
+            if self.COND_FIND != sub.event:
+                continue
 
-                if hunt['Channel'] in sub:
-                    sub_conditions = sub[hunt['Channel']]
-                    embed = hunt_embed(name, xivhunt=xivhunt)
+            _meta = SubscriptionsMeta.select().where(SubscriptionsMeta.channel_id == sub.channel_id)
+            meta  = {m.name : m.value for m in _meta}
+            role_mention = meta['notifier'] if 'notifier' in meta else None
 
-                    if self.COND_FIND in sub_conditions:
-                        content = f"""A hunt has been found on **{world}**!"""
-                        if role_mention:
-                            content = f"""{role_mention} {content}"""
-                        message = await self.bot.get_channel(channel_id).send(content, embed=embed)
-                        await self.log_notification(message, channel_id, world, name)
+            content = f"""A hunt has been found on **{world}**!"""
+            if role_mention:
+                content = f"""{role_mention} {content}"""
+            message = await self.bot.get_channel(sub.channel_id).send(content, embed=embed)
+            await self.log_notification(message, sub.channel_id, world, name)
 
-                        # Relay counter
-                        _counter_key = f"""_{hunt['Rank'].lower()}_count"""
-                        if _counter_key not in self._subscriptions[channel_id]:
-                            self._subscriptions[channel_id][_counter_key] = 1
-                        else:
-                            self._subscriptions[channel_id][_counter_key] = self._subscriptions[channel_id][_counter_key] + 1
-                        self._save_config()
-                        break
+            # Relay counter
+            _counter_key = f"""{hunt['Rank'].lower()}_count"""
+            if _counter_key not in meta:
+                SubscriptionsMeta.insert({
+                    'channel_id'    : sub.channel_id,
+                    'name'          : _counter_key,
+                    'value'         : 1
+                }).execute()
+            else:
+                SubscriptionsMeta.update({
+                    'value'         : int(meta[_counter_key]) + 1
+                }).where(
+                    (SubscriptionsMeta.channel_id == sub.channel_id)
+                    & (SubscriptionsMeta.name == _counter_key)
+                ).execute()
+            break
 
     async def log_notification(self, message: discord.Message, channel: int, world: str, hunt_name: str) -> None:
         """
@@ -398,21 +403,12 @@ class HuntManager:
             del self._notifications[channel][world][hunt_name]
             return message
 
-    def _load_config(self):
-        """
-        Load saved configuration
-        """
-        with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'subscriptions.yaml')) as cf:
-            self._subscriptions = yaml.load(cf) or {}
-
-        self._log.info('Subscriptions loaded: ' + str(self._subscriptions))
-
-    def _save_config(self):
+    def _reload(self):
         """
         Save configuration changes
         """
-        with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'subscriptions.yaml'), 'w') as cf:
-            cf.write(yaml.dump(self._subscriptions))
+        self._subscriptions = list(Subscriptions.select())
+        self._subscriptions_meta = list(SubscriptionsMeta.select())
 
     def _load_marks(self):
         with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'marks_info.json')) as json_file:

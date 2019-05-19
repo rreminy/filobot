@@ -3,7 +3,8 @@ import logging
 import os
 import sys
 import time
-import urllib.request
+import aiohttp
+import asyncio
 import discord.ext
 
 
@@ -21,7 +22,7 @@ class Horus:
         self._cached_response = None
         self._cached_time = time.time()
 
-    def load(self, world: str):
+    async def load(self, world: str):
         """
         Load Horus data on the specified world
         """
@@ -31,7 +32,9 @@ class Horus:
             crystal = self._cached_response
         else:
             self._log.info('Querying Horus')
-            crystal = json.load(urllib.request.urlopen(self.ENDPOINT))
+            async with aiohttp.ClientSession() as session:
+                page = await self._fetch(session, self.ENDPOINT)
+                crystal = json.loads(page)
             self._cached_response = crystal
             self._cached_time = time.time()
 
@@ -54,6 +57,10 @@ class Horus:
             raise LookupError(f"""ID {id} does not exist""")
 
         return self.marks_info[id]
+
+    async def _fetch(self, session, url):
+        async with session.get(url) as response:
+            return await response.text()
 
 
 class HorusHunt:

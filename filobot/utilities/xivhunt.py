@@ -1,5 +1,7 @@
 import logging
 import re
+import aiohttp
+import asyncio
 import urllib.request
 import bs4
 import discord.ext
@@ -89,7 +91,7 @@ class XivHunt:
         self._log = logging.getLogger(__name__)
         self._bot = bot
 
-    def load(self, world: str):
+    async def load(self, world: str):
         """
         Load XIVHunt data on the specified world
         """
@@ -98,7 +100,9 @@ class XivHunt:
             raise LookupError(f"""World {world} does not exist""")
 
         self._log.info(f"""Querying XIVHunt for hunts on world {world}""")
-        page = urllib.request.urlopen(self.WORLDS[world])
+        async with aiohttp.ClientSession() as session:
+            page = await self._fetch(session, self.WORLDS[world])
+
         soup = BeautifulSoup(page, 'html.parser')
 
         hunts = {}
@@ -150,3 +154,7 @@ class XivHunt:
             }
 
         return hunts
+
+    async def _fetch(self, session, url):
+        async with session.get(url) as response:
+            return await response.text()

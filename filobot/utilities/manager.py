@@ -84,8 +84,8 @@ class HuntManager:
             self._changed[world] = {}
             self._found[world] = {}
 
-            xivhunt = self.xivhunt.load(world)
-            horus   = self.horus.load(world)
+            xivhunt = await self.xivhunt.load(world)
+            horus   = await self.horus.load(world)
 
             # Look for updated Horus entries
             for name, hunt in horus.items():  # type: str, HorusHunt

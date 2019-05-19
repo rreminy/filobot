@@ -2,6 +2,7 @@ import logging
 import re
 import urllib.request
 import bs4
+import discord.ext
 
 from bs4 import BeautifulSoup
 
@@ -84,8 +85,9 @@ class XivHunt:
 
     _RE_SEEN = re.compile(r"(?P<seen>\d+:\d+)<br\s?/>(?P<coords>.+)</span>")
 
-    def __init__(self):
+    def __init__(self, bot: discord.ext.commands.Bot):
         self._log = logging.getLogger(__name__)
+        self._bot = bot
 
     def load(self, world: str):
         """

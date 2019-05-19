@@ -4,14 +4,16 @@ import os
 import sys
 import time
 import urllib.request
+import discord.ext
 
 
 class Horus:
 
     ENDPOINT = 'https://horus-hunts.net/Timers/GetDcTimers/?DC=Crystal'
 
-    def __init__(self):
+    def __init__(self, bot: discord.ext.commands.Bot):
         self._log = logging.getLogger(__name__)
+        self._bot = bot
 
         with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'marks_info.json')) as json_file:
             self.marks_info = json.load(json_file)

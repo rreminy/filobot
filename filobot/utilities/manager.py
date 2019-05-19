@@ -44,8 +44,8 @@ class HuntManager:
         self._log = logging.getLogger(__name__)
         self.bot = bot
 
-        self.xivhunt = XivHunt()
-        self.horus = Horus()
+        self.xivhunt = XivHunt(bot)
+        self.horus = Horus(bot)
 
         self._subscriptions = list(Subscriptions.select())
         self._subscriptions_meta = list(SubscriptionsMeta.select())

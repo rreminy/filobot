@@ -10,7 +10,7 @@ from filobot.Commands import Hunts
 from filobot.Commands.admin import Admin
 from filobot.Commands.scouting import Scouting
 from filobot.utilities.manager import HuntManager
-from filobot.models import db, db_path, Subscriptions, ScoutingSession, ScoutingHunts
+from filobot.models import db, db_path, Subscriptions, SubscriptionsMeta, ScoutingSessions, ScoutingHunts
 
 # Load our configuration
 config = ConfigParser()
@@ -31,7 +31,7 @@ log.addHandler(ch)
 
 if not os.path.isfile(db_path):
     log.info('Creating new database')
-    db.create_tables([Subscriptions, ScoutingSession, ScoutingHunts])
+    db.create_tables([Subscriptions, SubscriptionsMeta, ScoutingSessions, ScoutingHunts])
 
 bot = commands.Bot(command_prefix='f.')
 hunt_manager = HuntManager(bot)

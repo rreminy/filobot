@@ -104,16 +104,19 @@ class Hunts(commands.Cog):
         """
         List all enabled subscriptions for this channel
         """
-        try:
-            subs = await self.hunt_manager.get_subscriptions(ctx.channel.id)
-        except KeyError as e:
-            self._log.info(e)
+        subs = await self.hunt_manager.get_subscriptions(ctx.channel.id)
+
+        if not subs:
             await ctx.channel.send(
                     "No subscriptions have been specified for this channel"
             )
             return
 
-        await ctx.send('```' + str(subs) + '```')
+        message = "```markdown\nSubscriptions:"
+        for sub in subs:
+            message = message + f"""\n* {sub.world} — {str(sub.category).upper().replace('_', ' ')} — {sub.event}"""
+        message = message + "\n```"
+        await ctx.send(message)
 
     @commands.command(name='sub-clear')
     @commands.has_permissions(administrator=True)

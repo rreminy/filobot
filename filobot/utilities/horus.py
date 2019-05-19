@@ -3,15 +3,18 @@ import logging
 import os
 import sys
 import time
-import urllib.request
+import aiohttp
+import asyncio
+import discord.ext
 
 
 class Horus:
 
     ENDPOINT = 'https://horus-hunts.net/Timers/GetDcTimers/?DC=Crystal'
 
-    def __init__(self):
+    def __init__(self, bot: discord.ext.commands.Bot):
         self._log = logging.getLogger(__name__)
+        self._bot = bot
 
         with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'marks_info.json')) as json_file:
             self.marks_info = json.load(json_file)
@@ -19,7 +22,7 @@ class Horus:
         self._cached_response = None
         self._cached_time = time.time()
 
-    def load(self, world: str):
+    async def load(self, world: str):
         """
         Load Horus data on the specified world
         """
@@ -29,7 +32,9 @@ class Horus:
             crystal = self._cached_response
         else:
             self._log.info('Querying Horus')
-            crystal = json.load(urllib.request.urlopen(self.ENDPOINT))
+            async with aiohttp.ClientSession() as session:
+                page = await self._fetch(session, self.ENDPOINT)
+                crystal = json.loads(page)
             self._cached_response = crystal
             self._cached_time = time.time()
 
@@ -52,6 +57,10 @@ class Horus:
             raise LookupError(f"""ID {id} does not exist""")
 
         return self.marks_info[id]
+
+    async def _fetch(self, session, url):
+        async with session.get(url) as response:
+            return await response.text()
 
 
 class HorusHunt:

@@ -44,8 +44,8 @@ class HuntManager:
         self._log = logging.getLogger(__name__)
         self.bot = bot
 
-        self.xivhunt = XivHunt()
-        self.horus = Horus()
+        self.xivhunt = XivHunt(bot)
+        self.horus = Horus(bot)
 
         self._subscriptions = list(Subscriptions.select())
         self._subscriptions_meta = list(SubscriptionsMeta.select())
@@ -84,8 +84,8 @@ class HuntManager:
             self._changed[world] = {}
             self._found[world] = {}
 
-            xivhunt = self.xivhunt.load(world)
-            horus   = self.horus.load(world)
+            xivhunt = await self.xivhunt.load(world)
+            horus   = await self.horus.load(world)
 
             # Look for updated Horus entries
             for name, hunt in horus.items():  # type: str, HorusHunt

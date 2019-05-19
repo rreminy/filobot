@@ -25,7 +25,13 @@ class Subscriptions(BaseModel):
     event = CharField()
 
 
-class ScoutingSession(BaseModel):
+class SubscriptionsMeta(BaseModel):
+    channel_id = IntegerField(index=True)
+    name = CharField()
+    value = CharField()
+
+
+class ScoutingSessions(BaseModel):
 
     STATUS_STARTED = 0
     STATUS_CANCELLED = -1
@@ -39,7 +45,7 @@ class ScoutingSession(BaseModel):
 
 
 class ScoutingHunts(BaseModel):
-    scouting_session = ForeignKeyField(ScoutingSession)
+    scouting_session = ForeignKeyField(ScoutingSessions)
     hunt = CharField()
     scouted_by = CharField()
     discord_user = IntegerField(index=True)

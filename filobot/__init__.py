@@ -9,6 +9,7 @@ from discord.ext import commands
 from filobot.Commands import Hunts
 from filobot.Commands.admin import Admin
 from filobot.Commands.scouting import Scouting
+from filobot.Commands.misc import Misc
 from filobot.utilities.manager import HuntManager
 from filobot.models import db, db_path, Subscriptions, SubscriptionsMeta, ScoutingSessions, ScoutingHunts
 
@@ -38,6 +39,7 @@ hunt_manager = HuntManager(bot)
 bot.add_cog(Hunts(bot, hunt_manager))
 bot.add_cog(Scouting(bot, hunt_manager))
 bot.add_cog(Admin(bot))
+bot.add_cog(Misc(bot))
 
 
 GAMES = ("with moogles", "in Totomo Omo's estate", "in the Izakaya Pub", "pranks on Joel Cleveland'", "with the hunt tracker")

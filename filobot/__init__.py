@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import os
 import random
 from configparser import ConfigParser
 import discord
@@ -9,6 +10,7 @@ from filobot.Commands import Hunts
 from filobot.Commands.admin import Admin
 from filobot.Commands.scouting import Scouting
 from filobot.utilities.manager import HuntManager
+from filobot.models import db, db_path, Subscriptions, ScoutingSession, ScoutingHunts
 
 # Load our configuration
 config = ConfigParser()
@@ -26,6 +28,10 @@ ch.setLevel(logLevel)
 ch.setFormatter(logFormat)
 
 log.addHandler(ch)
+
+if not os.path.isfile(db_path):
+    log.info('Creating new database')
+    db.create_tables([Subscriptions, ScoutingSession, ScoutingHunts])
 
 bot = commands.Bot(command_prefix='f.')
 hunt_manager = HuntManager(bot)

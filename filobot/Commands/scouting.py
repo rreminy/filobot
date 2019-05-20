@@ -1,3 +1,4 @@
+import asyncio
 import os
 import logging
 import re
@@ -122,8 +123,34 @@ class Scouting(commands.Cog):
                 await ctx.send("Unknown hunt target: " + hunt, delete_after=10.0)
                 return
 
+        # Are we trying to overwrite an already scouted hunt?
+        if self._hunts[hunt]['loc']:
+            confirm_message = await ctx.send(f"""The hunt {hunt.title()} has already been scouted. Are you sure you want to overwrite it? (Y/N)""")
+
+            try:
+                response = await self.bot.wait_for('message', timeout=10.0)
+                confirmed = response.content.lower().strip() in ('y', 'yes')
+                await response.delete()
+            except asyncio.TimeoutError:
+                confirmed = False
+
+            if confirmed:
+                # Log the action
+                _action = f"""{ctx.author.name}#{ctx.author.discriminator} overwrote the hunt target {hunt.title()} {coords} — {scout}"""
+                self._log_action(_action)
+
+                # Update hunt entry
+                self._hunts[hunt] = {'loc': coords, 'scout': scout}
+                await self._message.edit(content=self.render())
+            else:
+                self._log.info("Not overwriting hunt target " + hunt.title())
+
+            await ctx.message.delete()
+            await confirm_message.delete()
+            return
+
         # Log the action
-        _action = f"""{ctx.author.name}#{ctx.author.discriminator} scouted hunt target {hunt.title()} {coords} — {scout}"""
+        _action = f"""{ctx.author.name}#{ctx.author.discriminator} scouted the hunt target {hunt.title()} {coords} — {scout}"""
         self._log_action(_action)
 
         # Update hunt entry

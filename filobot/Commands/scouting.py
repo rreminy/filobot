@@ -216,6 +216,7 @@ class Scouting(commands.Cog):
 
         await self._message.delete()
         self._message = await ctx.send(self.render())
+        self._banter_count = 0
 
     @commands.command()
     async def logs(self, ctx: commands.context.Context):

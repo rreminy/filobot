@@ -9,9 +9,8 @@ import discord
 import typing
 
 from discord.ext import commands
-from filobot.utilities import hunt_embed
-from filobot.utilities.horus import HorusHunt
 from filobot.utilities.manager import HuntManager
+from filobot.models import ScoutingSessions, ScoutingHunts
 
 
 class Scouting(commands.Cog):
@@ -20,6 +19,8 @@ class Scouting(commands.Cog):
     _previous_message: typing.Optional[discord.Message]
     _channel: typing.Optional[discord.TextChannel]
     _previous_channel: typing.Optional[discord.TextChannel]
+    _session: typing.Optional[ScoutingSessions]
+    _previous_session: typing.Optional[ScoutingSessions]
 
     HUNTS = {
         'erle': {'loc': None, 'scout': None},
@@ -65,6 +66,8 @@ class Scouting(commands.Cog):
         self._previous_message = None
         self._channel = None
         self._previous_channel = None
+        self._session = None
+        self._previous_session = None
 
         # Off-topic banter counter; after self.REFRESH_AFTER messages, the scouting tracker is reposted
         self._banter_count = 0
@@ -82,6 +85,13 @@ class Scouting(commands.Cog):
         if self.started:
             await ctx.send("A scouting session has already been started - run **f.cancel** first to start a new session")
             return
+
+        self._session = ScoutingSessions.create(
+            channel_id=ctx.channel.id,
+            started_by=ctx.author.id,
+            status=ScoutingSessions.STATUS_STARTED,
+            scouts=''
+        )
 
         self._hunts = self.HUNTS.copy()
         self.started = True
@@ -149,6 +159,13 @@ class Scouting(commands.Cog):
             await confirm_message.delete()
             return
 
+        ScoutingHunts.create(
+            scouting_session=self._session,
+            hunt=hunt,
+            scouted_by=scout,
+            discord_user=ctx.author.id
+        )
+
         # Log the action
         _action = f"""{ctx.author.name}#{ctx.author.discriminator} scouted the hunt target {hunt.title()} {coords} — {scout}"""
         self._log_action(_action)
@@ -176,6 +193,10 @@ class Scouting(commands.Cog):
             if hunt['scout']:
                 scouts.add(hunt['scout'])
 
+        self._session.status = ScoutingSessions.STATUS_COMPLETED
+        self._session.scouts = ','.join(scouts)
+        self._session.save()
+
         scouts = "\n* ".join(scouts)
         scouts = f"""\n```markdown\nScouts: \n* {scouts}```""" if scouts else ''
 
@@ -197,6 +218,8 @@ class Scouting(commands.Cog):
             return
 
         self._reset()
+        self._session.status = ScoutingSessions.STATUS_CANCELLED
+        self._session.save()
 
         # Log the action
         _action = f"""{ctx.author.name}#{ctx.author.discriminator} has cancelled an active hunting session"""
@@ -218,6 +241,7 @@ class Scouting(commands.Cog):
         self._hunts = self._previous_hunts
         self._message = self._previous_message
         self._channel = self._previous_channel
+        self._session = self._previous_session
         self.started = True
 
         # Log the action
@@ -315,6 +339,8 @@ class Scouting(commands.Cog):
         self._message = None
         self._previous_channel = self._channel
         self._channel = None
+        self._previous_session = self._session
+        self._session = None
 
         self._banter_count = 0
 

@@ -309,7 +309,6 @@ class HuntManager:
         embed = hunt_embed(new.name, new)
 
         for sub in subs:  # type: Subscriptions
-            print(vars(sub))
             if new.status == new.STATUS_OPENED and self.COND_OPEN == sub.event:
                 await self.bot.get_channel(sub.channel_id).send(f"""A hunt has opened on **{world}**!""", embed=embed)
                 break

@@ -62,10 +62,11 @@ MAPS = {
     'Deidar': 'https://i.imgtc.com/dM4sjSQ.png'                     # B
 }
 
-SB_HUNTS   = ['aqrabuamelu', 'vochstein', 'luminare', 'mahisha', 'funa yurei', 'oni yumemi', 'angada', 'gajasura', 'girimekhala']
+SB_HUNTS   = ['erle', 'orcus', 'aqrabuamelu', 'vochstein', 'luminare', 'mahisha', 'funa yurei', 'oni yumemi',
+              'angada', 'gajasura', 'girimekhala', 'sum']
 SB_ALIASES = [('aqra', 'aqrabuamelu'), ('voch', 'vochstein'), ('lumi', 'luminare'), ('mahi', 'mahisha'),
-           ('funa', 'funa yurei'), ('oni', 'oni yumemi'), ('anga', 'angada'), ('gaja', 'gajasura'),
-           ('giri', 'girimekhala')]
+              ('funa', 'funa yurei'), ('oni', 'oni yumemi'), ('anga', 'angada'), ('gaja', 'gajasura'),
+              ('giri', 'girimekhala')]
 
 
 def hunt_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: typing.Optional = None) -> discord.Embed:

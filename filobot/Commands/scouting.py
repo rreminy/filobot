@@ -1,4 +1,5 @@
 import asyncio
+import datetime
 import os
 import logging
 import re
@@ -9,9 +10,10 @@ import discord
 import typing
 
 from discord.ext import commands
-from filobot.utilities import hunt_embed
-from filobot.utilities.horus import HorusHunt
+from peewee import fn, SQL
+
 from filobot.utilities.manager import HuntManager
+from filobot.models import ScoutingSessions, ScoutingHunts
 
 
 class Scouting(commands.Cog):
@@ -20,6 +22,8 @@ class Scouting(commands.Cog):
     _previous_message: typing.Optional[discord.Message]
     _channel: typing.Optional[discord.TextChannel]
     _previous_channel: typing.Optional[discord.TextChannel]
+    _session: typing.Optional[ScoutingSessions]
+    _previous_session: typing.Optional[ScoutingSessions]
 
     HUNTS = {
         'erle': {'loc': None, 'scout': None},
@@ -65,6 +69,8 @@ class Scouting(commands.Cog):
         self._previous_message = None
         self._channel = None
         self._previous_channel = None
+        self._session = None
+        self._previous_session = None
 
         # Off-topic banter counter; after self.REFRESH_AFTER messages, the scouting tracker is reposted
         self._banter_count = 0
@@ -82,6 +88,13 @@ class Scouting(commands.Cog):
         if self.started:
             await ctx.send("A scouting session has already been started - run **f.cancel** first to start a new session")
             return
+
+        self._session = ScoutingSessions.create(
+            channel_id=ctx.channel.id,
+            started_by=ctx.author.id,
+            status=ScoutingSessions.STATUS_STARTED,
+            scouts=''
+        )
 
         self._hunts = self.HUNTS.copy()
         self.started = True
@@ -149,6 +162,13 @@ class Scouting(commands.Cog):
             await confirm_message.delete()
             return
 
+        ScoutingHunts.create(
+            scouting_session=self._session,
+            hunt=hunt,
+            scouted_by=scout,
+            discord_user=ctx.author.id
+        )
+
         # Log the action
         _action = f"""{ctx.author.name}#{ctx.author.discriminator} scouted the hunt target {hunt.title()} {coords} — {scout}"""
         self._log_action(_action)
@@ -176,6 +196,10 @@ class Scouting(commands.Cog):
             if hunt['scout']:
                 scouts.add(hunt['scout'])
 
+        self._session.status = ScoutingSessions.STATUS_COMPLETED
+        self._session.scouts = ','.join(scouts)
+        self._session.save()
+
         scouts = "\n* ".join(scouts)
         scouts = f"""\n```markdown\nScouts: \n* {scouts}```""" if scouts else ''
 
@@ -196,6 +220,8 @@ class Scouting(commands.Cog):
             await ctx.send("There is no active scouting session to cancel.", delete_after=5.0)
             return
 
+        self._session.status = ScoutingSessions.STATUS_CANCELLED
+        self._session.save()
         self._reset()
 
         # Log the action
@@ -218,6 +244,7 @@ class Scouting(commands.Cog):
         self._hunts = self._previous_hunts
         self._message = self._previous_message
         self._channel = self._previous_channel
+        self._session = self._previous_session
         self.started = True
 
         # Log the action
@@ -259,6 +286,45 @@ class Scouting(commands.Cog):
         message = "```markdown\nAction logs:"
         for action in self._action_logs:
             message = message + f"""\n* {action}"""
+        message = message + "\n```"
+
+        await ctx.send(message)
+
+    @commands.command()
+    async def scoreboard(self, ctx: commands.context.Context, days: int = 30):
+        """
+        Hunt leaders - run f.help scoreboard for more information
+        Display a leaderboard of the top scouters of the last XX days
+
+        NOTE:
+            * Overwriting hunts will not increase your total
+            * You will get credit even if you post relayed hunts, so still give the original relayers credit too!
+        """
+        if days < 1 or days > 365:
+            await ctx.send("Days must be between 1 and 365", delete_after=10.0)
+            await ctx.message.delete()
+            return
+
+        cutoff = datetime.datetime.utcnow() - datetime.timedelta(days=days)
+        query = ScoutingHunts.select(ScoutingHunts.discord_user, fn.COUNT(ScoutingHunts.discord_user).alias('score')).join(ScoutingSessions)\
+            .where((ScoutingSessions.status != ScoutingSessions.STATUS_CANCELLED) & (ScoutingSessions.date >= cutoff))\
+            .group_by(ScoutingHunts.discord_user)\
+            .order_by(SQL('score').desc())
+
+        message = f"""```markdown\nScoreboard ({days} days)\n"""
+        message = message + "=" * len(f"""Scoreboard ({days} days)""") + "\n"
+
+        total = sum(s.score for s in query)
+        scores = []
+        for score in query:
+            percentage = round((score.score / total) * 100)
+            scores.append((score.discord_user, score.score, percentage))
+
+        position = 1
+        for discord_user, score, percentage in scores:
+            user = self.bot.get_user(discord_user).display_name
+            message = message + f"""\n{position}. {user} ({percentage}% - {score} hunts)"""
+
         message = message + "\n```"
 
         await ctx.send(message)
@@ -315,6 +381,8 @@ class Scouting(commands.Cog):
         self._message = None
         self._previous_channel = self._channel
         self._channel = None
+        self._previous_session = self._session
+        self._session = None
 
         self._banter_count = 0
 

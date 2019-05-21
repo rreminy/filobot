@@ -294,7 +294,7 @@ class Scouting(commands.Cog):
         await ctx.send(message)
 
     @commands.command()
-    async def scoreboard(self, ctx: commands.context.Context, days: int = 30):
+    async def scoreboard(self, ctx: commands.context.Context, days: int = 30, limit: int = 10):
         """
         Hunt leaders - run f.help scoreboard for more information
         Display a leaderboard of the top scouters of the last XX days
@@ -305,6 +305,11 @@ class Scouting(commands.Cog):
         """
         if days < 1 or days > 365:
             await ctx.send("Days must be between 1 and 365", delete_after=10.0)
+            await ctx.message.delete()
+            return
+
+        if limit < 3 or limit > 25:
+            await ctx.send("Limit must be between 3 and 25", delete_after=10.0)
             await ctx.message.delete()
             return
 
@@ -327,6 +332,10 @@ class Scouting(commands.Cog):
         for discord_user, score, percentage in scores:
             user = self.bot.get_user(discord_user).display_name
             message = message + f"""\n{position}. {user} ({percentage}% - {score} hunts)"""
+
+            position += 1
+            if position > limit:
+                break
 
         message = message + "\n```"
 

@@ -297,11 +297,11 @@ class Scouting(commands.Cog):
     async def scoreboard(self, ctx: commands.context.Context, days: int = 30, limit: int = 10):
         """
         Hunt leaders - run f.help scoreboard for more information
-        Display a leaderboard of the top scouters of the last XX days
+        Display a leaderboard of the top scouters over the last XX days
 
         NOTE:
             * Overwriting hunts will not increase your total
-            * You will get credit even if you post relayed hunts, so still give the original relayers credit too!
+            * You will get credit even if you post relayed hunts, so give the original relayers credit too!
         """
         if days < 1 or days > 365:
             await ctx.send("Days must be between 1 and 365", delete_after=10.0)

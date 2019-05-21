@@ -154,7 +154,7 @@ class Scouting(commands.Cog):
 
                 # Update hunt entry
                 self._hunts[hunt] = {'loc': coords, 'scout': scout}
-                await self._message.edit(content=self.render())
+                await self._update(ctx)
             else:
                 self._log.info("Not overwriting hunt target " + hunt.title())
 
@@ -176,7 +176,7 @@ class Scouting(commands.Cog):
         # Update hunt entry
         self._hunts[hunt] = {'loc': coords, 'scout': scout}
         await ctx.message.delete()
-        await self._message.edit(content=self.render())
+        await self._update(ctx)
 
     @commands.command()
     async def end(self, ctx: commands.context.Context):
@@ -204,7 +204,7 @@ class Scouting(commands.Cog):
         scouts = f"""\n```markdown\nScouts: \n* {scouts}```""" if scouts else ''
 
         now = arrow.now().format("MMM Do, H:mma ZZZ")
-        await self._message.edit(content=f"""Hunt session concluded **{now}**{scouts}""")
+        await self._update(ctx, f"""Hunt session concluded **{now}**{scouts}""")
         self._reset()
 
         await ctx.message.delete()
@@ -214,11 +214,14 @@ class Scouting(commands.Cog):
         """
         Cancel a previously initialized scouting session
         """
-        await self._message.delete()
-
         if not self.started:
             await ctx.send("There is no active scouting session to cancel.", delete_after=5.0)
             return
+
+        try:
+            await self._message.delete()
+        except discord.NotFound:
+            self._log.warning("Scouting session cancelled, but the scouting message was already deleted")
 
         self._session.status = ScoutingSessions.STATUS_CANCELLED
         self._session.save()
@@ -253,7 +256,7 @@ class Scouting(commands.Cog):
 
         await ctx.message.delete()
         await ctx.send("Scouting restored!", delete_after=5.0)
-        await self._message.edit(content=self.render())
+        await self._update(ctx)
 
     @commands.command()
     async def refresh(self, ctx: commands.context.Context):
@@ -367,6 +370,16 @@ class Scouting(commands.Cog):
 
         if len(self._action_logs) > 15:
             del self._action_logs[0]
+
+    async def _update(self, ctx: commands.context.Context, content: typing.Optional[str] = None) -> None:
+        """
+        Update the scoreboard message
+        """
+        try:
+            await self._message.edit(content=content or self.render())
+        except discord.NotFound:
+            self._log.warning("Scouting log has vanished! Re-creating")
+            self._message = await ctx.send(content or self.render())
 
     def _reset(self) -> None:
         """

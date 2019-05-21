@@ -135,7 +135,7 @@ class Scouting(commands.Cog):
             confirm_message = await ctx.send(f"""The hunt {hunt.title()} has already been scouted. Are you sure you want to overwrite it? (Y/N)""")
 
             try:
-                response = await self.bot.wait_for('message', timeout=10.0)
+                response = await self.bot.wait_for('message', timeout=10.0, check=self._author_check(ctx.message.author))
                 confirmed = response.content.lower().strip() in ('y', 'yes')
                 await response.delete()
             except asyncio.TimeoutError:
@@ -191,7 +191,7 @@ class Scouting(commands.Cog):
             confirm_message = await ctx.send(f"""The hunt {hunt.title()} has already been scouted. Are you sure you want to mark it as sniped? (Y/N)""")
 
             try:
-                response = await self.bot.wait_for('message', timeout=10.0)
+                response = await self.bot.wait_for('message', timeout=10.0, check=self._author_check(ctx.message.author))
                 confirmed = response.content.lower().strip() in ('y', 'yes')
                 await response.delete()
             except asyncio.TimeoutError:
@@ -424,6 +424,14 @@ class Scouting(commands.Cog):
 
         if len(self._action_logs) > 15:
             del self._action_logs[0]
+
+    def _author_check(self, author: discord.User) -> typing.Callable:
+        """
+        Check callback generator for confirmation prompts
+        """
+        def inner_check(message):
+            return message.author == author
+        return inner_check
 
     async def _update(self, ctx: commands.context.Context, content: typing.Optional[str] = None) -> None:
         """

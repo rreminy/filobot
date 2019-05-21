@@ -374,7 +374,7 @@ class Scouting(commands.Cog):
         position = 1
         if scores:
             for discord_user, score, percentage in scores:
-                user = self.bot.get_user(discord_user).display_name
+                user = ctx.guild.get_member(discord_user).display_name
                 message = message + f"""\n{position}. {user} ({percentage}% - {score} hunts)"""
 
                 position += 1

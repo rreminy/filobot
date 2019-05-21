@@ -179,6 +179,60 @@ class Scouting(commands.Cog):
         await self._update(ctx)
 
     @commands.command()
+    async def addsniped(self, ctx: commands.context.Context, *, hunt_name: str):
+        """
+        Mark a hunt as sniped
+        """
+        hunt  = hunt_name.lower().strip()
+        scout = ctx.author.name
+
+        if hunt not in self.HUNTS.keys():
+            # Shortened hunt name?
+            for alias, replacement in self.ALIASES:
+                if hunt == alias:
+                    hunt = replacement
+                    break
+            else:
+                await ctx.message.delete()
+                await ctx.send("Unknown hunt target: " + hunt, delete_after=10.0)
+                return
+
+        # Are we trying to overwrite an already scouted hunt?
+        if self._hunts[hunt]['loc']:
+            confirm_message = await ctx.send(f"""The hunt {hunt.title()} has already been scouted. Are you sure you want to mark it as sniped? (Y/N)""")
+
+            try:
+                response = await self.bot.wait_for('message', timeout=10.0)
+                confirmed = response.content.lower().strip() in ('y', 'yes')
+                await response.delete()
+            except asyncio.TimeoutError:
+                confirmed = False
+
+            if confirmed:
+                # Log the action
+                _action = f"""{ctx.author.name}#{ctx.author.discriminator} overwrote the hunt target {hunt.title()} — Sniped"""
+                self._log_action(_action)
+
+                # Update hunt entry
+                self._hunts[hunt] = {'loc': '(Sniped)', 'scout': scout}
+                await self._update(ctx)
+            else:
+                self._log.info("Not overwriting hunt target " + hunt.title())
+
+            await ctx.message.delete()
+            await confirm_message.delete()
+            return
+
+        # Log the action
+        _action = f"""{ctx.author.name}#{ctx.author.discriminator} marked the hunt target {hunt.title()} sniped"""
+        self._log_action(_action)
+
+        # Update hunt entry
+        self._hunts[hunt] = {'loc': '(Sniped)', 'scout': scout}
+        await ctx.message.delete()
+        await self._update(ctx)
+
+    @commands.command()
     async def end(self, ctx: commands.context.Context):
         """
         Close an active scouting session and log the completion time

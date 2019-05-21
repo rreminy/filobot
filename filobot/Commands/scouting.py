@@ -372,13 +372,14 @@ class Scouting(commands.Cog):
             scores.append((score.discord_user, score.score, percentage))
 
         position = 1
-        for discord_user, score, percentage in scores:
-            user = self.bot.get_user(discord_user).display_name
-            message = message + f"""\n{position}. {user} ({percentage}% - {score} hunts)"""
+        if scores:
+            for discord_user, score, percentage in scores:
+                user = self.bot.get_user(discord_user).display_name
+                message = message + f"""\n{position}. {user} ({percentage}% - {score} hunts)"""
 
-            position += 1
-            if position > limit:
-                break
+                position += 1
+                if position > limit:
+                    break
         else:
             message = message + "\n1. Literally no-one"
 

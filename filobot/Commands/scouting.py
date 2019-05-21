@@ -1,4 +1,5 @@
 import asyncio
+import datetime
 import os
 import logging
 import re
@@ -9,6 +10,8 @@ import discord
 import typing
 
 from discord.ext import commands
+from peewee import fn, SQL
+
 from filobot.utilities.manager import HuntManager
 from filobot.models import ScoutingSessions, ScoutingHunts
 
@@ -217,9 +220,9 @@ class Scouting(commands.Cog):
             await ctx.send("There is no active scouting session to cancel.", delete_after=5.0)
             return
 
-        self._reset()
         self._session.status = ScoutingSessions.STATUS_CANCELLED
         self._session.save()
+        self._reset()
 
         # Log the action
         _action = f"""{ctx.author.name}#{ctx.author.discriminator} has cancelled an active hunting session"""
@@ -283,6 +286,45 @@ class Scouting(commands.Cog):
         message = "```markdown\nAction logs:"
         for action in self._action_logs:
             message = message + f"""\n* {action}"""
+        message = message + "\n```"
+
+        await ctx.send(message)
+
+    @commands.command()
+    async def scoreboard(self, ctx: commands.context.Context, days: int = 30):
+        """
+        Hunt leaders - run f.help scoreboard for more information
+        Display a leaderboard of the top scouters of the last XX days
+
+        NOTE:
+            * Overwriting hunts will not increase your total
+            * You will get credit even if you post relayed hunts, so still give the original relayers credit too!
+        """
+        if days < 1 or days > 365:
+            await ctx.send("Days must be between 1 and 365", delete_after=10.0)
+            await ctx.message.delete()
+            return
+
+        cutoff = datetime.datetime.utcnow() - datetime.timedelta(days=days)
+        query = ScoutingHunts.select(ScoutingHunts.discord_user, fn.COUNT(ScoutingHunts.discord_user).alias('score')).join(ScoutingSessions)\
+            .where((ScoutingSessions.status != ScoutingSessions.STATUS_CANCELLED) & (ScoutingSessions.date >= cutoff))\
+            .group_by(ScoutingHunts.discord_user)\
+            .order_by(SQL('score').desc())
+
+        message = f"""```markdown\nScoreboard ({days} days)\n"""
+        message = message + "=" * len(f"""Scoreboard ({days} days)""") + "\n"
+
+        total = sum(s.score for s in query)
+        scores = []
+        for score in query:
+            percentage = round((score.score / total) * 100)
+            scores.append((score.discord_user, score.score, percentage))
+
+        position = 1
+        for discord_user, score, percentage in scores:
+            user = self.bot.get_user(discord_user).display_name
+            message = message + f"""\n{position}. {user} ({percentage}% - {score} hunts)"""
+
         message = message + "\n```"
 
         await ctx.send(message)

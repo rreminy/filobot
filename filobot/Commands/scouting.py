@@ -336,6 +336,8 @@ class Scouting(commands.Cog):
             position += 1
             if position > limit:
                 break
+        else:
+            message = message + "\n1. Literally no-one"
 
         message = message + "\n```"
 

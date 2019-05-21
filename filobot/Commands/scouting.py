@@ -11,7 +11,7 @@ import typing
 
 from discord.ext import commands
 from peewee import fn, SQL
-
+from filobot.utilities import parse_sb_hunt_name
 from filobot.utilities.manager import HuntManager
 from filobot.models import ScoutingSessions, ScoutingHunts
 
@@ -120,21 +120,15 @@ class Scouting(commands.Cog):
             await ctx.send("Unable to parse hunt location — Make sure your hunts are formatted properly. For example..\n```Erle - The Fringes ( 14.5  , 12.4 ) (Scouting Player)```", delete_after=10.0)
             return
 
-        hunt    = match.group('hunt').lower().strip()
-        coords  = f"""( {match.group('coords')} )"""
-        scout   = match.group('scout') or ctx.author.display_name
-        scout   = scout[:30]
-
-        if hunt not in self.HUNTS.keys():
-            # Shortened hunt name?
-            for alias, replacement in self.ALIASES:
-                if hunt == alias:
-                    hunt = replacement
-                    break
-            else:
-                await ctx.message.delete()
-                await ctx.send("Unknown hunt target: " + hunt, delete_after=10.0)
-                return
+        try:
+            hunt    = parse_sb_hunt_name(match.group('hunt'))
+            coords  = f"""( {match.group('coords')} )"""
+            scout   = match.group('scout') or ctx.author.display_name
+            scout   = scout[:30]
+        except KeyError:
+            await ctx.message.delete()
+            await ctx.send("Unknown hunt target: " + match.group('hunt')[:30], delete_after=10.0)
+            return
 
         # Are we trying to overwrite an already scouted hunt?
         if self._hunts[hunt]['loc']:
@@ -183,19 +177,14 @@ class Scouting(commands.Cog):
         """
         Mark a hunt as sniped
         """
-        hunt  = hunt_name.lower().strip()
-        scout = ctx.author.name
-
-        if hunt not in self.HUNTS.keys():
-            # Shortened hunt name?
-            for alias, replacement in self.ALIASES:
-                if hunt == alias:
-                    hunt = replacement
-                    break
-            else:
-                await ctx.message.delete()
-                await ctx.send("Unknown hunt target: " + hunt, delete_after=10.0)
-                return
+        try:
+            hunt  = parse_sb_hunt_name(hunt_name)
+            scout = ctx.author.name
+        except KeyError:
+            self._log.info("Invalid hunt name: " + hunt_name)
+            await ctx.message.delete()
+            await ctx.send("Unknown hunt target: " + hunt_name[:30], delete_after=10.0)
+            return
 
         # Are we trying to overwrite an already scouted hunt?
         if self._hunts[hunt]['loc']:

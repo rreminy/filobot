@@ -62,6 +62,11 @@ MAPS = {
     'Deidar': 'https://i.imgtc.com/dM4sjSQ.png'                     # B
 }
 
+SB_HUNTS   = ['aqrabuamelu', 'vochstein', 'luminare', 'mahisha', 'funa yurei', 'oni yumemi', 'angada', 'gajasura', 'girimekhala']
+SB_ALIASES = [('aqra', 'aqrabuamelu'), ('voch', 'vochstein'), ('lumi', 'luminare'), ('mahi', 'mahisha'),
+           ('funa', 'funa yurei'), ('oni', 'oni yumemi'), ('anga', 'angada'), ('gaja', 'gajasura'),
+           ('giri', 'girimekhala')]
+
 
 def hunt_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: typing.Optional = None) -> discord.Embed:
     for _id, mark in marks_info.items():
@@ -128,3 +133,22 @@ def hunt_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: typing.Op
 
     # No hunt by the specified name found
     raise KeyError
+
+
+def parse_sb_hunt_name(hunt_name: str) -> str:
+    """
+    Parse an SB hunt name (offers support for hunt name aliases)
+    """
+    name = hunt_name.lower().strip()
+
+    if name not in SB_HUNTS:
+        # Shortened hunt name?
+        for alias, replacement in SB_ALIASES:
+            if name == alias:
+                name = replacement
+                break
+        else:
+            raise KeyError
+
+    return name
+

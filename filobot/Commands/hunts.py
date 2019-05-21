@@ -29,7 +29,7 @@ class Hunts(commands.Cog):
         try:
             hunt_name = parse_sb_hunt_name(hunt_name)
         except KeyError:
-            pass
+            hunt_name = hunt_name.lower().strip()
 
         try:
             embed = hunt_embed(hunt_name)
@@ -49,7 +49,7 @@ class Hunts(commands.Cog):
         try:
             hunt_name = parse_sb_hunt_name(hunt_name)
         except KeyError:
-            pass
+            hunt_name = hunt_name.lower().strip()
 
         try:
             horus, xivhunt = self.hunt_manager.get(world, hunt_name)

@@ -6,7 +6,7 @@ import discord
 import typing
 
 from discord.ext import commands
-from filobot.utilities import hunt_embed
+from filobot.utilities import hunt_embed, parse_sb_hunt_name
 from filobot.utilities.manager import HuntManager
 
 
@@ -22,12 +22,17 @@ class Hunts(commands.Cog):
             self.marks_info = json.load(json_file)
 
     @commands.command()
-    async def info(self, ctx: commands.context.Context, *, name: str):
+    async def info(self, ctx: commands.context.Context, *, hunt_name: str):
         """
         Return information on the specified hunt target
         """
         try:
-            embed = hunt_embed(name)
+            hunt_name = parse_sb_hunt_name(hunt_name)
+        except KeyError:
+            pass
+
+        try:
+            embed = hunt_embed(hunt_name)
         except KeyError:
             await ctx.send("No hunt by that name found - please check your spelling and try again")
             return
@@ -41,7 +46,10 @@ class Hunts(commands.Cog):
         """
         # Make sure the world is properly formatted
         world = world.lstrip().rstrip().lower().title()
-        hunt_name = hunt_name.lstrip().rstrip().lower()
+        try:
+            hunt_name = parse_sb_hunt_name(hunt_name)
+        except KeyError:
+            pass
 
         try:
             horus, xivhunt = self.hunt_manager.get(world, hunt_name)

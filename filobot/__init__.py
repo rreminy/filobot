@@ -1,4 +1,5 @@
 import asyncio
+import datetime
 import logging
 import os
 import random
@@ -39,7 +40,7 @@ hunt_manager = HuntManager(bot)
 bot.add_cog(Hunts(bot, hunt_manager))
 bot.add_cog(Scouting(bot, hunt_manager))
 bot.add_cog(Admin(bot))
-bot.add_cog(Misc(bot))
+bot.add_cog(Misc(bot, hunt_manager))
 
 
 GAMES = ("with moogles", "in Totomo Omo's estate", "in the Izakaya Pub", "pranks on Joel Cleveland'", "with the hunt tracker")

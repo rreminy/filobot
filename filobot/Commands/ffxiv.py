@@ -52,9 +52,10 @@ class FFXIV(commands.Cog):
 
         async with ctx.typing():
             try:
-                Player.delete().where(Player.discord_id == ctx.author.id)
+                Player.delete().where(Player.discord_id == ctx.author.id).execute()
                 lodestone_id, character = await self.xiv.search_character(world, forename, surname)
                 try:
+                    Player.delete().where((Player.lodestone_id == lodestone_id) & (Player.status == Player.STATUS_PENDING)).execute()
                     player = Player.create(lodestone_id=lodestone_id, discord_id=ctx.author.id, name=character.name, world=character.server, validation_code=uuid.uuid4())
                 except peewee.IntegrityError:
                     await ctx.send("This character has already been linked to another discord user.")
@@ -65,6 +66,10 @@ class FFXIV(commands.Cog):
 
             await ctx.send(embed=character.embed())
             await ctx.send(f"""**Note:** Your character has not been validated yet.\n\nTo verify your ownership of this character, please copy and paste the following verification code into your Lodestone Character Profile and then run the `f.verify` command:\n```\n{player.validation_code}\n```\nhttps://na.finalfantasyxiv.com/lodestone/my/setting/profile/""")
+
+    @commands.command()
+    async def verify(self):
+        pass
 
     def _author_check(self, author: discord.User) -> typing.Callable:
         """

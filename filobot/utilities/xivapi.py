@@ -36,6 +36,13 @@ class XivApi:
             character = await client.character_by_id(lodestone_id, include_freecompany=True, include_achievements=True, extended=True)
             return lodestone_id, Character(character)
 
+    async def verify(self, lodestone_id: int, verification_code: str) -> bool:
+        async with aiohttp.ClientSession() as session:
+            client = xivapi.Client(session=session, api_key=self._api_key)
+            verification = await client.character_verify(lodestone_id, verification_code)
+
+        return verification['Pass']
+
 
 class Character:
 

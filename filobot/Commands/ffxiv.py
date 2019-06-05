@@ -23,8 +23,7 @@ class FFXIV(commands.Cog):
     @commands.command()
     async def iam(self, ctx: commands.context.Context, world: str, *, character: str):
         """
-        Clear recent messages posted by Filo from the channel
-        (Will also clear the message used to instantiate this command)
+        Link your FFXIV character to Filo
         """
         if Player.select().where(Player.discord_id == ctx.author.id).count():
             confirm_message = await ctx.send("An FFXIV character has already been linked to this Discord account. Are you sure you want to replace it? (Y/N)")
@@ -68,8 +67,30 @@ class FFXIV(commands.Cog):
             await ctx.send(f"""**Note:** Your character has not been validated yet.\n\nTo verify your ownership of this character, please copy and paste the following verification code into your Lodestone Character Profile and then run the `f.verify` command:\n```\n{player.validation_code}\n```\nhttps://na.finalfantasyxiv.com/lodestone/my/setting/profile/""")
 
     @commands.command()
-    async def verify(self):
-        pass
+    async def verify(self, ctx: commands.context.Context):
+        """
+        Verify an account linked with the f.iam command
+        """
+        try:
+            player = Player.get(Player.discord_id == ctx.author.id)
+        except peewee.DoesNotExist:
+            await ctx.send("You haven't linked your FFXIV account yet! Run the `f.help iam` command for information on how to do this.")
+            return
+
+        if player.status == Player.STATUS_BANNED:
+            await ctx.send("Your account has been banned and can not be verified again.")
+            return
+        if player.status == Player.STATUS_VERIFIED:
+            await ctx.send("Your account has already been verified!")
+            return
+
+        verified = await self.xiv.verify(lodestone_id=player.lodestone_id, verification_code=player.validation_code)
+        if verified:
+            player.status = Player.STATUS_VERIFIED
+            player.save()
+            await ctx.send("Your account has been verified successfully!")
+        else:
+            await ctx.send(f"Validation failed. Please make sure your character profile contains **only** the following verification code and then try again:\n```\n{player.validation_code}\n```")
 
     def _author_check(self, author: discord.User) -> typing.Callable:
         """

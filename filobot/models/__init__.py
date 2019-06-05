@@ -60,7 +60,6 @@ class Player(BaseModel):
 
     lodestone_id    = PrimaryKeyField()
     discord_id      = IntegerField(index=True)
-    forename        = CharField(max_length=50)
-    surname         = CharField(max_length=50)
+    name            = CharField(max_length=50)
     world           = CharField(max_length=50)
     status          = IntegerField(default=STATUS_PENDING)

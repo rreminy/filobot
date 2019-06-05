@@ -32,9 +32,9 @@ class XivApi:
                 self._log.info(_error)
                 raise ValueError(_error)
 
-            character = await client.character_by_id(search['Results'][0]['ID'], include_freecompany=True, include_achievements=True, extended=True)
-            print(character)
-            return Character(character)
+            lodestone_id = search['Results'][0]['ID']
+            character = await client.character_by_id(lodestone_id, include_freecompany=True, include_achievements=True, extended=True)
+            return lodestone_id, Character(character)
 
 
 class Character:

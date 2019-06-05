@@ -9,10 +9,11 @@ import discord
 from discord.ext import commands
 from filobot.Commands import Hunts
 from filobot.Commands.admin import Admin
+from filobot.Commands.ffxiv import FFXIV
 from filobot.Commands.scouting import Scouting
 from filobot.Commands.misc import Misc
 from filobot.utilities.manager import HuntManager
-from filobot.models import db, db_path, Subscriptions, SubscriptionsMeta, ScoutingSessions, ScoutingHunts
+from filobot.models import db, db_path, Subscriptions, SubscriptionsMeta, ScoutingSessions, ScoutingHunts, Player
 
 # Load our configuration
 config = ConfigParser()
@@ -31,14 +32,13 @@ ch.setFormatter(logFormat)
 
 log.addHandler(ch)
 
-if not os.path.isfile(db_path):
-    log.info('Creating new database')
-    db.create_tables([Subscriptions, SubscriptionsMeta, ScoutingSessions, ScoutingHunts])
+db.create_tables([Subscriptions, SubscriptionsMeta, ScoutingSessions, ScoutingHunts, Player])
 
-bot = commands.Bot(command_prefix='f.')
+bot = commands.Bot(command_prefix='fd.')
 hunt_manager = HuntManager(bot)
 bot.add_cog(Hunts(bot, hunt_manager))
 bot.add_cog(Scouting(bot, hunt_manager))
+bot.add_cog(FFXIV(bot, config.get('Bot', 'XivApiKey')))
 bot.add_cog(Admin(bot))
 bot.add_cog(Misc(bot, hunt_manager))
 

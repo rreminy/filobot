@@ -50,3 +50,17 @@ class ScoutingHunts(BaseModel):
     scouted_by = CharField()
     discord_user = IntegerField(index=True)
     date = DateTimeField(default=datetime.datetime.now)
+
+
+class Player(BaseModel):
+
+    STATUS_PENDING  = 0
+    STATUS_VERIFIED = 1
+    STATUS_BANNED   = -1
+
+    lodestone_id    = PrimaryKeyField()
+    discord_id      = IntegerField(index=True)
+    forename        = CharField(max_length=50)
+    surname         = CharField(max_length=50)
+    world           = CharField(max_length=50)
+    status          = IntegerField(default=STATUS_PENDING)

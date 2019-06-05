@@ -63,3 +63,4 @@ class Player(BaseModel):
     name            = CharField(max_length=50)
     world           = CharField(max_length=50)
     status          = IntegerField(default=STATUS_PENDING)
+    validation_code = CharField(max_length=36)

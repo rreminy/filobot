@@ -41,5 +41,9 @@ class FFXIV(commands.Cog):
             return
 
         async with ctx.typing():
-            character = await self.xiv.search_character(world, forename, surname)
+            try:
+                character = await self.xiv.search_character(world, forename, surname)
+            except ValueError as e:
+                await ctx.send(str(e))
+                return
             await ctx.send(embed=character.embed())

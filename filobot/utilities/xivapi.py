@@ -28,7 +28,7 @@ class XivApi:
 
             # No characters found?
             if not search['Results']:
-                _error = f"""No character by the name {forename} {surname} found on {world}"""
+                _error = f"""No character by the name {forename.title()} {surname.title()} found on {world.title()}"""
                 self._log.info(_error)
                 raise ValueError(_error)
 

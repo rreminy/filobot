@@ -107,6 +107,22 @@ class FFXIV(commands.Cog):
             character = await self.xiv.get_character(player.lodestone_id)
         await ctx.send(embed=character.embed(verified=player.status == Player.STATUS_VERIFIED))
 
+    @commands.command()
+    @commands.cooldown(2, 15, commands.BucketType.user)
+    async def whois(self, ctx: commands.context.Context, member: discord.Member):
+        """
+        Get the specified discord users FFXIV account
+        """
+        try:
+            player = Player.get(Player.discord_id == member.id)
+        except peewee.DoesNotExist:
+            await ctx.send(f"{member.display_name} has not linked their FFXIV account to their Discord profile")
+            return
+
+        async with ctx.typing():
+            character = await self.xiv.get_character(player.lodestone_id)
+        await ctx.send(embed=character.embed(verified=player.status == Player.STATUS_VERIFIED))
+
     def _author_check(self, author: discord.User) -> typing.Callable:
         """
         Check callback generator for confirmation prompts

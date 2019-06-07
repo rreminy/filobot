@@ -5,9 +5,6 @@ import aiohttp
 import discord
 import xivapi
 
-# Class / Jobs mapping, assigned and cached when the Job container is initialized
-JOBS = {}
-
 
 class XivApi:
 
@@ -33,8 +30,17 @@ class XivApi:
                 raise ValueError(_error)
 
             lodestone_id = search['Results'][0]['ID']
-            character = await client.character_by_id(lodestone_id, include_freecompany=True, include_achievements=True, extended=True)
+            character = await client.character_by_id(lodestone_id, include_freecompany=True, include_achievements=True,
+                                                     extended=True)
             return lodestone_id, Character(character)
+
+    async def get_character(self, lodestone_id: int):
+        async with aiohttp.ClientSession() as session:
+            client = xivapi.Client(session=session, api_key=self._api_key)
+            character = await client.character_by_id(lodestone_id, include_freecompany=True, include_achievements=True,
+                                                     extended=True)
+
+            return Character(character)
 
     async def verify(self, lodestone_id: int, verification_code: str) -> bool:
         async with aiohttp.ClientSession() as session:

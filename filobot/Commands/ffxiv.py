@@ -92,6 +92,21 @@ class FFXIV(commands.Cog):
         else:
             await ctx.send(f"Validation failed. Please make sure your character profile contains **only** the following verification code and then try again:\n```\n{player.validation_code}\n```")
 
+    @commands.command()
+    async def whoami(self, ctx: commands.context.Context):
+        """
+        Get information on your linked FFXIV character
+        """
+        try:
+            player = Player.get(Player.discord_id == ctx.author.id)
+        except peewee.DoesNotExist:
+            await ctx.send("You haven't linked your FFXIV account yet! Run the `f.help iam` command for information on how to do this.")
+            return
+
+        async with ctx.typing():
+            character = await self.xiv.get_character(player.lodestone_id)
+        await ctx.send(embed=character.embed(verified=player.status == Player.STATUS_VERIFIED))
+
     def _author_check(self, author: discord.User) -> typing.Callable:
         """
         Check callback generator for confirmation prompts

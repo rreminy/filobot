@@ -2,11 +2,10 @@ import asyncio
 import logging
 import re
 import uuid
-
 import discord
 import typing
-
 import peewee
+
 from discord.ext import commands
 from filobot.utilities.manager import HuntManager
 from filobot.models import Player
@@ -21,6 +20,7 @@ class FFXIV(commands.Cog):
         self.xiv = XivApi(api_key)
 
     @commands.command()
+    @commands.cooldown(1, 30, commands.BucketType.user)
     async def iam(self, ctx: commands.context.Context, world: str, *, character: str):
         """
         Link your FFXIV character to Filo
@@ -67,6 +67,7 @@ class FFXIV(commands.Cog):
             await ctx.send(f"""**Note:** Your character has not been validated yet.\n\nTo verify your ownership of this character, please copy and paste the following verification code into your Lodestone Character Profile and then run the `f.verify` command:\n```\n{player.validation_code}\n```\nhttps://na.finalfantasyxiv.com/lodestone/my/setting/profile/""")
 
     @commands.command()
+    @commands.cooldown(2, 15, commands.BucketType.user)
     async def verify(self, ctx: commands.context.Context):
         """
         Verify an account linked with the f.iam command
@@ -93,6 +94,7 @@ class FFXIV(commands.Cog):
             await ctx.send(f"Validation failed. Please make sure your character profile contains **only** the following verification code and then try again:\n```\n{player.validation_code}\n```")
 
     @commands.command()
+    @commands.cooldown(1, 30, commands.BucketType.user)
     async def whoami(self, ctx: commands.context.Context):
         """
         Get information on your linked FFXIV character

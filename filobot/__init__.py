@@ -56,7 +56,7 @@ async def on_ready():
 
 
 @bot.event
-async def on_command_error(ctx, error):
+async def on_command_error(ctx: commands.context.Context, error: Exception):
     # if command has local error handler, return
     if hasattr(ctx.command, 'on_error'):
         return
@@ -96,8 +96,8 @@ async def on_command_error(ctx, error):
         return
 
     if isinstance(error, commands.UserInputError):
-        await ctx.send("Invalid input.")
-        await self.send_command_help(ctx)
+        await ctx.send("Invalid input. Please use `f.help` for instructions on how to use this command.")
+        # await ctx.command.send_command_help(ctx) TODO
         return
 
     if isinstance(error, commands.NoPrivateMessage):

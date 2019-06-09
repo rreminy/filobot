@@ -5,14 +5,16 @@ import os
 import random
 from configparser import ConfigParser
 import discord
+import math
 
 from discord.ext import commands
 from filobot.Commands import Hunts
 from filobot.Commands.admin import Admin
+from filobot.Commands.ffxiv import FFXIV
 from filobot.Commands.scouting import Scouting
 from filobot.Commands.misc import Misc
 from filobot.utilities.manager import HuntManager
-from filobot.models import db, db_path, Subscriptions, SubscriptionsMeta, ScoutingSessions, ScoutingHunts
+from filobot.models import db, db_path, Subscriptions, SubscriptionsMeta, ScoutingSessions, ScoutingHunts, Player
 
 # Load our configuration
 config = ConfigParser()
@@ -31,14 +33,13 @@ ch.setFormatter(logFormat)
 
 log.addHandler(ch)
 
-if not os.path.isfile(db_path):
-    log.info('Creating new database')
-    db.create_tables([Subscriptions, SubscriptionsMeta, ScoutingSessions, ScoutingHunts])
+db.create_tables([Subscriptions, SubscriptionsMeta, ScoutingSessions, ScoutingHunts, Player])
 
-bot = commands.Bot(command_prefix='f.')
+bot = commands.Bot(command_prefix='fd.')
 hunt_manager = HuntManager(bot)
 bot.add_cog(Hunts(bot, hunt_manager))
 bot.add_cog(Scouting(bot, hunt_manager))
+bot.add_cog(FFXIV(bot, config.get('Bot', 'XivApiKey')))
 bot.add_cog(Admin(bot))
 bot.add_cog(Misc(bot, hunt_manager))
 
@@ -52,6 +53,66 @@ async def on_ready():
 
     print('Filo is ready for action!')
     print('------')
+
+
+@bot.event
+async def on_command_error(ctx: commands.context.Context, error: Exception):
+    # if command has local error handler, return
+    if hasattr(ctx.command, 'on_error'):
+        return
+
+    # get the original exception
+    error = getattr(error, 'original', error)
+
+    if isinstance(error, commands.CommandNotFound):
+        return
+
+    if isinstance(error, commands.BotMissingPermissions):
+        missing = [perm.replace('_', ' ').replace('guild', 'server').title() for perm in error.missing_perms]
+        if len(missing) > 2:
+            fmt = '{}, and {}'.format("**, **".join(missing[:-1]), missing[-1])
+        else:
+            fmt = ' and '.join(missing)
+        _message = 'I need the **{}** permission(s) to run this command.'.format(fmt)
+        await ctx.send(_message)
+        return
+
+    if isinstance(error, commands.DisabledCommand):
+        await ctx.send('This command has been disabled.')
+        return
+
+    if isinstance(error, commands.CommandOnCooldown):
+        await ctx.send("This command is on cooldown, please retry in {}s.".format(math.ceil(error.retry_after)))
+        return
+
+    if isinstance(error, commands.MissingPermissions):
+        missing = [perm.replace('_', ' ').replace('guild', 'server').title() for perm in error.missing_perms]
+        if len(missing) > 2:
+            fmt = '{}, and {}'.format("**, **".join(missing[:-1]), missing[-1])
+        else:
+            fmt = ' and '.join(missing)
+        _message = 'You need the **{}** permission(s) to use this command.'.format(fmt)
+        await ctx.send(_message)
+        return
+
+    if isinstance(error, commands.UserInputError):
+        await ctx.send("Invalid input. Please use `f.help` for instructions on how to use this command.")
+        # await ctx.command.send_command_help(ctx) TODO
+        return
+
+    if isinstance(error, commands.NoPrivateMessage):
+        try:
+            await ctx.author.send('This command cannot be used in direct messages.')
+        except discord.Forbidden:
+            pass
+        return
+
+    if isinstance(error, commands.CheckFailure):
+        await ctx.send("You do not have permission to use this command.")
+        return
+
+    # ignore all other exception types, but print them to stderr
+    log.exception("An unknown exception occurred while executing a command")
 
 
 # noinspection PyBroadException

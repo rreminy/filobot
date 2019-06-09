@@ -2,3 +2,5 @@ peewee
 discord.py>=1.1.0,<=1.2.0
 arrow
 PyYAML
+gitpython
+xivapi.py

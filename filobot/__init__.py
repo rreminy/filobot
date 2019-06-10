@@ -37,7 +37,7 @@ log.addHandler(ch)
 
 db.create_tables([Subscriptions, SubscriptionsMeta, ScoutingSessions, ScoutingHunts, Player, GuildSettings])
 
-bot = commands.Bot(command_prefix='fd.')
+bot = commands.Bot(command_prefix='f.')
 hunt_manager = HuntManager(bot)
 bot.add_cog(Hunts(bot, hunt_manager))
 bot.add_cog(Scouting(bot, hunt_manager))

@@ -9,7 +9,7 @@ class Admin(commands.Cog):
         self._log = logging.getLogger(__name__)
         self.bot = bot
 
-    @commands.command()
+    @commands.command(hidden=True)
     @commands.has_permissions(administrator=True)
     async def clear(self, ctx: commands.context.Context):
         """

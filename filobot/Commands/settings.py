@@ -3,7 +3,7 @@ import discord
 import typing
 
 from discord.ext import commands
-from filobot.models import GuildSettings as GuildSettings
+from filobot.models import GuildSettings as GuildSettings, Player
 
 
 class Settings(commands.Cog):
@@ -28,7 +28,7 @@ class Settings(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(administrator=True)
-    async def config(self, ctx: commands.context.Context, setting_key: typing.Optional[str] = None):
+    async def settings(self, ctx: commands.context.Context, setting_key: typing.Optional[str] = None):
         """
         List a guild setting or settings
         """
@@ -50,3 +50,28 @@ class Settings(commands.Cog):
         output = output + "\n```"
 
         await ctx.send(output)
+
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def reload(self, ctx: commands.context.Context):
+        """
+        Reload settings
+        Reloading Filo will do the following:
+            * Re-apply the verified role to member accounts
+        """
+        verified_role = await GuildSettings.fetch('verified', ctx)
+        status = await ctx.send("Please wait..")
+
+        if verified_role:
+            async with ctx.typing():
+                await status.edit(content="Synchronizing verified member roles..")
+                verified_members = list(Player.select().where(Player.status == Player.STATUS_VERIFIED).execute())
+                for member in verified_members:
+                    self._log.info(f"Synchronizing member {member.name} ({member.discord_id})")
+                    member = ctx.guild.get_member(int(member.discord_id))
+                    if member and verified_role not in member.roles:
+                        print(f"Adding verified member role to {member.display_name} ({member.id})")
+                        await member.add_roles(verified_role)
+
+        await status.delete()
+        await ctx.send("Done!", delete_after=5.0)

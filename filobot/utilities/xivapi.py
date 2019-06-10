@@ -76,7 +76,7 @@ class Character:
         self.portrait   = api_response['Character']['Portrait']
         self.bio        = api_response['Character']['Bio']
         self.gender     = self.GENDER_FEMALE if api_response['Character']['Gender'] == 2 else self.GENDER_MALE
-        self.points     = api_response['Achievements']['Points']
+        self.points     = api_response['Achievements']['Points'] if api_response['Achievements'] else None
         self.fc         = api_response['FreeCompany']
         self.updated    = datetime.datetime.utcfromtimestamp(api_response['Character']['ParseDate'])
 
@@ -111,7 +111,8 @@ class Character:
         embed.add_field(name="Race", value=f"""{self.race} ({self.tribe})""")
         embed.add_field(name="Server", value=f"""{self.server} ({self.datacenter})""")
         embed.add_field(name="Active job", value=f"""{self.active_job.name} (Level {self.active_job.level})""")
-        embed.add_field(name="Achievement points", value="{:,}".format(self.points))
+        if self.points:
+            embed.add_field(name="Achievement points", value="{:,}".format(self.points))
 
         return embed
 

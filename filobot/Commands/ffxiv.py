@@ -8,7 +8,7 @@ import peewee
 
 from discord.ext import commands
 from filobot.utilities.manager import HuntManager
-from filobot.models import Player
+from filobot.models import Player, GuildSettings
 from filobot.utilities.xivapi import XivApi
 
 
@@ -87,6 +87,11 @@ class FFXIV(commands.Cog):
 
         verified = await self.xiv.verify(lodestone_id=player.lodestone_id, verification_code=player.validation_code)
         if verified:
+            verified_role = await GuildSettings.fetch('verified', ctx)
+            if verified_role:
+                print(f"Adding verified role {verified_role} to member {ctx.author.display_name} on guild {ctx.guild.id}")
+                await ctx.author.add_roles(verified_role)
+
             player.status = Player.STATUS_VERIFIED
             player.save()
             await ctx.send("Your account has been verified successfully!")

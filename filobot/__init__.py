@@ -13,8 +13,10 @@ from filobot.Commands.admin import Admin
 from filobot.Commands.ffxiv import FFXIV
 from filobot.Commands.scouting import Scouting
 from filobot.Commands.misc import Misc
+from filobot.Commands.settings import Settings
 from filobot.utilities.manager import HuntManager
-from filobot.models import db, db_path, Subscriptions, SubscriptionsMeta, ScoutingSessions, ScoutingHunts, Player
+from filobot.models import db, db_path, Subscriptions, SubscriptionsMeta, ScoutingSessions, ScoutingHunts, Player, \
+    GuildSettings
 
 # Load our configuration
 config = ConfigParser()
@@ -33,7 +35,7 @@ ch.setFormatter(logFormat)
 
 log.addHandler(ch)
 
-db.create_tables([Subscriptions, SubscriptionsMeta, ScoutingSessions, ScoutingHunts, Player])
+db.create_tables([Subscriptions, SubscriptionsMeta, ScoutingSessions, ScoutingHunts, Player, GuildSettings])
 
 bot = commands.Bot(command_prefix='fd.')
 hunt_manager = HuntManager(bot)
@@ -42,6 +44,7 @@ bot.add_cog(Scouting(bot, hunt_manager))
 bot.add_cog(FFXIV(bot, config.get('Bot', 'XivApiKey')))
 bot.add_cog(Admin(bot))
 bot.add_cog(Misc(bot, hunt_manager))
+bot.add_cog(Settings(bot))
 
 
 GAMES = ("with moogles", "in Totomo Omo's estate", "in the Izakaya Pub", "pranks on Joel Cleveland'", "with the hunt tracker")
@@ -112,7 +115,7 @@ async def on_command_error(ctx: commands.context.Context, error: Exception):
         return
 
     # ignore all other exception types, but print them to stderr
-    log.exception("An unknown exception occurred while executing a command")
+    log.exception("An unknown exception occurred while executing a command", exc_info=error)
 
 
 # noinspection PyBroadException

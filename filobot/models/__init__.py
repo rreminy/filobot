@@ -64,3 +64,9 @@ class Player(BaseModel):
     world           = CharField(max_length=50)
     status          = IntegerField(default=STATUS_PENDING)
     validation_code = CharField(max_length=36)
+
+
+class Settings(BaseModel):
+    guild_id    = IntegerField()
+    name        = CharField()
+    value       = CharField(max_length=1024)

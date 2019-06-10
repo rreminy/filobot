@@ -14,7 +14,8 @@ from filobot.Commands.ffxiv import FFXIV
 from filobot.Commands.scouting import Scouting
 from filobot.Commands.misc import Misc
 from filobot.utilities.manager import HuntManager
-from filobot.models import db, db_path, Subscriptions, SubscriptionsMeta, ScoutingSessions, ScoutingHunts, Player
+from filobot.models import db, db_path, Subscriptions, SubscriptionsMeta, ScoutingSessions, ScoutingHunts, Player, \
+    Settings
 
 # Load our configuration
 config = ConfigParser()
@@ -33,7 +34,7 @@ ch.setFormatter(logFormat)
 
 log.addHandler(ch)
 
-db.create_tables([Subscriptions, SubscriptionsMeta, ScoutingSessions, ScoutingHunts, Player])
+db.create_tables([Subscriptions, SubscriptionsMeta, ScoutingSessions, ScoutingHunts, Player, Settings])
 
 bot = commands.Bot(command_prefix='fd.')
 hunt_manager = HuntManager(bot)

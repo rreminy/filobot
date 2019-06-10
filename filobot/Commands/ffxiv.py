@@ -26,7 +26,7 @@ class FFXIV(commands.Cog):
         Link your FFXIV character to Filo
         """
         if Player.select().where(Player.discord_id == ctx.author.id).count():
-            confirm_message = await ctx.send("An FFXIV character has already been linked to this Discord account. Are you sure you want to replace it? (Y/N)")
+            confirm_message = await ctx.send(f"{ctx.author.mention} An FFXIV character has already been linked to this Discord account. Are you sure you want to replace it? (Y/N)")
             try:
                 response = await self.bot.wait_for('message', timeout=15.0, check=self._author_check(ctx.message.author))
                 await response.delete()
@@ -57,14 +57,14 @@ class FFXIV(commands.Cog):
                     Player.delete().where((Player.lodestone_id == lodestone_id) & (Player.status == Player.STATUS_PENDING)).execute()
                     player = Player.create(lodestone_id=lodestone_id, discord_id=ctx.author.id, name=character.name, world=character.server, validation_code=uuid.uuid4())
                 except peewee.IntegrityError:
-                    await ctx.send("This character has already been linked to another discord user.")
+                    await ctx.send(f"{ctx.author.mention} This character has already been linked to another discord user.")
                     return
             except ValueError as e:
                 await ctx.send(str(e))
                 return
 
             await ctx.send(embed=character.embed())
-            await ctx.send(f"""**Note:** Your character has not been validated yet.\n\nTo verify your ownership of this character, please copy and paste the following verification code into your Lodestone Character Profile and then run the `f.verify` command:\n```\n{player.validation_code}\n```\nhttps://na.finalfantasyxiv.com/lodestone/my/setting/profile/""")
+            await ctx.send(f"""{ctx.author.mention} **Note:** Your character has not been validated yet.\n\nTo verify your ownership of this character, please copy and paste the following verification code into your Lodestone Character Profile and then run the `f.verify` command:\n```\n{player.validation_code}\n```\nhttps://na.finalfantasyxiv.com/lodestone/my/setting/profile/""")
 
     @commands.command()
     @commands.cooldown(2, 15, commands.BucketType.user)
@@ -75,14 +75,14 @@ class FFXIV(commands.Cog):
         try:
             player = Player.get(Player.discord_id == ctx.author.id)
         except peewee.DoesNotExist:
-            await ctx.send("You haven't linked your FFXIV account yet! Run the `f.help iam` command for information on how to do this.")
+            await ctx.send(f"{ctx.author.mention} You haven't linked your FFXIV account yet! Run the `f.help iam` command for information on how to do this.")
             return
 
         if player.status == Player.STATUS_BANNED:
-            await ctx.send("Your account has been banned and can not be verified again.")
+            await ctx.send(f"{ctx.author.mention} Your account has been banned and can not be verified again.")
             return
         if player.status == Player.STATUS_VERIFIED:
-            await ctx.send("Your account has already been verified!")
+            await ctx.send(f"{ctx.author.mention} Your account has already been verified!")
             return
 
         verified = await self.xiv.verify(lodestone_id=player.lodestone_id, verification_code=player.validation_code)
@@ -94,9 +94,9 @@ class FFXIV(commands.Cog):
 
             player.status = Player.STATUS_VERIFIED
             player.save()
-            await ctx.send("Your account has been verified successfully!")
+            await ctx.send(f"{ctx.author.mention} Your account has been verified successfully!")
         else:
-            await ctx.send(f"Validation failed. Please make sure your character profile contains **only** the following verification code and then try again:\n```\n{player.validation_code}\n```")
+            await ctx.send(f"{ctx.author.mention} Validation failed. Please make sure your character profile contains **only** the following verification code and then try again:\n```\n{player.validation_code}\n```")
 
     @commands.command()
     @commands.cooldown(1, 30, commands.BucketType.user)
@@ -107,7 +107,7 @@ class FFXIV(commands.Cog):
         try:
             player = Player.get(Player.discord_id == ctx.author.id)
         except peewee.DoesNotExist:
-            await ctx.send("You haven't linked your FFXIV account yet! Run the `f.help iam` command for information on how to do this.")
+            await ctx.send(f"{ctx.author.mention} You haven't linked your FFXIV account yet! Run the `f.help iam` command for information on how to do this.")
             return
 
         async with ctx.typing():

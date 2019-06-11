@@ -62,6 +62,9 @@ class FFXIV(commands.Cog):
             except ValueError as e:
                 await ctx.send(str(e))
                 return
+            except TypeError:
+                await ctx.send(f"Unable to find a character by the name of **{character}** on the world **{world.lower().title()}** - Please check your spelling and try again.")
+                return
 
             await ctx.send(embed=character.embed())
             await ctx.send(f"""{ctx.author.mention} **Note:** Your character has not been validated yet.\n\nTo verify your ownership of this character, please copy and paste the following verification code into your Lodestone Character Profile and then run the `f.verify` command:\n```\n{player.validation_code}\n```\nhttps://na.finalfantasyxiv.com/lodestone/my/setting/profile/""")

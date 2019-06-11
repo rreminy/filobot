@@ -5,7 +5,7 @@ import git
 
 from discord.ext import commands
 from filobot.utilities.manager import HuntManager
-from filobot.models import ScoutingSessions
+from filobot.models import ScoutingSessions, Player
 
 
 class Misc(commands.Cog):
@@ -44,6 +44,7 @@ class Misc(commands.Cog):
         """
         a_count, s_count = await self._hunt_manager.count()
         train_count = ScoutingSessions.select().where(ScoutingSessions.status == ScoutingSessions.STATUS_COMPLETED).count()
+        player_count = Player.select().where(Player.status == Player.STATUS_VERIFIED).count()
 
         # Git build hash
         repo = git.Repo(search_parent_directories=True)
@@ -52,7 +53,6 @@ class Misc(commands.Cog):
 
         # Uptime
         seconds = round(datetime.datetime.utcnow().timestamp() - self.start_time)
-        print(seconds)
         uptime  = []
         if seconds > 3600:
             uptime.append(f"""{int(seconds / 3600)} hours""")
@@ -63,14 +63,15 @@ class Misc(commands.Cog):
 
         uptime.append(f"""{int(seconds)} seconds""")
 
-        embed = discord.Embed(title="Filo", description="A Discord FFXIV hunting bot by Totomo Omo from Mateus")
-        embed.url = 'https://gitlab.com/FujiMakoto/filobot'
+        embed = discord.Embed(title="Support Filo on Ko-fi", description="A Discord FFXIV hunting bot by Totomo Omo from Mateus")
+        embed.url = 'https://ko-fi.com/totomo'
         embed.colour = 0x2274A5
         embed.set_thumbnail(url='https://i.imgur.com/khJRCmB.jpg')
 
         embed.add_field(name='A-Ranks Relayed', value="{:,}".format(a_count))
         embed.add_field(name='S-Ranks Relayed', value="{:,}".format(s_count))
         embed.add_field(name='Hunt Trains Organized', value="{:,}".format(train_count))
+        embed.add_field(name='Players Verified', value="{:,}".format(player_count))
 
         embed.set_footer(text=f"""Build {short_sha} • Up for {', '.join(uptime)}""")
 

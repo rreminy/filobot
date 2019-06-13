@@ -3,6 +3,7 @@ import logging
 import os
 import sys
 import typing
+import arrow
 import discord
 
 from discord.ext.commands import Bot
@@ -323,9 +324,11 @@ class HuntManager:
                 # sending a new one
                 notification = await self.get_notification(sub.channel_id, world, new.name)
                 if notification:
+                    notification, log = notification
                     found   = int(notification.created_at.timestamp())
-                    killed  = int(new.last_mark / 1000)
-                    seconds = killed - found
+                    killed  = arrow.get(int(new.last_mark / 1000)).timestamp
+                    print(found, killed, arrow.get(found).format("MMM Do, H:mma ZZZ"), arrow.get(int(new.last_mark / 1000)).format("MMM Do, H:mma ZZZ"), 'a')
+                    seconds = killed - log.found
 
                     kill_time = []
                     if seconds > 120:
@@ -336,8 +339,11 @@ class HuntManager:
                         seconds -= 60
                     kill_time.append(f"""{int(seconds)} seconds""")
 
-                    KillLog.create(hunt_name=new.name, world=new.world, found=found, killed=killed, kill_time=seconds)
-                    await notification.edit(content=f"""A scouted hunt has died on **{world} after {', '.join(kill_time)}**!""", embed=embed)
+                    log.killed = killed
+                    log.kill_time = seconds
+                    log.save()
+
+                    await notification.edit(content=f"""A scouted hunt has died on **{world}** after **{', '.join(kill_time)}**!""", embed=embed)
                     break
 
                 await self.bot.get_channel(sub.channel_id).send(f"""A hunt has died on **{world}**!""", embed=embed)
@@ -399,10 +405,11 @@ class HuntManager:
         if world not in self._notifications[channel]:
             self._notifications[channel][world] = {}
 
-        self._notifications[channel][world][hunt_name] = message
+        log = KillLog.create(hunt_name=hunt_name, world=world, found=arrow.utcnow().timestamp)
+        self._notifications[channel][world][hunt_name] = (message, log)
         self._log.debug("Notification message logged: " + repr(message))
 
-    async def get_notification(self, channel: int, world: str, hunt_name: str) -> typing.Optional[discord.Message]:
+    async def get_notification(self, channel: int, world: str, hunt_name: str) -> typing.Optional[typing.Tuple[discord.Message, KillLog]]:
         """
         Attempt to retrieve a notification message for a previously located hunt
         NOTE: Notifications are automatically purged after retrieved using this method
@@ -412,9 +419,9 @@ class HuntManager:
             return None
 
         if hunt_name in self._notifications[channel][world]:
-            message = self._notifications[channel][world][hunt_name]
+            message, log = self._notifications[channel][world][hunt_name]
             del self._notifications[channel][world][hunt_name]
-            return message
+            return message, log
 
     def _reload(self):
         """

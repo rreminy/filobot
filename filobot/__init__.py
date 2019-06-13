@@ -16,7 +16,7 @@ from filobot.Commands.misc import Misc
 from filobot.Commands.settings import Settings
 from filobot.utilities.manager import HuntManager
 from filobot.models import db, db_path, Subscriptions, SubscriptionsMeta, ScoutingSessions, ScoutingHunts, Player, \
-    GuildSettings
+    GuildSettings, KillLog
 
 # Load our configuration
 config = ConfigParser()
@@ -35,7 +35,7 @@ ch.setFormatter(logFormat)
 
 log.addHandler(ch)
 
-db.create_tables([Subscriptions, SubscriptionsMeta, ScoutingSessions, ScoutingHunts, Player, GuildSettings])
+db.create_tables([Subscriptions, SubscriptionsMeta, ScoutingSessions, ScoutingHunts, Player, GuildSettings, KillLog])
 
 bot = commands.Bot(command_prefix='f.')
 hunt_manager = HuntManager(bot)
@@ -127,7 +127,7 @@ async def update_hunts():
             await hunt_manager.recheck()
         except Exception:
             log.exception('Exception thrown while reloading hunts')
-        await asyncio.sleep(15.0)
+        await asyncio.sleep(7.0)
 
 
 async def update_game():

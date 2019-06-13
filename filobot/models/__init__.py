@@ -54,6 +54,14 @@ class ScoutingHunts(BaseModel):
     date = DateTimeField(default=datetime.datetime.now)
 
 
+class KillLog(BaseModel):
+    hunt_name   = CharField(index=True)
+    world       = CharField(max_length=50, index=True)
+    found       = IntegerField()
+    killed      = IntegerField()
+    kill_time   = IntegerField()
+
+
 class Player(BaseModel):
 
     STATUS_PENDING  = 0

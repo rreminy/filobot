@@ -8,7 +8,7 @@ import discord
 from discord.ext.commands import Bot
 from filobot.utilities import hunt_embed
 from filobot.utilities.horus import HorusHunt
-from filobot.models import Subscriptions, SubscriptionsMeta
+from filobot.models import Subscriptions, SubscriptionsMeta, KillLog
 from peewee import fn
 from .xivhunt import XivHunt
 from .horus import Horus
@@ -323,7 +323,21 @@ class HuntManager:
                 # sending a new one
                 notification = await self.get_notification(sub.channel_id, world, new.name)
                 if notification:
-                    await notification.edit(content=f"""A scouted hunt has died on **{world}**!""", embed=embed)
+                    found   = int(notification.created_at.timestamp())
+                    killed  = int(new.last_mark / 1000)
+                    seconds = killed - found
+
+                    kill_time = []
+                    if seconds > 120:
+                        kill_time.append(f"""{int(seconds / 60)} minutes""")
+                        seconds -= int(seconds / 60) * 60
+                    elif seconds > 60:
+                        kill_time.append(f"""1 minute""")
+                        seconds -= 60
+                    kill_time.append(f"""{int(seconds)} seconds""")
+
+                    KillLog.create(hunt_name=new.name, world=new.world, found=found, killed=killed, kill_time=seconds)
+                    await notification.edit(content=f"""A scouted hunt has died on **{world} after {', '.join(kill_time)}**!""", embed=embed)
                     break
 
                 await self.bot.get_channel(sub.channel_id).send(f"""A hunt has died on **{world}**!""", embed=embed)

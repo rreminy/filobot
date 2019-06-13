@@ -127,7 +127,7 @@ async def update_hunts():
             await hunt_manager.recheck()
         except Exception:
             log.exception('Exception thrown while reloading hunts')
-        await asyncio.sleep(15.0)
+        await asyncio.sleep(7.0)
 
 
 async def update_game():

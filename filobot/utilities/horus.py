@@ -27,7 +27,7 @@ class Horus:
         Load Horus data on the specified world
         """
         # Currently hardcoded to the Crystal DC; we might add support for other DC's later
-        if self._cached_response is not None and (time.time() <= self._cached_time + 30):
+        if self._cached_response is not None and (time.time() <= self._cached_time + 15):
             self._log.debug('Using cached Horus response')
             crystal = self._cached_response
         else:

@@ -8,6 +8,7 @@ import typing
 from discord.ext import commands
 from filobot.utilities import hunt_embed, parse_sb_hunt_name
 from filobot.utilities.manager import HuntManager
+from filobot.utilities.train import Conductor
 
 
 class Hunts(commands.Cog):
@@ -142,3 +143,11 @@ class Hunts(commands.Cog):
             return
 
         await ctx.send("Subscriptions for this channel have been cleared")
+
+    @commands.command()
+    async def test(self, ctx: commands.context.Context):
+        """
+        Clear all enabled subscriptions for this channel
+        """
+        train = Conductor(self.hunt_manager, 'Zalera')
+        print(train._hunts)

@@ -82,7 +82,8 @@ class GuildSettings(BaseModel):
 
     # key : default, type
     SETTINGS = {
-        'verified': (None, TYPE_ROLE)
+        'verified': (None, TYPE_ROLE),
+        'verified_message': ('{mention} Your account has been verified successfully! You may now remove the validation code from your profile.', None)
     }
 
     guild_id    = IntegerField()

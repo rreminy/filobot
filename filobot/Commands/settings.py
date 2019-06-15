@@ -26,6 +26,22 @@ class Settings(commands.Cog):
 
         await ctx.message.add_reaction('✅')
 
+    @commands.command(name='set-verified-message')
+    @commands.has_permissions(administrator=True)
+    async def set_verified_message(self, ctx: commands.context.Context, *, message: str):
+        """
+        Change the message displayed to users after they have verified their account
+        Replacements:
+            {mention} :: Replaced with a mention of the verified user
+        """
+        try:
+            await GuildSettings.set('verified_message', message, ctx)
+        except KeyError as e:
+            await ctx.send(str(e))
+            return
+
+        await ctx.message.add_reaction('✅')
+
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def settings(self, ctx: commands.context.Context, setting_key: typing.Optional[str] = None):

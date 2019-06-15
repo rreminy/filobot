@@ -104,7 +104,8 @@ class FFXIV(commands.Cog):
 
             player.status = Player.STATUS_VERIFIED
             player.save()
-            await ctx.send(f"{ctx.author.mention} Your account has been verified successfully! You may now remove the validation code from your profile.")
+            verified_message = str(await GuildSettings.fetch('verified_message', ctx)).replace('{mention}', ctx.author.mention)
+            await ctx.send(verified_message)
         else:
             await ctx.send(f"{ctx.author.mention} Validation failed. Please make sure your character profile contains **only** the following verification code and then try again:\n```\n{player.validation_code}\n```")
 

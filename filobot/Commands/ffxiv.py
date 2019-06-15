@@ -53,17 +53,24 @@ class FFXIV(commands.Cog):
             try:
                 Player.delete().where(Player.discord_id == ctx.author.id).execute()
                 lodestone_id, character = await self.xiv.search_character(world, forename, surname)
-                try:
-                    Player.delete().where((Player.lodestone_id == lodestone_id) & (Player.status == Player.STATUS_PENDING)).execute()
-                    player = Player.create(lodestone_id=lodestone_id, discord_id=ctx.author.id, name=character.name, world=character.server, validation_code=uuid.uuid4())
-                except peewee.IntegrityError:
-                    await ctx.send(f"{ctx.author.mention} This character has already been linked to another discord user.")
-                    return
             except ValueError as e:
                 await ctx.send(str(e))
                 return
             except TypeError:
-                await ctx.send(f"Unable to find a character by the name of **{character}** on the world **{world.lower().title()}** - Please check your spelling and try again.")
+                self._log.info("Failed to find character on first query - trying again.")
+                try:
+                    lodestone_id, character = await self.xiv.search_character(world, forename, surname)
+                except TypeError:
+                    await ctx.send(f"Unable to find a character by the name of **{character}** on the world **{world.lower().title()}** - Please check your spelling and try again.")
+                    return
+
+            try:
+                Player.delete().where(
+                    (Player.lodestone_id == lodestone_id) & (Player.status == Player.STATUS_PENDING)).execute()
+                player = Player.create(lodestone_id=lodestone_id, discord_id=ctx.author.id, name=character.name,
+                                       world=character.server, validation_code=uuid.uuid4())
+            except peewee.IntegrityError:
+                await ctx.send(f"{ctx.author.mention} This character has already been linked to another discord user.")
                 return
 
             await ctx.send(embed=character.embed())

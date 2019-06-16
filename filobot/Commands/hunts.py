@@ -6,6 +6,7 @@ import discord
 import typing
 
 from discord.ext import commands
+from filobot.models import SubscriptionsMeta
 from filobot.utilities import hunt_embed, parse_sb_hunt_name, SB_HUNTS
 from filobot.utilities.manager import HuntManager
 from filobot.utilities.train import Conductor
@@ -148,26 +149,44 @@ class Hunts(commands.Cog):
         await ctx.send("Subscriptions for this channel have been cleared")
 
     @commands.command()
-    async def train(self, ctx: commands.context.Context, world: str, starting_hunt: str):
+    async def train(self, ctx: commands.context.Context, world: str, starting_hunt: typing.Optional[str] = 'erle'):
         """
-        This commands in development. You get no documentation.
-
-        Still no documentation here.
+        Announced the start of a SB hunt train on the specified world
         """
         world = world.strip().lower().title()
         starting_hunt = parse_sb_hunt_name(starting_hunt)
 
+        _meta = SubscriptionsMeta.select().where(SubscriptionsMeta.channel_id == ctx.channel.id)
+        meta = {m.name: m.value for m in _meta}
+        role_mention = meta['notifier'] if 'notifier' in meta else None
+
+        message = f"{ctx.author.mention} has announced the start of a hunt train on **{world.title()}**!"
+        print(message)
+        if role_mention:
+            message = f"{role_mention} {message}"
+
         conductor = Conductor(self.hunt_manager, world, starting_hunt)
         self._trains[world] = (
             conductor,
-            await ctx.send(embed=next(conductor))
+            await ctx.send(content=message, embed=next(conductor))
         )
 
-        # train, message = self._trains[world]
-        # await message.edit(embed=next(self._trains[world]))
+    @commands.command(name='train-cancel')
+    async def train_cancel(self, ctx: commands.context.Context, world: str):
+        """
+        Blows up the train. Boom.
+        """
+        world = world.strip().lower().title()
+        if world not in self._trains:
+            await ctx.send(f"There are no active trains on **{world.title()} at the moment", delete_after=10.0)
+            return
+
+        conductor, message = self._trains[world]  # type: Conductor, discord.Message
+        await message.delete()
+        del self._trains[world]
+        await ctx.message.delete()
 
     async def _update_train(self, world, horus, xivhunt):
-        print(world, horus, xivhunt)
         if world in self._trains:
             conductor, message = self._trains[world]  # type: Conductor, discord.Message
             for name, horushunt in horus.items():
@@ -182,5 +201,4 @@ class Hunts(commands.Cog):
 
             await message.edit(embed=next(conductor))
             if conductor.finished:
-                print('TRAIN OVER')
                 del self._trains[world]

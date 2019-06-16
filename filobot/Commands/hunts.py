@@ -171,6 +171,8 @@ class Hunts(commands.Cog):
             await ctx.send(content=message, embed=next(conductor))
         )
 
+        await ctx.message.delete()
+
     @commands.command(name='train-cancel')
     async def train_cancel(self, ctx: commands.context.Context, world: str):
         """

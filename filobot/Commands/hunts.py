@@ -191,16 +191,16 @@ class Hunts(commands.Cog):
     async def _update_train(self, world, horus, xivhunt):
         if world in self._trains:
             conductor, message = self._trains[world]  # type: Conductor, discord.Message
+            killed = False
             for name, horushunt in horus.items():
-                print(name)
-                print(name in SB_HUNTS)
                 # Make sure it's an SB A-Rank
                 if name in SB_HUNTS and (horushunt.status == horushunt.STATUS_DIED):
                     if conductor.hunt_is_in_train(name):
-                        print(name)
                         conductor.log_kill(name)
-                        await message.edit(embed=next(conductor))
-                        break
+                        killed = True
+
+            if killed or conductor.finished:
+                await message.edit(embed=next(conductor))
 
             if conductor.finished:
                 del self._trains[world]

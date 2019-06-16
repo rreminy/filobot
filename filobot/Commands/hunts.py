@@ -6,8 +6,10 @@ import discord
 import typing
 
 from discord.ext import commands
-from filobot.utilities import hunt_embed, parse_sb_hunt_name
+from filobot.models import SubscriptionsMeta
+from filobot.utilities import hunt_embed, parse_sb_hunt_name, SB_HUNTS
 from filobot.utilities.manager import HuntManager
+from filobot.utilities.train import Conductor
 
 
 class Hunts(commands.Cog):
@@ -20,6 +22,9 @@ class Hunts(commands.Cog):
 
         with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'marks_info.json')) as json_file:
             self.marks_info = json.load(json_file)
+
+        self._trains = {}
+        self.hunt_manager.add_recheck_cb(self._update_train)
 
     @commands.command()
     async def info(self, ctx: commands.context.Context, *, hunt_name: str):
@@ -142,3 +147,58 @@ class Hunts(commands.Cog):
             return
 
         await ctx.send("Subscriptions for this channel have been cleared")
+
+    @commands.command()
+    async def train(self, ctx: commands.context.Context, world: str, starting_hunt: typing.Optional[str] = 'erle'):
+        """
+        Announced the start of a SB hunt train on the specified world
+        """
+        world = world.strip().lower().title()
+        starting_hunt = parse_sb_hunt_name(starting_hunt)
+
+        _meta = SubscriptionsMeta.select().where(SubscriptionsMeta.channel_id == ctx.channel.id)
+        meta = {m.name: m.value for m in _meta}
+        role_mention = meta['notifier'] if 'notifier' in meta else None
+
+        message = f"{ctx.author.mention} has announced the start of a hunt train on **{world.title()}**!"
+        print(message)
+        if role_mention:
+            message = f"{role_mention} {message}"
+
+        conductor = Conductor(self.hunt_manager, world, starting_hunt)
+        self._trains[world] = (
+            conductor,
+            await ctx.send(content=message, embed=next(conductor))
+        )
+
+    @commands.command(name='train-cancel')
+    async def train_cancel(self, ctx: commands.context.Context, world: str):
+        """
+        Blows up the train. Boom.
+        """
+        world = world.strip().lower().title()
+        if world not in self._trains:
+            await ctx.send(f"There are no active trains on **{world.title()} at the moment", delete_after=10.0)
+            return
+
+        conductor, message = self._trains[world]  # type: Conductor, discord.Message
+        await message.delete()
+        del self._trains[world]
+        await ctx.message.delete()
+
+    async def _update_train(self, world, horus, xivhunt):
+        if world in self._trains:
+            conductor, message = self._trains[world]  # type: Conductor, discord.Message
+            for name, horushunt in horus.items():
+                print(name)
+                print(name in SB_HUNTS)
+                # Make sure it's an SB A-Rank
+                if name in SB_HUNTS and (horushunt.status == horushunt.STATUS_DIED):
+                    if conductor.hunt_is_in_train(name):
+                        print(name)
+                        conductor.log_kill(name)
+                        break
+
+            await message.edit(embed=next(conductor))
+            if conductor.finished:
+                del self._trains[world]

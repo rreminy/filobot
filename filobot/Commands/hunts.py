@@ -151,7 +151,7 @@ class Hunts(commands.Cog):
     @commands.command()
     async def train(self, ctx: commands.context.Context, world: str, starting_hunt: typing.Optional[str] = 'erle'):
         """
-        Announced the start of a SB hunt train on the specified world
+        Announces the start of a SB hunt train on the specified world
         """
         world = world.strip().lower().title()
         starting_hunt = parse_sb_hunt_name(starting_hunt)
@@ -197,8 +197,8 @@ class Hunts(commands.Cog):
                     if conductor.hunt_is_in_train(name):
                         print(name)
                         conductor.log_kill(name)
+                        await message.edit(embed=next(conductor))
                         break
 
-            await message.edit(embed=next(conductor))
             if conductor.finished:
                 del self._trains[world]

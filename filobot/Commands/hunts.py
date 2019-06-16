@@ -6,7 +6,7 @@ import discord
 import typing
 
 from discord.ext import commands
-from filobot.utilities import hunt_embed, parse_sb_hunt_name
+from filobot.utilities import hunt_embed, parse_sb_hunt_name, SB_HUNTS
 from filobot.utilities.manager import HuntManager
 from filobot.utilities.train import Conductor
 
@@ -21,6 +21,9 @@ class Hunts(commands.Cog):
 
         with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'marks_info.json')) as json_file:
             self.marks_info = json.load(json_file)
+
+        self._trains = {}
+        self.hunt_manager.add_recheck_cb(self._update_train)
 
     @commands.command()
     async def info(self, ctx: commands.context.Context, *, hunt_name: str):
@@ -145,9 +148,39 @@ class Hunts(commands.Cog):
         await ctx.send("Subscriptions for this channel have been cleared")
 
     @commands.command()
-    async def test(self, ctx: commands.context.Context):
+    async def train(self, ctx: commands.context.Context, world: str, starting_hunt: str):
         """
-        Clear all enabled subscriptions for this channel
+        This commands in development. You get no documentation.
+
+        Still no documentation here.
         """
-        train = Conductor(self.hunt_manager, 'Zalera')
-        print(train._hunts)
+        world = world.strip().lower().title()
+        starting_hunt = parse_sb_hunt_name(starting_hunt)
+
+        conductor = Conductor(self.hunt_manager, world, starting_hunt)
+        self._trains[world] = (
+            conductor,
+            await ctx.send(embed=next(conductor))
+        )
+
+        # train, message = self._trains[world]
+        # await message.edit(embed=next(self._trains[world]))
+
+    async def _update_train(self, world, horus, xivhunt):
+        print(world, horus, xivhunt)
+        if world in self._trains:
+            conductor, message = self._trains[world]  # type: Conductor, discord.Message
+            for name, horushunt in horus.items():
+                print(name)
+                print(name in SB_HUNTS)
+                # Make sure it's an SB A-Rank
+                if name in SB_HUNTS and (horushunt.status == horushunt.STATUS_DIED):
+                    if conductor.hunt_is_in_train(name):
+                        print(name)
+                        conductor.log_kill(name)
+                        break
+
+            await message.edit(embed=next(conductor))
+            if conductor.finished:
+                print('TRAIN OVER')
+                del self._trains[world]

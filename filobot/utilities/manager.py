@@ -327,7 +327,6 @@ class HuntManager:
                     notification, log = notification
                     found   = int(notification.created_at.timestamp())
                     killed  = arrow.get(int(new.last_mark / 1000)).timestamp
-                    print(found, killed, arrow.get(found).format("MMM Do, H:mma ZZZ"), arrow.get(int(new.last_mark / 1000)).format("MMM Do, H:mma ZZZ"), 'a')
                     seconds = killed - log.found
 
                     kill_time = []

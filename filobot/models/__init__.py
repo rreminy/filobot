@@ -120,6 +120,7 @@ class GuildSettings(BaseModel):
         if _type == GuildSettings.TYPE_ROLE:
             setting_value = setting_value.id
 
+        GuildSettings.delete().where((GuildSettings.guild_id == ctx.guild.id) & (GuildSettings.name == setting_key)).execute()
         return GuildSettings.create(guild_id=ctx.guild.id, name=setting_key, value=setting_value)
 
     @staticmethod

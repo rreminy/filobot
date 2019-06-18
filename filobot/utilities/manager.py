@@ -342,10 +342,17 @@ class HuntManager:
                     log.kill_time = seconds
                     log.save()
 
-                    await notification.edit(content=f"""A scouted hunt has died on **{world}** after **{', '.join(kill_time)}**!""", embed=embed)
+                    try:
+                        await notification.edit(content=f"""A scouted hunt has died on **{world}** after **{', '.join(kill_time)}**!""", embed=embed)
+                    except discord.NotFound:
+                        self._log.warning(f"Notification message for hunt {new.name} on world {world} has been deleted")
                     break
 
-                await self.bot.get_channel(sub.channel_id).send(f"""A hunt has died on **{world}**!""", embed=embed)
+                try:
+                    await self.bot.get_channel(sub.channel_id).send(f"""A hunt has died on **{world}**!""", embed=embed)
+                except AttributeError:
+                    self._log.warning(f"Subscription channel is no longer active; removing channel {sub.channel_id}")
+                    sub.delete()
                 break
 
     async def on_find(self, world: str, name: str, xivhunt: dict):
@@ -374,7 +381,12 @@ class HuntManager:
             content = f"""A hunt has been found on **{world}**!"""
             if role_mention:
                 content = f"""{role_mention} {content}"""
-            message = await self.bot.get_channel(sub.channel_id).send(content, embed=embed)
+            try:
+                message = await self.bot.get_channel(sub.channel_id).send(content, embed=embed)
+            except AttributeError:
+                self._log.warning(f"Subscription channel is no longer active; removing channel {sub.channel_id}")
+                sub.delete()
+                return
             await self.log_notification(message, sub.channel_id, world, name)
 
             # Relay counter

@@ -1,7 +1,6 @@
 import asyncio
-import datetime
 import logging
-import os
+import traceback
 import random
 from configparser import ConfigParser
 import discord
@@ -115,6 +114,15 @@ async def on_command_error(ctx: commands.context.Context, error: Exception):
         return
 
     # ignore all other exception types, but print them to stderr
+    # noinspection PyBroadException
+    try:
+        channel_id = config.get('Bot', 'ChannelErrorLog', fallback=None)
+        if channel_id:
+            channel = await ctx.bot.get_channel(int(channel_id))
+            await channel.send(content=f"{ctx.bot.owner.user.mention} An exception has been logged:\n```\n{traceback.format_exc(100)}\n````")
+    except Exception:
+        log.error("Failed to log exception to the specified error logging channel")
+        pass
     log.exception("An unknown exception occurred while executing a command", exc_info=error)
 
 

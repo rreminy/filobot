@@ -85,7 +85,7 @@ class HuntManager:
             self._changed[world] = {}
             self._found[world] = {}
 
-            xivhunt = await self.xivhunt.load(world)
+            # xivhunt = await self.xivhunt.load(world)
             horus   = await self.horus.load(world)
 
             # Look for updated Horus entries
@@ -96,21 +96,21 @@ class HuntManager:
                     await self.on_change(world, self._hunts[world]['horus'][name], hunt)
 
             # Check and see if hunts have been found on XIVHunt
-            for name, hunt in xivhunt.items():  # type: str, dict
-                if name in self._hunts[world]['xivhunt'] and hunt['status'] == 'seen':
-                    # First time seeing this hunt?
-                    if self._hunts[world]['xivhunt'][name]['status'] != 'seen':
-                        print(f"""Hunt seen for the first time! {name.title()} on {world}""")
-                        self._found[world][name] = hunt
-                        await self.on_find(world, name, hunt)
+            # for name, hunt in xivhunt.items():  # type: str, dict
+            #     if name in self._hunts[world]['xivhunt'] and hunt['status'] == 'seen':
+            #         # First time seeing this hunt?
+            #         if self._hunts[world]['xivhunt'][name]['status'] != 'seen':
+            #             print(f"""Hunt seen for the first time! {name.title()} on {world}""")
+            #             self._found[world][name] = hunt
+            #             await self.on_find(world, name, hunt)
 
-            self._hunts[world]['xivhunt'] = xivhunt
+            # self._hunts[world]['xivhunt'] = xivhunt
             self._hunts[world]['horus']   = horus
-            await self.on_recheck(world, horus, xivhunt)
+            await self.on_recheck(world, horus)
 
-    async def on_recheck(self, world: str, horus: HorusHunt, xivhunt: dict):
+    async def on_recheck(self, world: str, horus: HorusHunt):
         for callback in self._recheck_cbs:
-            await callback(world, horus, xivhunt)
+            await callback(world, horus)
 
     def add_recheck_cb(self, callback: typing.Callable):
         if callback in self._recheck_cbs:

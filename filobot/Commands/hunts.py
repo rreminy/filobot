@@ -188,7 +188,7 @@ class Hunts(commands.Cog):
         del self._trains[world]
         await ctx.message.delete()
 
-    async def _update_train(self, world, horus, xivhunt):
+    async def _update_train(self, world, horus):
         if world in self._trains:
             conductor, message = self._trains[world]  # type: Conductor, discord.Message
             killed = False

@@ -93,11 +93,11 @@ class HuntManager:
             horus   = await self.horus.load(world)
 
             # Look for updated Horus entries
-            for name, hunt in horus.items():  # type: str, HorusHunt
-                if name in self._hunts[world]['horus'] and hunt.status != self._hunts[world]['horus'][name].status:
-                    print(f"""Hunt status for {hunt.name} on {world} (Instance {hunt.instance}) changed - {self._hunts[world]['horus'][name].status.title()} => {hunt.status.title()}""")
-                    self._changed[world][name] = hunt
-                    await self.on_change(world, self._hunts[world]['horus'][name], hunt)
+            for key, hunt in horus.items():  # type: str, HorusHunt
+                if key in self._hunts[world]['horus'] and hunt.status != self._hunts[world]['horus'][key].status:
+                    print(f"""Hunt status for {hunt.name} on {world} (Instance {hunt.instance}) changed - {self._hunts[world]['horus'][key].status.title()} => {hunt.status.title()}""")
+                    self._changed[world][key] = hunt
+                    await self.on_change(world, self._hunts[world]['horus'][key], hunt)
 
             # Check and see if hunts have been found on XIVHunt
             # for name, hunt in xivhunt.items():  # type: str, dict
@@ -326,7 +326,7 @@ class HuntManager:
             if new.status == new.STATUS_DIED and self.COND_DEAD == sub.event:
                 # If we previously sent a notification that the hunt was found, edit that message instead of
                 # sending a new one
-                notification = await self.get_notification(sub.channel_id, world, new.name)
+                notification = await self.get_notification(sub.channel_id, world, new.name, new.instance)
                 if notification:
                     notification, log = notification
                     found   = int(notification.created_at.timestamp())

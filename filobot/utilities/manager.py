@@ -91,7 +91,7 @@ class HuntManager:
             # Look for updated Horus entries
             for name, hunt in horus.items():  # type: str, HorusHunt
                 if name in self._hunts[world]['horus'] and hunt.status != self._hunts[world]['horus'][name].status:
-                    print(f"""Hunt status for {hunt.name} on {world} changed - {self._hunts[world]['horus'][name].status.title()} => {hunt.status.title()}""")
+                    print(f"""Hunt status for {hunt.name} on {world} (Instance {hunt.instance}) changed - {self._hunts[world]['horus'][name].status.title()} => {hunt.status.title()}""")
                     self._changed[world][name] = hunt
                     await self.on_change(world, self._hunts[world]['horus'][name], hunt)
 
@@ -311,12 +311,12 @@ class HuntManager:
 
         for sub in subs:  # type: Subscriptions
             if new.status == new.STATUS_OPENED and self.COND_OPEN == sub.event:
-                await self.bot.get_channel(sub.channel_id).send(f"""A hunt has opened on **{world}**!""", embed=embed)
+                await self.bot.get_channel(sub.channel_id).send(f"""A hunt has opened on **{world}** in **Instance {hunt.instance}**!""", embed=embed)
                 break
 
             if new.status == new.STATUS_MAXED and self.COND_OPEN == sub.event:
                 await self.bot.get_channel(sub.channel_id).send(
-                    f"""A hunts maximum spawn window has been reached on **{world}**!""", embed=embed)
+                    f"""A hunts maximum spawn window has been reached on **{world}** in **Instance {hunt.instance}**!""", embed=embed)
                 break
 
             if new.status == new.STATUS_DIED and self.COND_DEAD == sub.event:
@@ -343,13 +343,13 @@ class HuntManager:
                     log.save()
 
                     try:
-                        await notification.edit(content=f"""A scouted hunt has died on **{world}** after **{', '.join(kill_time)}**!""", embed=embed)
+                        await notification.edit(content=f"""A scouted hunt has died on **{world}** in **Instance {hunt.instance}** after **{', '.join(kill_time)}**!""", embed=embed)
                     except discord.NotFound:
                         self._log.warning(f"Notification message for hunt {new.name} on world {world} has been deleted")
                     break
 
                 try:
-                    await self.bot.get_channel(sub.channel_id).send(f"""A hunt has died on **{world}**!""", embed=embed)
+                    await self.bot.get_channel(sub.channel_id).send(f"""A hunt has died on **{world}** in **Instance {hunt.instance}**!""", embed=embed)
                 except AttributeError:
                     self._log.warning(f"Subscription channel is no longer active; removing channel {sub.channel_id}")
                     sub.delete()
@@ -378,7 +378,7 @@ class HuntManager:
             meta  = {m.name : m.value for m in _meta}
             role_mention = meta['notifier'] if 'notifier' in meta else None
 
-            content = f"""A hunt has been found on **{world}**!"""
+            content = f"""A hunt has been found on **{world}** in **Instance {hunt.instance}**!"""
             if role_mention:
                 content = f"""{role_mention} {content}"""
             try:

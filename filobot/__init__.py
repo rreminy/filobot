@@ -118,10 +118,12 @@ async def on_command_error(ctx: commands.context.Context, error: Exception):
     try:
         channel_id = config.get('Bot', 'ChannelErrorLog', fallback=None)
         if channel_id:
-            channel = await ctx.bot.get_channel(int(channel_id))
-            await channel.send(content=f"{ctx.bot.owner.user.mention} An exception has been logged:\n```\n{traceback.format_exc(100)}\n````")
+            channel = ctx.bot.get_channel(int(channel_id))
+            app_info = await ctx.bot.application_info()
+            tb = ''.join(traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__))
+            await channel.send(content=f"{app_info.owner.mention} An exception has been logged:\n```\n{tb}\n```")
     except Exception:
-        log.error("Failed to log exception to the specified error logging channel")
+        log.exception("Failed to log exception to the specified error logging channel")
         pass
     log.exception("An unknown exception occurred while executing a command", exc_info=error)
 

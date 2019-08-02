@@ -162,7 +162,7 @@ async def start_server():
         world   = hunt_manager.get_world(int(data['wId']))
         hunt    = hunt_manager.horus.id_to_hunt(data['id'])
         _plus   = 22.5 if hunt['ZoneName'] in hunt_manager.HW_ZONES else 21.5
-        x, y    = round((data['x'] * 0.02 + _plus)*10)/10, round((data['y'] * 0.02 + _plus)*10)/10
+        x, y    = round((float(data['x']) * 0.02 + _plus)*10)/10, round((float(data['y']) * 0.02 + _plus)*10)/10
         xivhunt = {
             'rank': data['r'],
             'status': 'seen' if alive else 'dead',

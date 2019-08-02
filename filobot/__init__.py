@@ -175,7 +175,7 @@ async def start_server():
 
     runner = web.AppRunner(app)
     await runner.setup()
-    site = web.TCPSite(runner, 'localhost', 8080)
+    site = web.TCPSite(runner, '108.170.28.204', 9544)
     await site.start()
 
 bot.loop.create_task(update_hunts())

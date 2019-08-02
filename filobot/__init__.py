@@ -175,11 +175,11 @@ async def start_server():
 
         # Dead? No reason to continue.
         if not alive:
-            return
+            return web.Response(text='200')
 
         # Already seen? No reason to continue.
         if hunt['Name'] in hunts[world]:
-            return
+            return web.Response(text='200')
 
         await hunt_manager.on_find(world, hunt['Name'], xivhunt, data['i'])
         return web.Response(text='200')

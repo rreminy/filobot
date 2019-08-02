@@ -123,9 +123,7 @@ def hunt_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: typing.Op
                 embed.colour = COLOR_OPEN
 
                 # Parse the time in a human friendly format
-                hours, minutes = xivhunt['last_seen'].split(':')
-                seconds = (int(hours) * 3600) + (int(minutes) * 60)
-                ls_human = arrow.get(time.time() - seconds).format("MMM Do, H:mma ZZZ")
+                ls_human = arrow.get('last_seen').format("MMM Do, H:mma ZZZ")
 
                 embed.add_field(name='Last seen', value=ls_human)
                 embed.add_field(name='Coords', value=xivhunt['coords'])

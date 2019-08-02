@@ -17,6 +17,8 @@ from .horus import Horus
 
 class HuntManager:
 
+    SUB_SHB_A   = 'shadowbringers_a'
+    SUB_SHB_S   = 'shadowbringers_s'
     SUB_SB_A    = 'stormblood_a'
     SUB_SB_S    = 'stormblood_s'
     SUB_HW_A    = 'heavensward_a'
@@ -33,6 +35,8 @@ class HuntManager:
                 'The Dravanian Hinterlands', 'The Churning Mists', 'The Sea of Clouds', 'Azys Lla')
 
     SB_ZONES = ('The Ruby Sea', 'Yanxia', 'The Azim Steppe', 'The Fringes', 'The Peaks', 'The Lochs')
+
+    SHB_ZONES = ('Il Mheg', "The Rak'tika Greatwood", 'The Tempest', 'Amh Araeng', 'Lakeland', 'Kholusia')
 
     WORLDS = ('Balmung', 'Brynhildr', 'Coeurl', 'Diabolos', 'Goblin', 'Malboro', 'Mateus', 'Zalera')
 
@@ -164,7 +168,7 @@ class HuntManager:
             sub = getattr(self, f"""SUB_{subscription.upper()}""")
         except AttributeError:
             await self.bot.get_channel(channel).send(
-                "Invalid subscription provided, valid subscriptions are: sb_a, sb_s, hw_a, hw_s, arr_a, arr_s"
+                "Invalid subscription provided, valid subscriptions are: shb_a, shb_s, sb_a, sb_s, hw_a, hw_s, arr_a, arr_s"
             )
             return
 
@@ -457,6 +461,9 @@ class HuntManager:
                     self._marks_info[key]['Channel'] = channel
                 elif mark['ZoneName'] in self.SB_ZONES and (mark['Rank'] == 'A' or mark['Rank'] == 'S'):
                     channel = getattr(self, f"""SUB_SB_{mark['Rank']}""")
+                    self._marks_info[key]['Channel'] = channel
+                elif mark['ZoneName'] in self.SHB_ZONES and (mark['Rank'] == 'A' or mark['Rank'] == 'S'):
+                    channel = getattr(self, f"""SUB_SHB_{mark['Rank']}""")
                     self._marks_info[key]['Channel'] = channel
                 else:
                     self._log.info(f"""Not binding hunt {mark['Name']} to a subscription channel""")

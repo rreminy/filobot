@@ -181,7 +181,7 @@ async def start_server():
         if hunt['Name'] in hunts[world]:
             return web.Response(text='200')
 
-        await hunt_manager.on_find(world, hunt['Name'], xivhunt, data['i'])
+        await hunt_manager.on_find(world, hunt['Name'], xivhunt, data['i'] or 1)
         return web.Response(text='200')
 
     app = web.Application()

@@ -71,7 +71,7 @@ class HorusHunt:
     STATUS_CLOSED = 'closed'
     STATUS_DIED   = 'dead'
 
-    def __init__(self, hunt_data, timer_data, instance=0):
+    def __init__(self, hunt_data, timer_data, instance=1):
         # Hunt data
         self.name = hunt_data['Name']
         self.instance = instance  # 0 = Not an instanced zone, 1-3 = instance number

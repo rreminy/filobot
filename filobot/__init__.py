@@ -173,8 +173,6 @@ async def start_server():
         if world not in hunts:
             hunts[world] = {}
 
-        print(await request.post())
-
         # Dead? No reason to continue.
         if not alive:
             return

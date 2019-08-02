@@ -315,12 +315,12 @@ class HuntManager:
 
         for sub in subs:  # type: Subscriptions
             if new.status == new.STATUS_OPENED and self.COND_OPEN == sub.event:
-                await self.bot.get_channel(sub.channel_id).send(f"""A hunt has opened on **{world}** in **Instance {hunt.instance}**!""", embed=embed)
+                await self.bot.get_channel(sub.channel_id).send(f"""A hunt has opened on **{world}** (**Instance {new.instance}**)!""", embed=embed)
                 break
 
             if new.status == new.STATUS_MAXED and self.COND_OPEN == sub.event:
                 await self.bot.get_channel(sub.channel_id).send(
-                    f"""A hunts maximum spawn window has been reached on **{world}** in **Instance {hunt.instance}**!""", embed=embed)
+                    f"""A hunts maximum spawn window has been reached on **{world}** (**Instance {new.instance}**)!""", embed=embed)
                 break
 
             if new.status == new.STATUS_DIED and self.COND_DEAD == sub.event:
@@ -347,19 +347,19 @@ class HuntManager:
                     log.save()
 
                     try:
-                        await notification.edit(content=f"""A scouted hunt has died on **{world}** in **Instance {hunt.instance}** after **{', '.join(kill_time)}**!""", embed=embed)
+                        await notification.edit(content=f"""A scouted hunt has died on **{world}** (**Instance {new.instance}**) after **{', '.join(kill_time)}**!""", embed=embed)
                     except discord.NotFound:
                         self._log.warning(f"Notification message for hunt {new.name} on world {world} has been deleted")
                     break
 
                 try:
-                    await self.bot.get_channel(sub.channel_id).send(f"""A hunt has died on **{world}** in **Instance {hunt.instance}**!""", embed=embed)
+                    await self.bot.get_channel(sub.channel_id).send(f"""A hunt has died on **{world}** (**Instance {new.instance}**)!""", embed=embed)
                 except AttributeError:
                     self._log.warning(f"Subscription channel is no longer active; removing channel {sub.channel_id}")
                     sub.delete()
                 break
 
-    async def on_find(self, world: str, name: str, xivhunt: dict):
+    async def on_find(self, world: str, name: str, xivhunt: dict, instance=1):
         """
         Hunt found event handler
         """
@@ -382,7 +382,7 @@ class HuntManager:
             meta  = {m.name : m.value for m in _meta}
             role_mention = meta['notifier'] if 'notifier' in meta else None
 
-            content = f"""A hunt has been found on **{world}** in **Instance {hunt.instance}**!"""
+            content = f"""A hunt has been found on **{world}** (**Instance {instance}**)!"""
             if role_mention:
                 content = f"""{role_mention} {content}"""
             try:
@@ -391,7 +391,7 @@ class HuntManager:
                 self._log.warning(f"Subscription channel is no longer active; removing channel {sub.channel_id}")
                 sub.delete()
                 return
-            await self.log_notification(message, sub.channel_id, world, name)
+            await self.log_notification(message, sub.channel_id, world, name, instance)
 
             # Relay counter
             _counter_key = f"""{hunt['Rank'].lower()}_count"""
@@ -410,33 +410,41 @@ class HuntManager:
                 ).execute()
             break
 
-    async def log_notification(self, message: discord.Message, channel: int, world: str, hunt_name: str) -> None:
+    async def log_notification(self, message: discord.Message, channel: int, world: str, hunt_name: str, instance : int = 1) -> None:
         """
         Log a hunt found notification for editing later
         """
-        hunt_name = hunt_name.lower()
+        key = f"{hunt_name.lower()}_{instance}"
         if channel not in self._notifications:
             self._notifications[channel] = {}
         if world not in self._notifications[channel]:
             self._notifications[channel][world] = {}
 
-        log = KillLog.create(hunt_name=hunt_name, world=world, found=arrow.utcnow().timestamp)
-        self._notifications[channel][world][hunt_name] = (message, log)
+        log = KillLog.create(hunt_name=hunt_name.lower(), world=world, found=arrow.utcnow().timestamp)
+        self._notifications[channel][world][key] = (message, log)
         self._log.debug("Notification message logged: " + repr(message))
 
-    async def get_notification(self, channel: int, world: str, hunt_name: str) -> typing.Optional[typing.Tuple[discord.Message, KillLog]]:
+    async def get_notification(self, channel: int, world: str, hunt_name: str, instance : int = 1) -> typing.Optional[typing.Tuple[discord.Message, KillLog]]:
         """
         Attempt to retrieve a notification message for a previously located hunt
         NOTE: Notifications are automatically purged after retrieved using this method
         """
-        hunt_name = hunt_name.lower()
+        key = f"{hunt_name.lower()}_{instance}"
         if channel not in self._notifications or world not in self._notifications[channel]:
             return None
 
-        if hunt_name in self._notifications[channel][world]:
-            message, log = self._notifications[channel][world][hunt_name]
-            del self._notifications[channel][world][hunt_name]
+        if key in self._notifications[channel][world]:
+            message, log = self._notifications[channel][world][key]
+            del self._notifications[channel][world][key]
             return message, log
+
+    def get_world(self, id: int):
+        for world, url in self.xivhunt.WORLDS.items():
+            _id = int(url[-2:])
+            if id == _id:
+                return world
+        else:
+            raise IndexError(f'No world with the ID {id} could be found')
 
     def _reload(self):
         """

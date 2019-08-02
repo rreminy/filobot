@@ -5,6 +5,7 @@ import random
 from configparser import ConfigParser
 import discord
 import math
+from aiohttp import web
 
 from discord.ext import commands
 from filobot.Commands import Hunts
@@ -151,5 +152,32 @@ async def update_game():
             log.exception('Exception thrown while changing game status')
         await asyncio.sleep(60.0)
 
+
+async def start_server():
+    async def event(request):
+        data    = await request.post()
+        alive   = data['lastAlive'] == 'True'
+        world   = hunt_manager.get_world(int(data['wId']))
+        hunt    = hunt_manager.horus.id_to_hunt(data['id'])
+        xivhunt = {
+            'rank': data['r'],
+            'status': hunt_manager.xivhunt.STATUS_ALIVE if alive else hunt_manager.xivhunt.STATUS_DEAD,
+            'last_seen': data['lastReported'],
+            'coords': f"{data['x']}, {data['y']}"
+        }
+
+        print(await request.post())
+        await hunt_manager.on_find(world, hunt['Name'], xivhunt, data['i'])
+        return web.Response(text='200')
+
+    app = web.Application()
+    app.router.add_route('POST', '/{tail:.*}', event)
+
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, 'localhost', 8080)
+    await site.start()
+
 bot.loop.create_task(update_hunts())
 bot.loop.create_task(update_game())
+bot.loop.create_task(start_server())

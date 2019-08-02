@@ -45,7 +45,7 @@ class Horus:
         hunts = {}
         for key, timer in timers.items():
             hunt_data = self.id_to_hunt(timer['Id'])
-            hunts[hunt_data['Name'].strip().lower() + f"_{timer['ins']}"] = HorusHunt(hunt_data, timer)
+            hunts[hunt_data['Name'].strip().lower() + f"_{timer['ins']}"] = HorusHunt(hunt_data, timer, timer['ins'])
 
         return hunts
 

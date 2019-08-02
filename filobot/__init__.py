@@ -154,6 +154,8 @@ async def update_game():
 
 
 async def start_server():
+    hunts = {}
+
     async def event(request):
         data    = await request.post()
         alive   = data['lastAlive'] == 'True'
@@ -166,7 +168,19 @@ async def start_server():
             'coords': f"{data['x']}, {data['y']}"
         }
 
+        if world not in hunts:
+            hunts[world] = {}
+
         print(await request.post())
+
+        # Dead? No reason to continue.
+        if not alive:
+            return
+
+        # Already seen? No reason to continue.
+        if hunt['Name'] in hunts[world]:
+            return
+
         await hunt_manager.on_find(world, hunt['Name'], xivhunt, data['i'])
         return web.Response(text='200')
 

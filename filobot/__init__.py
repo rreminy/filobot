@@ -157,18 +157,21 @@ async def start_server():
     hunts = {}
 
     async def event(request):
-        data    = await request.post()
-        alive   = data['lastAlive'] == 'True'
-        world   = hunt_manager.get_world(int(data['wId']))
-        hunt    = hunt_manager.horus.id_to_hunt(data['id'])
-        _plus   = 22.5 if hunt['ZoneName'] in hunt_manager.HW_ZONES else 21.5
-        x, y    = round((float(data['x']) * 0.02 + _plus)*10)/10, round((float(data['y']) * 0.02 + _plus)*10)/10
-        xivhunt = {
-            'rank': data['r'],
-            'status': 'seen' if alive else 'dead',
-            'last_seen': data['lastReported'],
-            'coords': f"{x}, {y}"
-        }
+        try:
+            data    = await request.post()
+            alive   = data['lastAlive'] == 'True'
+            world   = hunt_manager.get_world(int(data['wId']))
+            hunt    = hunt_manager.horus.id_to_hunt(data['id'])
+            _plus   = 22.5 if hunt['ZoneName'] in hunt_manager.HW_ZONES else 21.5
+            x, y    = round((float(data['x']) * 0.02 + _plus)*10)/10, round((float(data['y']) * 0.02 + _plus)*10)/10
+            xivhunt = {
+                'rank': data['r'],
+                'status': 'seen' if alive else 'dead',
+                'last_seen': data['lastReported'],
+                'coords': f"{x}, {y}"
+            }
+        except IndexError:
+            return web.Response(text='200')
 
         if world not in hunts:
             hunts[world] = {}

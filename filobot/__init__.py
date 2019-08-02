@@ -161,7 +161,7 @@ async def start_server():
         hunt    = hunt_manager.horus.id_to_hunt(data['id'])
         xivhunt = {
             'rank': data['r'],
-            'status': hunt_manager.xivhunt.STATUS_ALIVE if alive else hunt_manager.xivhunt.STATUS_DEAD,
+            'status': 'seen' if alive else 'dead',
             'last_seen': data['lastReported'],
             'coords': f"{data['x']}, {data['y']}"
         }

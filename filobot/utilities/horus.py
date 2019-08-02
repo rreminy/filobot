@@ -43,16 +43,17 @@ class Horus:
         timers = crystal[world]['timers']
 
         hunts = {}
-        for id, timer in timers.items():
-            hunt_data = self.id_to_hunt(id)
-            hunts[hunt_data['Name'].lstrip().rstrip().lower()] = HorusHunt(hunt_data, timer)
+        for key, timer in timers.items():
+            hunt_data = self.id_to_hunt(timer['Id'])
+            hunts[hunt_data['Name'].strip().lower() + f"_{timer['ins']}"] = HorusHunt(hunt_data, timer)
 
         return hunts
 
-    def id_to_hunt(self, id):
+    def id_to_hunt(self, id: str):
         """
         Map Horus hunt ID's to actual hunts
         """
+        id = str(id)
         if id not in self.marks_info:
             raise LookupError(f"""ID {id} does not exist""")
 
@@ -70,9 +71,10 @@ class HorusHunt:
     STATUS_CLOSED = 'closed'
     STATUS_DIED   = 'dead'
 
-    def __init__(self, hunt_data, timer_data):
+    def __init__(self, hunt_data, timer_data, instance=0):
         # Hunt data
         self.name = hunt_data['Name']
+        self.instance = instance  # 0 = Not an instanced zone, 1-3 = instance number
         self.rank = hunt_data['Rank']
         self.image = hunt_data['Image']
         self.zone = hunt_data['ZoneName']

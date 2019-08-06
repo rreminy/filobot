@@ -88,7 +88,7 @@ class Character:
 
         self.jobs = {}
         if api_response['Character']['ClassJobs']:
-            for job in api_response['Character']['ClassJobs'].values():
+            for job in api_response['Character']['ClassJobs']:
                 job = Job(job)
                 self.jobs[job.name] = job
 

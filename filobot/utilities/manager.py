@@ -359,10 +359,19 @@ class HuntManager:
                     sub.delete()
                 break
 
+            _key = f"{new.name.strip().lower()}_{new.instance}"
+            if _key in self._hunts[world]['xivhunt']:
+                self._hunts[world]['xivhunt'].remove(_key)
+
     async def on_find(self, world: str, name: str, xivhunt: dict, instance=1):
         """
         Hunt found event handler
         """
+        _key = f"{name.strip().lower()}_{instance}"
+        if _key in self._hunts[world]['xivhunt']:
+            self._log.debug(f"Hunt {name} on instance {instance} already logged")
+            return
+
         hunt = self._marks_info[name.lower()]
         if hunt['Rank'] not in ('A', 'S'):
             self._log.debug(f"""Ignoring notifications for {hunt['Rank']} rank hunts""")
@@ -409,6 +418,8 @@ class HuntManager:
                     & (SubscriptionsMeta.name == _counter_key)
                 ).execute()
             break
+
+        self._hunts[world]['xivhunt'].append(_key)
 
     async def log_notification(self, message: discord.Message, channel: int, world: str, hunt_name: str, instance : int = 1) -> None:
         """

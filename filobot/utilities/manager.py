@@ -367,6 +367,9 @@ class HuntManager:
         """
         Hunt found event handler
         """
+        if world not in self._hunts:
+            self._hunts[world] = {'horus': {}, 'xivhunt': []}
+
         _key = f"{name.strip().lower()}_{instance}"
         if _key in self._hunts[world]['xivhunt']:
             self._log.debug(f"Hunt {name} on instance {instance} already logged")

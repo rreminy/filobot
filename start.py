@@ -1,4 +1,4 @@
-from filobot import config, bot
+from filobot.filobot import config, bot
 from filobot.tasks import update_game, update_hunts, start_server
 
 bot.loop.create_task(update_hunts())

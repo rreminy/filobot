@@ -4,7 +4,7 @@ from random import random
 import discord
 from aiohttp import web
 
-from filobot import bot, GAMES, hunt_manager, log
+from filobot.filobot import bot, GAMES, hunt_manager, log
 
 
 # noinspection PyBroadException

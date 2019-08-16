@@ -57,8 +57,8 @@ class Hunts(commands.Cog):
             hunt_name = hunt_name.lower().strip()
 
         try:
-            horus, xivhunt = self.hunt_manager.get(world, hunt_name)
-            embed = hunt_embed(hunt_name, horus, xivhunt)
+            horus = self.hunt_manager.get(world, hunt_name)
+            embed = hunt_embed(hunt_name, horus)
         except KeyError as e:
             self._log.info(e)
             await ctx.send(

@@ -68,14 +68,11 @@ class HuntManager:
         # Logged notifications for editing later
         self._notifications = {}
 
-    def get(self, world: str, hunt_name: str) -> typing.Tuple[HorusHunt, dict]:
+    def get(self, world: str, hunt_name: str) -> HorusHunt:
         """
         Get data on the requested hunt
         """
-        xivhunt = self._hunts[world]['xivhunt'][hunt_name]
-        horus   = self._hunts[world]['horus'][hunt_name]
-
-        return horus, xivhunt
+        return self._hunts[world]['horus'][hunt_name]
 
     async def recheck(self):
         """

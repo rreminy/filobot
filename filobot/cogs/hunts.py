@@ -45,19 +45,23 @@ class Hunts(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command()
-    async def status(self, ctx: commands.context.Context, world: str, *, hunt_name: str):
+    async def status(self, ctx: commands.context.Context, world: str, hunt_name: str, instance: int = 1):
         """
         Retrieve the status of the specified hunt target
         """
         # Make sure the world is properly formatted
-        world = world.lstrip().rstrip().lower().title()
+        world = world.strip().lower().title()
         try:
             hunt_name = parse_sb_hunt_name(hunt_name)
         except KeyError:
             hunt_name = hunt_name.lower().strip()
 
+        if instance < 1 or instance > 3:
+            await ctx.send("Invalid instance provided - please use a number between 1 and 3")
+            return
+
         try:
-            horus = self.hunt_manager.get(world, hunt_name)
+            horus = self.hunt_manager.get(world, hunt_name, instance)
             embed = hunt_embed(hunt_name, horus)
         except KeyError as e:
             self._log.info(e)

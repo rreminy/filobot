@@ -68,11 +68,12 @@ class HuntManager:
         # Logged notifications for editing later
         self._notifications = {}
 
-    def get(self, world: str, hunt_name: str) -> HorusHunt:
+    def get(self, world: str, hunt_name: str, instance=1) -> HorusHunt:
         """
         Get data on the requested hunt
         """
-        return self._hunts[world]['horus'][hunt_name]
+        _key = f"{hunt_name.lower().strip()}_{instance}"
+        return self._hunts[world]['horus'][_key]
 
     async def recheck(self):
         """

@@ -1,5 +1,5 @@
 import asyncio
-from random import random
+import random
 
 import discord
 from aiohttp import web

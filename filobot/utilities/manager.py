@@ -39,7 +39,14 @@ class HuntManager:
 
     SHB_ZONES = ('Il Mheg', "The Rak'tika Greatwood", 'The Tempest', 'Amh Araeng', 'Lakeland', 'Kholusia')
 
-    WORLDS = ('Balmung', 'Brynhildr', 'Coeurl', 'Diabolos', 'Goblin', 'Malboro', 'Mateus', 'Zalera')
+    # WORLDS = ('Balmung', 'Brynhildr', 'Coeurl', 'Diabolos', 'Goblin', 'Malboro', 'Mateus', 'Zalera')
+    WORLDS = (
+        'Adamantoise', 'Cactuar', 'Faerie', 'Gilgamesh', 'Jenova', 'Midgardsormr', 'Sargatanas', 'Siren',  # (NA) Aether
+        'Behemoth', 'Excalibur', 'Exodus', 'Famfrit', 'Hyperion', 'Lamia', 'Leviathan', 'Ultros',  # (NA) Primal
+        'Balmung', 'Brynhildr', 'Coeurl', 'Diabolos', 'Goblin', 'Malboro', 'Mateus', 'Zalera',  # (NA) Crystal
+        'Cerberus', 'Louisoix', 'Moogle', 'Omega', 'Ragnarok', 'Spriggan',  # (EU) Chaos
+        'Lich', 'Odin', 'Phoenix', 'Shiva', 'Twintania', 'Zodiark'  # (EU) Light
+    )
 
     COND_DEAD = 'deaths'
     COND_OPEN = 'openings'
@@ -158,7 +165,7 @@ class HuntManager:
         world = world.strip().lower().title()
         if world not in self.WORLDS:
             await self.bot.get_channel(channel).send(
-                "No world by that name found on the Crystal DC - please check your spelling and try again"
+                "No world by that name found - please check your spelling and try again"
             )
             return
 

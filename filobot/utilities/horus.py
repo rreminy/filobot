@@ -12,6 +12,14 @@ class Horus:
 
     ENDPOINT = 'https://horus-hunts.net/Timers/GetDcTimers/?DC=Crystal'
 
+    ENDPOINTS = (
+        'https://horus-hunts.net/Timers/GetDcTimers/?DC=Aether',
+        'https://horus-hunts.net/Timers/GetDcTimers/?DC=Primal',
+        'https://horus-hunts.net/Timers/GetDcTimers/?DC=Crystal',
+        'https://horus-hunts.net/Timers/GetDcTimers/?DC=Chaos',
+        'https://horus-hunts.net/Timers/GetDcTimers/?DC=Light'
+    )
+
     def __init__(self, bot: discord.ext.commands.Bot):
         self._log = logging.getLogger(__name__)
         self._bot = bot
@@ -29,18 +37,26 @@ class Horus:
         # Currently hardcoded to the Crystal DC; we might add support for other DC's later
         if self._cached_response is not None and (time.time() <= self._cached_time + 15):
             self._log.debug('Using cached Horus response')
-            crystal = self._cached_response
+            response = self._cached_response
         else:
             self._log.info('Querying Horus')
+            responses = []
             async with aiohttp.ClientSession() as session:
-                page = await self._fetch(session, self.ENDPOINT)
-                crystal = json.loads(page)
-            self._cached_response = crystal
+                for endpoint in self.ENDPOINTS:
+                    self._log.debug(f"Querying: {endpoint}")
+                    page = await self._fetch(session, endpoint)
+                    responses.append(json.loads(page))
+
+                response = {}
+                for r in responses:
+                    response.update(r)
+
+            self._cached_response = response
             self._cached_time = time.time()
 
-        if world not in crystal.keys():
+        if world not in response.keys():
             raise LookupError(f"""World {world} does not exist""")
-        timers = crystal[world]['timers']
+        timers = response[world]['timers']
 
         hunts = {}
         for key, timer in timers.items():

@@ -30,13 +30,14 @@ Hunts:
   notify               Adds a role to mention when hunts are found in this ch...
   status               Retrieve the status of the specified hunt target
   sub                  Subscribe the channel to hunt events
-  sub-all              Subscribe the channel to hunt events on ALL Crystal DC...
+  sub-all              Subscribe the channel to hunt events on ALL of a datac...
   sub-clear            Clear all enabled subscriptions for this channel
   sub-list             List all enabled subscriptions for this channel
   train                Announces the start of a SB hunt train on the specifie...
   train-cancel         Blows up the train. Boom.
   unsub                Subscribe the channel to hunt events
 Misc:
+  ping                 Boop!
   stats                Get some miscellaneous bot statistics
 Scouting:
   add                  Add a hunt entry to the scouting list

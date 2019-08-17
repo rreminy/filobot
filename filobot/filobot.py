@@ -23,7 +23,7 @@ config.read(['config.default.ini', 'config.ini'])
 logLevel = getattr(logging, str(config.get('Server', 'LogLevel', fallback='ERROR')).upper())
 logFormat = logging.Formatter("[%(asctime)s] %(levelname)s: %(message)s", "%Y-%m-%d %H:%M:%S")
 
-log = logging.getLogger(__name__)
+log = logging.getLogger('filobot')
 log.setLevel(logLevel)
 
 ch = logging.StreamHandler()

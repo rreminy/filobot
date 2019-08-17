@@ -84,20 +84,24 @@ Allowed conditions: FINDS, DEATHS, OPENINGS
 ```
 
 For example, to subscribe a channel to **Shadowbringer S-Ranks** relays and death notifications on the world **Mateus**, you would run the following command:
+
 `f.sub Mateus SHB_S`
 
 Once that has been done, you may wish to set a Discord role to ping with these notifications with the `f.notify` command. For example, if you have members who wish to subscribe to S-Rank notifications in the **@S Ranks** role, you would run the following in the desired channel:
+
 `f.notify @S Ranks`
 
 
 ## Account verification
 ![](https://i.imgur.com/yABYCKA.png)
 To set up a verified role for your Discord server, run the `f.set-verified` command. For example:
+
 `f.set-verified @✔️ verified`
 
 You can also customize the message that displays after a member has verified their account with the `f.set-verified-message`.
 
 Once this has been done, members can link their accounts with by running `f.iam World Firstname Lastname`. For example:
+
 `f.iam Mateus Totomo Omo`
 
 After this has been done, the user will be prompted to paste a verification code into their lodestone profile. Once they have done this and run `f.verify`, they will be given the configured verified role for your Discord server.

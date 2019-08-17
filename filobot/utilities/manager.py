@@ -182,7 +182,7 @@ class HuntManager:
         if conditions == 'all':
             conditions = list(self.CONDITIONS)
         else:
-            conditions = conditions.replace(' ', '').split(',')
+            conditions = conditions.replace(' ', '').lower().split(',')
             _invalid_conditions = set(conditions) - set(self.CONDITIONS)
             if _invalid_conditions:
                 await self.bot.get_channel(channel).send(

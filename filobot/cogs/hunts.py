@@ -89,7 +89,7 @@ class Hunts(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(administrator=True)
-    async def sub(self, ctx: commands.context.Context, world: str, category: str, *, conditions: typing.Optional[str] = 'all'):
+    async def sub(self, ctx: commands.context.Context, world: str, category: str, *, conditions: typing.Optional[str] = 'FINDS, DEATHS'):
         """
         Subscribe the channel to hunt events
         Allowed categories: SHB_A, SHB_S, SB_A, SB_S, HW_A, HW_S, ARR_A, ARR_S
@@ -99,7 +99,7 @@ class Hunts(commands.Cog):
 
     @commands.command(name='sub-all')
     @commands.has_permissions(administrator=True)
-    async def sub_all(self, ctx: commands.context.Context, category: str, *, conditions: typing.Optional[str] = 'all'):
+    async def sub_all(self, ctx: commands.context.Context, category: str, *, conditions: typing.Optional[str] = 'FINDS, DEATHS'):
         """
         Subscribe the channel to hunt events on ALL Crystal DC worlds
         Allowed categories: SHB_A, SHB_S, SB_A, SB_S, HW_A, HW_S, ARR_A, ARR_S

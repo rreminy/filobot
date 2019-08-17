@@ -16,8 +16,11 @@ class Misc(commands.Cog):
         self._hunt_manager = hunt_manager
         self.start_time = 0
 
-    @commands.command(hidden=True)
+    @commands.command()
     async def ping(self, ctx: commands.context.Context):
+        """
+        Boop!
+        """
         now = datetime.datetime.utcnow().timestamp()
         response_time = now - ctx.message.created_at.timestamp()
         await ctx.send('Boop! Response time: {0} seconds'.format(round(response_time, 1)))

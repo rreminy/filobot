@@ -38,7 +38,7 @@ db.create_tables([Subscriptions, SubscriptionsMeta, ScoutingSessions, ScoutingHu
 bot = commands.Bot(command_prefix='f.')
 hunt_manager = HuntManager(bot)
 bot.add_cog(Hunts(bot, hunt_manager))
-bot.add_cog(Scouting(bot, hunt_manager))
+# bot.add_cog(Scouting(bot, hunt_manager))
 bot.add_cog(FFXIV(bot, config.get('Bot', 'XivApiKey')))
 bot.add_cog(Admin(bot))
 bot.add_cog(Misc(bot, hunt_manager))

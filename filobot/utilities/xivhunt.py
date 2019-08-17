@@ -1,11 +1,9 @@
 import logging
 import re
+
 import aiohttp
-import asyncio
-import urllib.request
 import bs4
 import discord.ext
-
 from bs4 import BeautifulSoup
 
 

@@ -1,6 +1,6 @@
-import asyncio
 import datetime
 import logging
+
 import aiohttp
 import discord
 import xivapi

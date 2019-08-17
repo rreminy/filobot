@@ -1,14 +1,14 @@
 import asyncio
 import logging
-import re
-import uuid
-import discord
 import typing
-import peewee
+import uuid
 
+import discord
+import peewee
 from discord.ext import commands
+
+from filobot.models import GuildSettings, Player
 from filobot.utilities.manager import HuntManager
-from filobot.models import Player, GuildSettings
 from filobot.utilities.xivapi import XivApi
 
 

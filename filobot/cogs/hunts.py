@@ -1,11 +1,12 @@
 import json
-import os
 import logging
+import os
 import sys
-import discord
 import typing
 
+import discord
 from discord.ext import commands
+
 from filobot.models import SubscriptionsMeta
 from filobot.utilities import hunt_embed, parse_sb_hunt_name, SB_HUNTS
 from filobot.utilities.manager import HuntManager

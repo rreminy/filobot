@@ -1,11 +1,12 @@
 import datetime
 import logging
+
 import discord
 import git
-
 from discord.ext import commands
+
+from filobot.models import Player, ScoutingSessions
 from filobot.utilities.manager import HuntManager
-from filobot.models import ScoutingSessions, Player
 
 
 class Misc(commands.Cog):

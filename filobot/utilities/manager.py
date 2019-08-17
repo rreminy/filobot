@@ -3,16 +3,17 @@ import logging
 import os
 import sys
 import typing
+
 import arrow
 import discord
-
 from discord.ext.commands import Bot
+from peewee import fn
+
+from filobot.models import KillLog, Subscriptions, SubscriptionsMeta
 from filobot.utilities import hunt_embed
 from filobot.utilities.horus import HorusHunt
-from filobot.models import Subscriptions, SubscriptionsMeta, KillLog
-from peewee import fn
-from .xivhunt import XivHunt
 from .horus import Horus
+from .xivhunt import XivHunt
 
 
 class HuntManager:

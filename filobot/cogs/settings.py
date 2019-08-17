@@ -1,8 +1,9 @@
 import logging
-import discord
 import typing
 
+import discord
 from discord.ext import commands
+
 from filobot.models import GuildSettings as GuildSettings, Player
 
 

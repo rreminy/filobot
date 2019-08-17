@@ -10,9 +10,8 @@ from filobot.cogs import Hunts
 from filobot.cogs.admin import Admin
 from filobot.cogs.ffxiv import FFXIV
 from filobot.cogs.misc import Misc
-from filobot.cogs.scouting import Scouting
 from filobot.cogs.settings import Settings
-from filobot.models import db, db_path, GuildSettings, KillLog, Player, ScoutingHunts, ScoutingSessions, Subscriptions, \
+from filobot.models import db, GuildSettings, KillLog, Player, ScoutingHunts, ScoutingSessions, Subscriptions, \
     SubscriptionsMeta
 from filobot.utilities.manager import HuntManager
 

@@ -1,19 +1,20 @@
 import asyncio
 import datetime
-import os
 import logging
+import os
 import re
 import sys
-import arrow
-import pystache
-import discord
 import typing
 
+import arrow
+import discord
+import pystache
 from discord.ext import commands
 from peewee import fn, SQL
+
+from filobot.models import ScoutingHunts, ScoutingSessions
 from filobot.utilities import parse_sb_hunt_name
 from filobot.utilities.manager import HuntManager
-from filobot.models import ScoutingSessions, ScoutingHunts
 
 
 class Scouting(commands.Cog):

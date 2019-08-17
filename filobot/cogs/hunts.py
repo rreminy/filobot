@@ -99,13 +99,14 @@ class Hunts(commands.Cog):
 
     @commands.command(name='sub-all')
     @commands.has_permissions(administrator=True)
-    async def sub_all(self, ctx: commands.context.Context, category: str, *, conditions: typing.Optional[str] = 'FINDS, DEATHS'):
+    async def sub_all(self, ctx: commands.context.Context, datacenter: str, category: str, *, conditions: typing.Optional[str] = 'FINDS, DEATHS'):
         """
-        Subscribe the channel to hunt events on ALL Crystal DC worlds
+        Subscribe the channel to hunt events on ALL of a datacenters worlds
+        Allowed datacenters: Aether, Primal, Crystal, Chaos, Light
         Allowed categories: SHB_A, SHB_S, SB_A, SB_S, HW_A, HW_S, ARR_A, ARR_S
         Allowed conditions: FINDS, DEATHS, OPENINGS
         """
-        await self.hunt_manager.subscribe_all(ctx.channel.id, category, conditions)
+        await self.hunt_manager.subscribe_all(datacenter, ctx.channel.id, category, conditions)
 
     @commands.command()
     @commands.has_permissions(administrator=True)

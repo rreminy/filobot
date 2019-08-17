@@ -39,7 +39,6 @@ class HuntManager:
 
     SHB_ZONES = ('Il Mheg', "The Rak'tika Greatwood", 'The Tempest', 'Amh Araeng', 'Lakeland', 'Kholusia')
 
-    # WORLDS = ('Balmung', 'Brynhildr', 'Coeurl', 'Diabolos', 'Goblin', 'Malboro', 'Mateus', 'Zalera')
     WORLDS = (
         'Adamantoise', 'Cactuar', 'Faerie', 'Gilgamesh', 'Jenova', 'Midgardsormr', 'Sargatanas', 'Siren',  # (NA) Aether
         'Behemoth', 'Excalibur', 'Exodus', 'Famfrit', 'Hyperion', 'Lamia', 'Leviathan', 'Ultros',  # (NA) Primal
@@ -47,6 +46,14 @@ class HuntManager:
         'Cerberus', 'Louisoix', 'Moogle', 'Omega', 'Ragnarok', 'Spriggan',  # (EU) Chaos
         'Lich', 'Odin', 'Phoenix', 'Shiva', 'Twintania', 'Zodiark'  # (EU) Light
     )
+
+    DATACENTERS = {
+        'Aether':  ('Adamantoise', 'Cactuar', 'Faerie', 'Gilgamesh', 'Jenova', 'Midgardsormr', 'Sargatanas', 'Siren'),
+        'Primal':  ('Behemoth', 'Excalibur', 'Exodus', 'Famfrit', 'Hyperion', 'Lamia', 'Leviathan', 'Ultros'),
+        'Crystal': ('Balmung', 'Brynhildr', 'Coeurl', 'Diabolos', 'Goblin', 'Malboro', 'Mateus', 'Zalera'),
+        'Chaos':   ('Cerberus', 'Louisoix', 'Moogle', 'Omega', 'Ragnarok', 'Spriggan'),
+        'Light':   ('Lich', 'Odin', 'Phoenix', 'Shiva', 'Twintania', 'Zodiark')
+    }
 
     COND_DEAD = 'deaths'
     COND_OPEN = 'openings'
@@ -212,7 +219,7 @@ class HuntManager:
         await self.bot.get_channel(channel).send(f"""Subscribed channel to {str(sub).replace('_', ' ').title()}-Rank hunts on {world}""")
         self._reload()
 
-    async def subscribe_all(self, channel: int, subscription: str, conditions: typing.Optional[str] = 'all'):
+    async def subscribe_all(self, datacenter: str, channel: int, subscription: str, conditions: typing.Optional[str] = 'all'):
         """
         Subscribe a channel to hunt events on all worlds
         """
@@ -229,7 +236,7 @@ class HuntManager:
         if conditions == 'all':
             conditions = list(self.CONDITIONS)
         else:
-            conditions = conditions.replace(' ', '').split(',')
+            conditions = conditions.replace(' ', '').lower().split(',')
             _invalid_conditions = set(conditions) - set(self.CONDITIONS)
             if _invalid_conditions:
                 await self.bot.get_channel(channel).send(
@@ -237,7 +244,13 @@ class HuntManager:
                 )
                 return
 
-        for world in self.WORLDS:
+        # Validate datacenter
+        datacenter = datacenter.strip().lower().title()
+        if datacenter not in self.DATACENTERS.keys():
+            await self.bot.get_channel(channel).send("Invalid datacenter provided, valid datacenters are: Aether, Primal, Crystal, Chaos, Light")
+            return
+
+        for world in self.DATACENTERS[datacenter]:
             # Already subscribed? Overwrite it
             Subscriptions.delete().where(
                     (Subscriptions.channel_id == channel)

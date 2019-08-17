@@ -1,6 +1,7 @@
 import logging
 
 import discord
+from discord import Guild
 from discord.ext import commands
 
 
@@ -21,3 +22,12 @@ class Admin(commands.Cog):
                 await message.delete()
 
         await ctx.message.delete()
+
+    @commands.command(hidden=True)
+    @commands.is_owner()
+    async def servers(self, ctx: commands.context.Context):
+        output = ''
+        for guild in self.bot.guilds:  # type: Guild
+            output = output + f"**{guild.name} ({guild.id})** - {guild.owner.name}#{guild.owner.discriminator} ({guild.owner_id})\n"
+
+        await ctx.send(output)

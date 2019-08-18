@@ -480,7 +480,7 @@ class HuntManager:
             return await self.bot.get_channel(sub.channel_id).send(message, embed=embed)
         except AttributeError:
             self._log.warning(f"Subscription channel is no longer active; removing channel {sub.channel_id}")
-            sub.delete()
+            Subscriptions.delete().where(Subscriptions.id == sub.id).execute()
         except discord.errors.Forbidden:
             self._log.warning(f"No permission to send to channel {sub.channel_id}")
 

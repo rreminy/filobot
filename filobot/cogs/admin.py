@@ -27,7 +27,17 @@ class Admin(commands.Cog):
     @commands.is_owner()
     async def servers(self, ctx: commands.context.Context):
         output = ''
+        counter = 0
+        i = 0
         for guild in self.bot.guilds:  # type: Guild
             output = output + f"**{guild.name} ({guild.id})** - {guild.owner.name}#{guild.owner.discriminator} ({guild.owner_id})\n"
 
+            i += 1
+            counter += 1
+            if i > 25:
+                await ctx.send(output)
+                output = ''
+                i = 0
+
+        output = output + f"\n---------------\n**Total servers:** {counter}**"
         await ctx.send(output)

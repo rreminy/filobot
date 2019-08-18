@@ -393,7 +393,7 @@ class HuntManager:
             self._log.debug(f"""Ignoring notifications for {hunt['Rank']} rank hunts""")
             return
 
-        print(f"A hunt has been found on world {world} :: {name}, Rank {xivhunt['rank']}")
+        print(f"A hunt has been found on world {world} (Instance {instance}) :: {name}, Rank {xivhunt['rank']}")
 
         subs = Subscriptions.select().where(
                 (Subscriptions.world == world)
@@ -482,7 +482,7 @@ class HuntManager:
             return await self.bot.get_channel(sub.channel_id).send(message, embed=embed)
         except AttributeError:
             self._log.warning(f"Subscription channel is no longer active; removing channel {sub.channel_id}")
-            Subscriptions.delete().where(Subscriptions.id == sub.id).execute()
+            Subscriptions.delete().where(Subscriptions.channel_id == sub.channel_id).execute()
         except discord.errors.Forbidden:
             self._log.warning(f"No permission to send to channel {sub.channel_id}")
 

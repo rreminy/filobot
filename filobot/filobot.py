@@ -107,6 +107,10 @@ async def on_command_error(ctx: commands.context.Context, error: Exception):
             pass
         return
 
+    if isinstance(error, discord.errors.Forbidden):
+        log.warning(error)
+        return
+
     if isinstance(error, commands.CheckFailure):
         await ctx.send("You do not have permission to use this command.")
         return

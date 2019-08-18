@@ -334,12 +334,11 @@ class HuntManager:
 
         for sub in subs:  # type: Subscriptions
             if new.status == new.STATUS_OPENED and self.COND_OPEN == sub.event:
-                await self.bot.get_channel(sub.channel_id).send(f"""A hunt has opened on **{world}** (**Instance {new.instance}**)!""", embed=embed)
+                await self._send_sub_message(f"A hunt has opened on **{world}** (**Instance {new.instance}**)!", embed, sub)
                 break
 
             if new.status == new.STATUS_MAXED and self.COND_OPEN == sub.event:
-                await self.bot.get_channel(sub.channel_id).send(
-                    f"""A hunts maximum spawn window has been reached on **{world}** (**Instance {new.instance}**)!""", embed=embed)
+                await self._send_sub_message(f"A hunts maximum spawn window has been reached on **{world}** (**Instance {new.instance}**)!", embed, sub)
                 break
 
             if new.status == new.STATUS_DIED and self.COND_DEAD == sub.event:
@@ -371,12 +370,7 @@ class HuntManager:
                         self._log.warning(f"Notification message for hunt {new.name} on world {world} has been deleted")
                     break
 
-                try:
-                    await self.bot.get_channel(sub.channel_id).send(f"""A hunt has died on **{world}** (**Instance {new.instance}**)!""", embed=embed)
-                except AttributeError:
-                    self._log.warning(f"Subscription channel is no longer active; removing channel {sub.channel_id}")
-                    sub.delete()
-                break
+                await self._send_sub_message(f"A hunt has died on **{world}** (**Instance {new.instance}**)!", embed, sub)
 
             _key = f"{new.name.strip().lower()}_{new.instance}"
             if _key in self._hunts[world]['xivhunt']:
@@ -416,12 +410,11 @@ class HuntManager:
             content = f"""A hunt has been found on **{world}** (**Instance {instance}**)!"""
             if role_mention:
                 content = f"""{role_mention} {content}"""
-            try:
-                message = await self.bot.get_channel(sub.channel_id).send(content, embed=embed)
-            except AttributeError:
-                self._log.warning(f"Subscription channel is no longer active; removing channel {sub.channel_id}")
-                sub.delete()
-                return
+
+            message = await self._send_sub_message(content, embed, sub)
+            if not message:
+                continue
+
             await self.log_notification(message, sub.channel_id, world, name, instance)
 
             # Relay counter
@@ -478,6 +471,18 @@ class HuntManager:
                 return world
         else:
             raise IndexError(f'No world with the ID {id} could be found')
+
+    async def _send_sub_message(self, message, embed: discord.Embed, sub: Subscriptions) -> typing.Optional[discord.Message]:
+        """
+        Attempt to send a subscription message
+        """
+        try:
+            return await self.bot.get_channel(sub.channel_id).send(message, embed=embed)
+        except AttributeError:
+            self._log.warning(f"Subscription channel is no longer active; removing channel {sub.channel_id}")
+            sub.delete()
+        except discord.errors.Forbidden:
+            self._log.warning(f"No permission to send to channel {sub.channel_id}")
 
     def _reload(self):
         """

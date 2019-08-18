@@ -39,5 +39,5 @@ class Admin(commands.Cog):
                 output = ''
                 i = 0
 
-        output = output + f"\n---------------\n**Total servers:** {counter}**"
+        output = output + f"\n---------------\n**Total servers:** {counter}"
         await ctx.send(output)

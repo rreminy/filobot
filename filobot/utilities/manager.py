@@ -393,6 +393,8 @@ class HuntManager:
             self._log.debug(f"""Ignoring notifications for {hunt['Rank']} rank hunts""")
             return
 
+        print(f"A hunt has been found on world {world} :: {name}, Rank {xivhunt['rank']}")
+
         subs = Subscriptions.select().where(
                 (Subscriptions.world == world)
                 & (Subscriptions.category == hunt['Channel'])

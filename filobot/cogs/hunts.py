@@ -131,11 +131,19 @@ class Hunts(commands.Cog):
             )
             return
 
-        message = "```markdown\nSubscriptions:"
+        message = ''
+        counter = 0
+        i = 0
         for sub in subs:
             message = message + f"""\n* {sub.world} — {str(sub.category).upper().replace('_', ' ')} — {sub.event}"""
-        message = message + "\n```"
-        await ctx.send(message)
+            i += 1
+            counter += 1
+            if i > 39:
+                await ctx.send("```markdown\n" + message + "```")
+                message = ''
+                i = 0
+
+        await ctx.send("```markdown\n" + message + "```")
 
     @commands.command(name='sub-clear')
     @commands.has_permissions(administrator=True)

@@ -368,7 +368,6 @@ class HuntManager:
                         await notification.edit(content=f"""A scouted hunt has died on **{world}** (**Instance {new.instance}**) after **{', '.join(kill_time)}**!""", embed=embed)
                     except discord.NotFound:
                         self._log.warning(f"Notification message for hunt {new.name} on world {world} has been deleted")
-                    break
 
                 await self._send_sub_message(f"A hunt has died on **{world}** (**Instance {new.instance}**)!", embed, sub)
 

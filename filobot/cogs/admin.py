@@ -30,7 +30,7 @@ class Admin(commands.Cog):
         counter = 0
         i = 0
         for guild in self.bot.guilds:  # type: Guild
-            output = output + f"**{guild.name} ({guild.id})** - {guild.owner.name}#{guild.owner.discriminator} ({guild.owner_id})\n"
+            output = output + f"**{guild.name} ({guild.id})** - {guild.owner.name}#{guild.owner.discriminator}\n"
 
             i += 1
             counter += 1

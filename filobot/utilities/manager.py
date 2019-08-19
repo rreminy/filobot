@@ -434,7 +434,6 @@ class HuntManager:
                     (SubscriptionsMeta.channel_id == sub.channel_id)
                     & (SubscriptionsMeta.name == _counter_key)
                 ).execute()
-            break
 
         self._hunts[world]['xivhunt'].append(_key)
 

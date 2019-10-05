@@ -32,7 +32,7 @@ ch.setFormatter(logFormat)
 
 log.addHandler(ch)
 
-db.create_tables([Subscriptions, SubscriptionsMeta, ScoutingSessions, ScoutingHunts, Player, GuildSettings, KillLog])
+db.create_tables([Subscriptions, SubscriptionsMeta, ScoutingSessions, ScoutingHunts, Player, GuildSettings, KillLog, Blacklist])
 
 bot = commands.Bot(command_prefix='f.')
 hunt_manager = HuntManager(bot)

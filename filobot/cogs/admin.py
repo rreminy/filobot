@@ -1,4 +1,5 @@
 import logging
+import uuid
 
 import discord
 import typing
@@ -33,7 +34,8 @@ class Admin(commands.Cog):
             player.status = Player.STATUS_BANNED
             player.save()
         except peewee.DoesNotExist:
-            player = Player.create(discord_id=id, name="Banned Player", status=Player.STATUS_BANNED)
+            player = Player.create(lodestone_id=0, discord_id=id, name="Banned player",
+                                   world="None", validation_code=uuid.uuid4())
 
         await ctx.send(f"Discord member `{id}` banned from accessing Filo")
 

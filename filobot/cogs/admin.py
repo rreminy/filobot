@@ -1,14 +1,41 @@
 import logging
 
 import discord
+import typing
+
+import peewee
 from discord import Guild
 from discord.ext import commands
+
+from filobot.models import Player
 
 
 class Admin(commands.Cog):
     def __init__(self, bot: discord.ext.commands.Bot):
         self._log = logging.getLogger(__name__)
         self.bot = bot
+
+    @commands.command(hidden=True)
+    @commands.is_owner()
+    async def ban(self, ctx: commands.context.Context, id: typing.Optional[int] = None):
+        """
+        Bans a Discord user from accessing Filo
+        """
+        if not id and ctx.message.mentions:
+            user = ctx.message.mentioned[-1]  # type: discord.Member
+            id = user.id
+        else:
+            await ctx.message("Please either mention a discord user to ban or provide their Discord user ID", delete_after=10.0)
+            return
+
+        try:
+            player = Player.get(Player.discord_id == id)
+            player.status = Player.STATUS_BANNED
+            player.save()
+        except peewee.DoesNotExist:
+            player = Player.create(discord_id=id, name="Banned Player", status=Player.STATUS_BANNED)
+
+        await ctx.send(f"Discord member `{id}` banned from accessing Filo")
 
     @commands.command(hidden=True)
     @commands.has_permissions(administrator=True)

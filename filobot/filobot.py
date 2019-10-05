@@ -12,7 +12,7 @@ from filobot.cogs.ffxiv import FFXIV
 from filobot.cogs.misc import Misc
 from filobot.cogs.settings import Settings
 from filobot.models import db, GuildSettings, KillLog, Player, ScoutingHunts, ScoutingSessions, Subscriptions, \
-    SubscriptionsMeta
+    SubscriptionsMeta, Blacklist
 from filobot.utilities.manager import HuntManager
 
 # Load our configuration
@@ -53,6 +53,13 @@ async def on_ready():
 
     print('Filo is ready for action!')
     print('------')
+
+
+@bot.event
+async def on_guild_join(guild: discord.Guild):
+    if Blacklist.select().where(Blacklist.guild_id == guild).count():
+        await guild.owner.send(f"This server bas been blacklisted from accessing Filo. For more information, please contact Makoto#1765")
+        await guild.leave()
 
 
 @bot.event

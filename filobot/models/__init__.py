@@ -76,6 +76,12 @@ class Player(BaseModel):
     validation_code = CharField(max_length=36)
 
 
+class Blacklist(BaseModel):
+
+    guild_id    = PrimaryKeyField()
+    ban_date    = DateTimeField(default=datetime.datetime.now)
+
+
 class GuildSettings(BaseModel):
 
     TYPE_ROLE = 'role'

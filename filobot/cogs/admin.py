@@ -8,7 +8,7 @@ import peewee
 from discord import Guild
 from discord.ext import commands
 
-from filobot.models import Player
+from filobot.models import Player, Blacklist
 
 
 class Admin(commands.Cog):
@@ -36,6 +36,26 @@ class Admin(commands.Cog):
         except peewee.DoesNotExist:
             player = Player.create(lodestone_id=0, discord_id=id, name="Banned player",
                                    world="None", validation_code=uuid.uuid4())
+
+        await ctx.send(f"Discord member `{id}` banned from accessing Filo")
+
+    @commands.command(hidden=True)
+    @commands.is_owner()
+    async def blacklist(self, ctx: commands.context.Context, guild_id: typing.Optional[int] = None):
+        """
+        Bans a Guild from using Filo
+        """
+        try:
+            bl = Blacklist.get(Blacklist.guild_id == guild_id)
+            await ctx.send(f"Guild `{bl.guild_id}`` is already blacklisted")
+        except peewee.DoesNotExist:
+            bl = Blacklist.create(guild_id=guild_id)
+
+        for guild in self.bot.guilds:  # type: Guild
+            if guild.id == guild_id:
+                self._log.warning(f"Left server {guild_id}")
+                await guild.owner.send(f"This server bas been blacklisted from accessing Filo. For more information, please contact Makoto#1765")
+                await guild.leave()
 
         await ctx.send(f"Discord member `{id}` banned from accessing Filo")
 

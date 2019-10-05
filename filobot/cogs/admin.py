@@ -60,6 +60,19 @@ class Admin(commands.Cog):
         await ctx.send(f"Discord member `{id}` banned from accessing Filo")
 
     @commands.command(hidden=True)
+    @commands.is_owner()
+    async def unblacklist(self, ctx: commands.context.Context, guild_id: typing.Optional[int] = None):
+        """
+        Unbans a Guild from using Filo
+        """
+        try:
+            bl = Blacklist.get(Blacklist.guild_id == guild_id)
+            bl.delete()
+            await ctx.send(f"Guild `{guild_id}` removed from the blacklist")
+        except peewee.DoesNotExist:
+            await ctx.send(f"Guild `{guild_id}` is not blacklisted")
+
+    @commands.command(hidden=True)
     @commands.has_permissions(administrator=True)
     async def clear(self, ctx: commands.context.Context):
         """

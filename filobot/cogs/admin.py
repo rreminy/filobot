@@ -21,11 +21,11 @@ class Admin(commands.Cog):
         """
         Bans a Discord user from accessing Filo
         """
-        if not id and ctx.message.mentions:
+        if ctx.message.mentions:
             user = ctx.message.mentioned[-1]  # type: discord.Member
             id = user.id
-        else:
-            await ctx.message("Please either mention a discord user to ban or provide their Discord user ID", delete_after=10.0)
+        elif not id:
+            await ctx.send("Please either mention a discord user to ban or provide their Discord user ID", delete_after=10.0)
             return
 
         try:

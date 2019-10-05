@@ -67,7 +67,7 @@ class Admin(commands.Cog):
         """
         try:
             bl = Blacklist.get(Blacklist.guild_id == guild_id)
-            bl.delete()
+            Blacklist.delete_by_id(guild_id)
             await ctx.send(f"Guild `{guild_id}` removed from the blacklist")
         except peewee.DoesNotExist:
             await ctx.send(f"Guild `{guild_id}` is not blacklisted")

@@ -57,7 +57,7 @@ async def on_ready():
 
 @bot.event
 async def on_guild_join(guild: discord.Guild):
-    if Blacklist.select().where(Blacklist.guild_id == guild).count():
+    if Blacklist.select().where(Blacklist.guild_id == guild.id).count():
         await guild.owner.send(f"This server bas been blacklisted from accessing Filo. For more information, please contact Makoto#1765")
         await guild.leave()
 

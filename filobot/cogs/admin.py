@@ -57,7 +57,7 @@ class Admin(commands.Cog):
                 await guild.owner.send(f"This server bas been blacklisted from accessing Filo. For more information, please contact Makoto#1765")
                 await guild.leave()
 
-        await ctx.send(f"Discord guild `{id}` has been banned from using Filo")
+        await ctx.send(f"Discord guild `{guild_id}` has been banned from using Filo")
 
     @commands.command(hidden=True)
     @commands.is_owner()

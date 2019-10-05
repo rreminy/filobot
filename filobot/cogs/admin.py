@@ -54,7 +54,7 @@ class Admin(commands.Cog):
         for guild in self.bot.guilds:  # type: Guild
             if guild.id == guild_id:
                 self._log.warning(f"Left server {guild_id}")
-                await guild.owner.send(f"This server bas been blacklisted from accessing Filo. For more information, please contact Makoto#1765")
+                await guild.owner.send(f"This server bas been blacklisted from accessing Filo. For more information, please contact Totomo Omo on Mateus")
                 await guild.leave()
 
         await ctx.send(f"Discord guild `{guild_id}` has been banned from using Filo")

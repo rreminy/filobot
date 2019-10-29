@@ -17,11 +17,16 @@ class XivApi:
             client = xivapi.Client(session=session, api_key=self._api_key)
 
             # Search Lodestone for a character
-            search = await client.character_search(
-                    world=world,
-                    forename=forename,
-                    surname=surname
-            )
+            try:
+                search = await client.character_search(
+                        world=world,
+                        forename=forename,
+                        surname=surname
+                )
+            except xivapi.XIVAPIServiceUnavailable:
+                _error = f"The XIVAPI server appears to be down - please try again later."
+                self._log.warning(_error)
+                raise ValueError(_error)
 
             # No characters found?
             if not search['Results']:
@@ -37,16 +42,27 @@ class XivApi:
     async def get_character(self, lodestone_id: int):
         async with aiohttp.ClientSession() as session:
             client = xivapi.Client(session=session, api_key=self._api_key)
-            character = await client.character_by_id(lodestone_id, include_freecompany=True, include_achievements=True,
-                                                     extended=True)
+            try:
+                character = await client.character_by_id(lodestone_id, include_freecompany=True,
+                                                         include_achievements=True, extended=True)
+            except xivapi.XIVAPIServiceUnavailable:
+                _error = f"The XIVAPI server appears to be down - please try again later."
+                self._log.warning(_error)
+                raise ValueError(_error)
 
             return Character(character)
 
     async def verify(self, lodestone_id: int, verification_code: str) -> bool:
         async with aiohttp.ClientSession() as session:
             client = xivapi.Client(session=session, api_key=self._api_key)
-            character = await client.character_by_id(lodestone_id, include_freecompany=True, include_achievements=True,
-                                                     extended=True)
+            try:
+                character = await client.character_by_id(lodestone_id, include_freecompany=True,
+                                                         include_achievements=True, extended=True)
+            except xivapi.XIVAPIServiceUnavailable:
+                _error = f"The XIVAPI server appears to be down - please try again later."
+                self._log.warning(_error)
+                raise ValueError(_error)
+
             character = Character(character)
 
         return verification_code in character.bio

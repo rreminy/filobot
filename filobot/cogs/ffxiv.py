@@ -95,7 +95,12 @@ class FFXIV(commands.Cog):
             await ctx.send(f"{ctx.author.mention} Your account has already been verified!")
             return
 
-        verified = await self.xiv.verify(lodestone_id=player.lodestone_id, verification_code=player.validation_code)
+        try:
+            verified = await self.xiv.verify(lodestone_id=player.lodestone_id, verification_code=player.validation_code)
+        except ValueError as e:
+            await ctx.send(str(e))
+            return
+
         if verified:
             verified_role = await GuildSettings.fetch('verified', ctx)
             if verified_role:
@@ -122,7 +127,12 @@ class FFXIV(commands.Cog):
             return
 
         async with ctx.typing():
-            character = await self.xiv.get_character(player.lodestone_id)
+            try:
+                character = await self.xiv.get_character(player.lodestone_id)
+            except ValueError as e:
+                await ctx.send(str(e))
+                return
+
         await ctx.send(embed=character.embed(verified=player.status == Player.STATUS_VERIFIED))
 
     @commands.command()
@@ -138,7 +148,12 @@ class FFXIV(commands.Cog):
             return
 
         async with ctx.typing():
-            character = await self.xiv.get_character(player.lodestone_id)
+            try:
+                character = await self.xiv.get_character(player.lodestone_id)
+            except ValueError as e:
+                await ctx.send(str(e))
+                return
+
         await ctx.send(embed=character.embed(verified=player.status == Player.STATUS_VERIFIED))
 
     def _author_check(self, author: discord.User) -> typing.Callable:

@@ -112,13 +112,13 @@ class Admin(commands.Cog):
         for guild in self.bot.guilds:  # type: discord.Guild
             member = guild.get_member(discord_id)
             if member:
-                guilds.append(guild)
+                guilds.append((member, guild))
 
         output = ''
         counter = 0
         i = 0
-        for guild in guilds:
-            output = output + f"**{guild.name} ({guild.id})** - {guild.owner.name}#{guild.owner.discriminator}\n"
+        for member, guild in guilds:  # type: discord.Member, discord.Guild
+            output = output + f"**{member.display_name} {member.name}#{member.discriminator} //{guild.name} ({guild.id})** - {guild.owner.name}#{guild.owner.discriminator}\n"
 
             i += 1
             counter += 1

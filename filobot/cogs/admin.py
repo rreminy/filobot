@@ -29,6 +29,17 @@ class Admin(commands.Cog):
             await ctx.send("Please either mention a discord user to ban or provide their Discord user ID", delete_after=10.0)
             return
 
+        notice_sent = False
+        for guild in self.bot.guilds:  # type: discord.Guild
+            member = guild.get_member(id)  # type: discord.Member
+            if member:
+                if not notice_sent:
+                    await member.send("This is a notice that your FFXIV and discord account have been blacklisted from utilizing Filo's features. For more information, please contact support at https://discord.gg/UmAhGVT")
+                    self._log.info(f"Ban message sent to {member.name}#{member.discriminator}")
+                    notice_sent = True
+                guild.owner.send(f"This is a notice that a member of your Discord Guild **{guild.name}** has been added to Filo's blacklist. The member in question is **{member.name}#{member.discriminator}** with the Discord ID **{member.id}**. For more information, please contact support at https://discord.gg/UmAhGVT")
+                self._log.info(f"Ban notice sent to {guild.owner.name}#{guild.owner.discriminator}")
+
         try:
             player = Player.get(Player.discord_id == id)
             player.status = Player.STATUS_BANNED

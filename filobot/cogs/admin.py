@@ -103,3 +103,29 @@ class Admin(commands.Cog):
 
         output = output + f"\n---------------\n**Total servers:** {counter}"
         await ctx.send(output)
+
+    @commands.command(hidden=True)
+    @commands.is_owner()
+    async def member_guilds(self, ctx: commands.context.Context, discord_id: int):
+        guilds = []
+
+        for guild in self.bot.guilds:  # type: discord.Guild
+            member = guild.get_member(discord_id)
+            if member:
+                guilds.append(guild)
+
+        output = ''
+        counter = 0
+        i = 0
+        for guild in guilds:
+            output = output + f"**{guild.name} ({guild.id})** - {guild.owner.name}#{guild.owner.discriminator}\n"
+
+            i += 1
+            counter += 1
+            if i > 25:
+                await ctx.send(output)
+                output = ''
+                i = 0
+
+        output = output + f"\n---------------\n**Total servers:** {counter}"
+        await ctx.send(output)

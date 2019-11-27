@@ -144,10 +144,9 @@ class Admin(commands.Cog):
     @commands.command(hidden=True)
     @commands.is_owner()
     async def leave(self, ctx: commands.context.Context, guild_id: int):
-        guild = await self.bot.get_guild(guild_id)  # type: discord.Guild
+        guild = self.bot.get_guild(guild_id)  # type: discord.Guild
         if not guild:
             await ctx.send("I am not in any guild with that ID")
 
-        guild_name = guild.name
-        await ctx.send(f"Leaving guild {guild_name}")
+        await ctx.send(f"Leaving guild {guild.name}")
         await guild.leave()

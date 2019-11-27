@@ -148,5 +148,6 @@ class Admin(commands.Cog):
         if not guild:
             await ctx.send("I am not in any guild with that ID")
 
-        await ctx.send(f"Leaving guild {guild.name}")
+        guild_name = guild.name
+        await ctx.send(f"Leaving guild {guild_name}")
         await guild.leave()

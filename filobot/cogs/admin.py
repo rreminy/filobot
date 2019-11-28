@@ -150,3 +150,12 @@ class Admin(commands.Cog):
 
         await ctx.send(f"Leaving guild {guild.name}")
         await guild.leave()
+
+    @commands.command(hidden=True)
+    @commands.is_owner()
+    async def server_announce(self, ctx: commands.context.Context, *, message: str):
+        for guild in self.bot.guilds:  # type: discord.Guild
+            print(f"Sending announcement to {guild.name}")
+            await guild.owner.send(message)
+
+        await ctx.send("Announcement sent")

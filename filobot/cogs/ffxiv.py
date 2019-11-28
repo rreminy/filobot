@@ -112,7 +112,7 @@ class FFXIV(commands.Cog):
             verified_message = str(await GuildSettings.fetch('verified_message', ctx)).replace('{mention}', ctx.author.mention)
             await ctx.send(verified_message)
         else:
-            await ctx.send(f"{ctx.author.mention} Validation failed. Please make sure your character profile contains **only** the following verification code and then try again:\n```\n{player.validation_code}\n```")
+            await ctx.send(f"{ctx.author.mention} Validation failed. Remember to hit \"confirm\" twice and make sure your character profile contains **only** the following verification code then try again:\n```\n{player.validation_code}\n```")
 
     @commands.command()
     @commands.cooldown(1, 30, commands.BucketType.user)

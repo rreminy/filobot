@@ -156,6 +156,9 @@ class Admin(commands.Cog):
     async def server_announce(self, ctx: commands.context.Context, *, message: str):
         for guild in self.bot.guilds:  # type: discord.Guild
             print(f"Sending announcement to {guild.name}")
-            await guild.owner.send(message)
+            try:
+                await guild.owner.send(message)
+            except discord.errors.Forbidden:
+                continue
 
         await ctx.send("Announcement sent")

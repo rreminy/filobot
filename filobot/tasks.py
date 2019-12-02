@@ -67,6 +67,8 @@ async def start_server():
 
 
 async def track_stats():
+    await bot.wait_until_ready()
+
     a_count, s_count = await hunt_manager.count()
     a_count = "{:,}".format(a_count)
     s_count = "{:,}".format(s_count)

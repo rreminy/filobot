@@ -33,8 +33,6 @@ async def update_game():
 
 
 async def start_server():
-    hunts = {}
-
     async def event(request):
         try:
             data    = await request.post()
@@ -52,15 +50,8 @@ async def start_server():
         except IndexError:
             return web.Response(text='200')
 
-        if world not in hunts:
-            hunts[world] = {}
-
         # Dead? No reason to continue.
         if not alive:
-            return web.Response(text='200')
-
-        # Already seen? No reason to continue.
-        if hunt['Name'] in hunts[world]:
             return web.Response(text='200')
 
         await hunt_manager.on_find(world, hunt['Name'], xivhunt, int(data['i']) or 1)

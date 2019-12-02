@@ -75,13 +75,13 @@ async def track_stats():
     player_count = Player.select().where(Player.status == Player.STATUS_VERIFIED).count()
     player_count = "{:,}".format(player_count)
 
-    s_stats = await bot.get_channel(650987949026181120)  # type: discord.VoiceChannel
+    s_stats = bot.get_channel(650987949026181120)  # type: discord.VoiceChannel
     await s_stats.edit(name=f"S-Rank relays: {s_count}")
 
-    a_stats = await bot.get_channel(650988270787756042)  # type: discord.VoiceChannel
+    a_stats = bot.get_channel(650988270787756042)  # type: discord.VoiceChannel
     await a_stats.edit(name=f"A-Rank relays: {a_count}")
 
-    verified_stats = await bot.get_channel(650988353440972801)  # type: discord.VoiceChannel
+    verified_stats = bot.get_channel(650988353440972801)  # type: discord.VoiceChannel
     await verified_stats.edit(name=f"Verified members: {player_count}")
 
     await asyncio.sleep(1800.0)

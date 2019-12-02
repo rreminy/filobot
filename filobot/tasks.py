@@ -5,7 +5,7 @@ import discord
 from aiohttp import web
 
 from filobot.filobot import bot, GAMES, hunt_manager, log
-
+from filobot.models import Player
 
 # noinspection PyBroadException
 async def update_hunts():
@@ -64,3 +64,22 @@ async def start_server():
     await runner.setup()
     site = web.TCPSite(runner, '108.170.28.204', 9544)
     await site.start()
+
+
+async def track_stats():
+    a_count, s_count = await hunt_manager.count()
+    a_count = "{:,}".format(a_count)
+    s_count = "{:,}".format(s_count)
+    player_count = Player.select().where(Player.status == Player.STATUS_VERIFIED).count()
+    player_count = "{:,}".format(player_count)
+
+    s_stats = await bot.get_channel(650987949026181120)  # type: discord.VoiceChannel
+    await s_stats.edit(name=f"S-Rank relays: {s_count}")
+
+    a_stats = await bot.get_channel(650988270787756042)  # type: discord.VoiceChannel
+    await a_stats.edit(name=f"A-Rank relays: {a_count}")
+
+    verified_stats = await bot.get_channel(650988353440972801)  # type: discord.VoiceChannel
+    await verified_stats.edit(name=f"Verified members: {player_count}")
+
+    await asyncio.sleep(1800.0)

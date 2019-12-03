@@ -69,19 +69,20 @@ async def start_server():
 async def track_stats():
     await bot.wait_until_ready()
 
-    a_count, s_count = await hunt_manager.count()
-    a_count = "{:,}".format(a_count)
-    s_count = "{:,}".format(s_count)
-    player_count = Player.select().where(Player.status == Player.STATUS_VERIFIED).count()
-    player_count = "{:,}".format(player_count)
+    while not bot.is_closed():
+        a_count, s_count = await hunt_manager.count()
+        a_count = "{:,}".format(a_count)
+        s_count = "{:,}".format(s_count)
+        player_count = Player.select().where(Player.status == Player.STATUS_VERIFIED).count()
+        player_count = "{:,}".format(player_count)
 
-    s_stats = bot.get_channel(650987949026181120)  # type: discord.VoiceChannel
-    await s_stats.edit(name=f"S-Rank relays: {s_count}")
+        s_stats = bot.get_channel(650987949026181120)  # type: discord.VoiceChannel
+        await s_stats.edit(name=f"S-Rank relays: {s_count}")
 
-    a_stats = bot.get_channel(650988270787756042)  # type: discord.VoiceChannel
-    await a_stats.edit(name=f"A-Rank relays: {a_count}")
+        a_stats = bot.get_channel(650988270787756042)  # type: discord.VoiceChannel
+        await a_stats.edit(name=f"A-Rank relays: {a_count}")
 
-    verified_stats = bot.get_channel(650988353440972801)  # type: discord.VoiceChannel
-    await verified_stats.edit(name=f"Verified members: {player_count}")
+        verified_stats = bot.get_channel(650988353440972801)  # type: discord.VoiceChannel
+        await verified_stats.edit(name=f"Verified members: {player_count}")
 
-    await asyncio.sleep(1800.0)
+        await asyncio.sleep(1800.0)

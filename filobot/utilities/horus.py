@@ -10,14 +10,17 @@ import discord.ext
 
 class Horus:
 
-    ENDPOINT = 'https://horus-hunts.net/Timers/GetDcTimers/?DC=Crystal'
-
     ENDPOINTS = (
         'https://horus-hunts.net/Timers/GetDcTimers/?DC=Aether',
         'https://horus-hunts.net/Timers/GetDcTimers/?DC=Primal',
         'https://horus-hunts.net/Timers/GetDcTimers/?DC=Crystal',
+
         'https://horus-hunts.net/Timers/GetDcTimers/?DC=Chaos',
-        'https://horus-hunts.net/Timers/GetDcTimers/?DC=Light'
+        'https://horus-hunts.net/Timers/GetDcTimers/?DC=Light',
+
+        'https://horus-hunts.net/Timers/GetDcTimers/?DC=Elemental',
+        'https://horus-hunts.net/Timers/GetDcTimers/?DC=Gaia',
+        'https://horus-hunts.net/Timers/GetDcTimers/?DC=Mana'
     )
 
     def __init__(self, bot: discord.ext.commands.Bot):
@@ -34,9 +37,8 @@ class Horus:
         """
         Load Horus data on the specified world
         """
-        # Currently hardcoded to the Crystal DC; we might add support for other DC's later
         if self._cached_response is not None and (time.time() <= self._cached_time + 15):
-            self._log.debug('Using cached Horus response')
+            self._log.debug(f"Using cached Horus response for {world}")
             response = self._cached_response
         else:
             self._log.info('Querying Horus')
@@ -121,4 +123,3 @@ class HorusHunt:
             self.status = self.STATUS_DIED
         else:
             self.status = self.STATUS_CLOSED
-

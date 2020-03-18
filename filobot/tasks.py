@@ -6,6 +6,7 @@ from aiohttp import web
 
 from filobot.filobot import bot, GAMES, hunt_manager, log
 from filobot.models import Player
+import json
 
 # noinspection PyBroadException
 async def update_hunts():
@@ -32,7 +33,41 @@ async def update_game():
         await asyncio.sleep(60.0)
 
 
-async def start_server():
+async def discord_listener(channel):
+    await bot.wait_until_ready()
+
+    async def on_message(message):
+        try:
+            if str(message.channel.id) != channel:
+                return;
+
+            data    = json.loads(message.content);
+            alive   = data['lastAlive'] == 'True'
+            world   = hunt_manager.get_world(int(data['wId']))
+            hunt    = hunt_manager.horus.id_to_hunt(data['id'])
+            _plus   = 22.5 if hunt['ZoneName'] in hunt_manager.HW_ZONES else 21.5
+            x, y    = round((float(data['x']) * 0.02 + _plus)*10)/10, round((float(data['y']) * 0.02 + _plus)*10)/10
+            xivhunt = {
+                'rank': data['r'],
+                'status': 'seen' if alive else 'dead',
+                'last_seen': data['lastReported'],
+                'coords': f"{x}, {y}"
+            }
+        except IndexError:
+            return
+
+        # Dead? No reason to continue.
+        if not alive:
+            return
+
+        await hunt_manager.on_find(world, hunt['Name'], xivhunt, int(data['i']) or 1)
+        return
+
+    bot.add_listener(on_message)
+    return
+
+
+async def start_server(addr, port):
     async def event(request):
         try:
             data    = await request.post()
@@ -62,7 +97,7 @@ async def start_server():
 
     runner = web.AppRunner(app)
     await runner.setup()
-    site = web.TCPSite(runner, '108.170.28.204', 9544)
+    site = web.TCPSite(runner, addr, port)
     await site.start()
 
 

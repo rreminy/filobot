@@ -1,5 +1,7 @@
 config.ini
 data/filobot.db
+data/datacenters.csv
+data/worlds.csv
 
 # Created by .ignore support plugin (hsz.mobi)
 ### Vim template
@@ -249,4 +251,3 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
-

@@ -384,9 +384,3 @@ async def init():
 
     # Debug log the data (testing)
     debug_print()
-
-
-# Initialize everything early as this is critical data
-asyncio.run(init())
-# WARNING: Failing to run this risk into a possible race conditions where
-# there are no datacenters or worlds available (hmm...is Diabolos a world?)

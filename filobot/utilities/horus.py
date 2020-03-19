@@ -6,22 +6,18 @@ import time
 
 import aiohttp
 import discord.ext
-
+from filobot.utilities.worlds import Worlds
 
 class Horus:
+    ENDPOINT_BASE = 'https://horus-hunts.net/Timers/GetDcTimers/?DC='
+    def _get_endpoint(self, datacenter: str):
+        return f"{self.ENDPOINT_BASE}{datacenter}"
 
-    ENDPOINTS = (
-        'https://horus-hunts.net/Timers/GetDcTimers/?DC=Aether',
-        'https://horus-hunts.net/Timers/GetDcTimers/?DC=Primal',
-        'https://horus-hunts.net/Timers/GetDcTimers/?DC=Crystal',
-
-        'https://horus-hunts.net/Timers/GetDcTimers/?DC=Chaos',
-        'https://horus-hunts.net/Timers/GetDcTimers/?DC=Light',
-
-        'https://horus-hunts.net/Timers/GetDcTimers/?DC=Elemental',
-        'https://horus-hunts.net/Timers/GetDcTimers/?DC=Gaia',
-        'https://horus-hunts.net/Timers/GetDcTimers/?DC=Mana'
-    )
+    def _get_endpoints(self):
+        ret = []
+        for datacenter in Worlds.get_datacenters():
+            ret.append(self._get_endpoint(datacenter))
+        return ret
 
     def __init__(self, bot: discord.ext.commands.Bot):
         self._log = logging.getLogger(__name__)
@@ -44,10 +40,13 @@ class Horus:
             self._log.info('Querying Horus')
             responses = []
             async with aiohttp.ClientSession() as session:
-                for endpoint in self.ENDPOINTS:
+                for endpoint in self._get_endpoints():
                     self._log.debug(f"Querying: {endpoint}")
-                    page = await self._fetch(session, endpoint)
-                    responses.append(json.loads(page))
+                    try:
+                        page = await self._fetch(session, endpoint)
+                        responses.append(json.loads(page))
+                    except:
+                        self._log.exception(f"Exception caught while querying {endpoint}")
 
                 response = {}
                 for r in responses:

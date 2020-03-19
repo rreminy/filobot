@@ -14,6 +14,7 @@ from filobot.utilities import hunt_embed
 from filobot.utilities.horus import HorusHunt
 from .horus import Horus
 from .xivhunt import XivHunt
+from filobot.utilities.worlds import Worlds
 
 
 class HuntManager:
@@ -38,32 +39,6 @@ class HuntManager:
     SB_ZONES = ('The Ruby Sea', 'Yanxia', 'The Azim Steppe', 'The Fringes', 'The Peaks', 'The Lochs')
 
     SHB_ZONES = ('Il Mheg', "The Rak'tika Greatwood", 'The Tempest', 'Amh Araeng', 'Lakeland', 'Kholusia')
-
-    WORLDS = (
-        'Adamantoise', 'Cactuar', 'Faerie', 'Gilgamesh', 'Jenova', 'Midgardsormr', 'Sargatanas', 'Siren',  # (NA) Aether
-        'Behemoth', 'Excalibur', 'Exodus', 'Famfrit', 'Hyperion', 'Lamia', 'Leviathan', 'Ultros',  # (NA) Primal
-        'Balmung', 'Brynhildr', 'Coeurl', 'Diabolos', 'Goblin', 'Malboro', 'Mateus', 'Zalera',  # (NA) Crystal
-
-        'Cerberus', 'Louisoix', 'Moogle', 'Omega', 'Ragnarok', 'Spriggan',  # (EU) Chaos
-        'Lich', 'Odin', 'Phoenix', 'Shiva', 'Twintania', 'Zodiark',  # (EU) Light
-
-        'Aegis', 'Atomos', 'Carbuncle', 'Garuda', 'Gungnir', 'Kujata', 'Ramuh', 'Tonberry', 'Typhon', 'Unicorn', # (JP) Elemental
-        'Alexander', 'Bahamut', 'Durandal', 'Fenrir', 'Ifrit', 'Ridill', 'Tiamat', 'Ultima', 'Valefor', 'Yojimbo', 'Zeromus', # (JP) Gaia
-        'Anima', 'Asura', 'Belias', 'Chocobo', 'Hades', 'Ixion', 'Mandragora', 'Masamune', 'Pandaemonium', 'Shinryu', 'Titan' # (JP) Mana
-    )
-
-    DATACENTERS = {
-        'Aether':  ('Adamantoise', 'Cactuar', 'Faerie', 'Gilgamesh', 'Jenova', 'Midgardsormr', 'Sargatanas', 'Siren'),
-        'Primal':  ('Behemoth', 'Excalibur', 'Exodus', 'Famfrit', 'Hyperion', 'Lamia', 'Leviathan', 'Ultros'),
-        'Crystal': ('Balmung', 'Brynhildr', 'Coeurl', 'Diabolos', 'Goblin', 'Malboro', 'Mateus', 'Zalera'),
-
-        'Chaos':   ('Cerberus', 'Louisoix', 'Moogle', 'Omega', 'Ragnarok', 'Spriggan'),
-        'Light':   ('Lich', 'Odin', 'Phoenix', 'Shiva', 'Twintania', 'Zodiark'),
-
-        'Elemental': ('Aegis', 'Atomos', 'Carbuncle', 'Garuda', 'Gungnir', 'Kujata', 'Ramuh', 'Tonberry', 'Typhon', 'Unicorn'),
-        'Gaia': ('Alexander', 'Bahamut', 'Durandal', 'Fenrir', 'Ifrit', 'Ridill', 'Tiamat', 'Ultima', 'Valefor', 'Yojimbo', 'Zeromus'),
-        'Mana': ('Anima', 'Asura', 'Belias', 'Chocobo', 'Hades', 'Ixion', 'Mandragora', 'Masamune', 'Pandaemonium', 'Shinryu', 'Titan')
-    }
 
     COND_DEAD = 'deaths'
     COND_OPEN = 'openings'
@@ -105,7 +80,7 @@ class HuntManager:
         Check and update hunt data from XIVHunt and Horus
         Calls on_change and on_find events respectively
         """
-        for world in self.WORLDS:
+        for world in Worlds.get_worlds():
             if world not in self._hunts:
                 self._hunts[world] = {'horus': {}, 'xivhunt': []}
 
@@ -118,7 +93,7 @@ class HuntManager:
             # Look for updated Horus entries
             for key, hunt in horus.items():  # type: str, HorusHunt
                 if key in self._hunts[world]['horus'] and hunt.status != self._hunts[world]['horus'][key].status:
-                    print(f"""Hunt status for {hunt.name} on {world} (Instance {hunt.instance}) changed - {self._hunts[world]['horus'][key].status.title()} => {hunt.status.title()}""")
+                    self._log.info(f"""Hunt status for {hunt.name} on {world} (Instance {hunt.instance}) changed - {self._hunts[world]['horus'][key].status.title()} => {hunt.status.title()}""")
                     self._changed[world][key] = hunt
                     await self.on_change(world, self._hunts[world]['horus'][key], hunt)
 
@@ -127,7 +102,7 @@ class HuntManager:
             #     if name in self._hunts[world]['xivhunt'] and hunt['status'] == 'seen':
             #         # First time seeing this hunt?
             #         if self._hunts[world]['xivhunt'][name]['status'] != 'seen':
-            #             print(f"""Hunt seen for the first time! {name.title()} on {world}""")
+            #             self._log.info(f"""Hunt seen for the first time! {name.title()} on {world}""")
             #             self._found[world][name] = hunt
             #             await self.on_find(world, name, hunt)
 
@@ -180,7 +155,7 @@ class HuntManager:
         """
         # Validate world
         world = world.strip().lower().title()
-        if world not in self.WORLDS:
+        if world not in Worlds.get_worlds():
             await self.bot.get_channel(channel).send(
                 "No world by that name found - please check your spelling and try again"
             )
@@ -256,11 +231,11 @@ class HuntManager:
 
         # Validate datacenter
         datacenter = datacenter.strip().lower().title()
-        if datacenter not in self.DATACENTERS.keys():
-            await self.bot.get_channel(channel).send("Invalid datacenter provided, valid datacenters are: Aether, Primal, Crystal, Chaos, Light")
+        if datacenter not in Worlds.get_datacenters():
+            await self.bot.get_channel(channel).send(f"Invalid datacenter provided, valid datacenters are: {', '.join(Worlds.get_datacenters())}")
             return
 
-        for world in self.DATACENTERS[datacenter]:
+        for world in Worlds.get_datacenter_worlds[datacenter]:
             # Already subscribed? Overwrite it
             Subscriptions.delete().where(
                     (Subscriptions.channel_id == channel)
@@ -286,9 +261,9 @@ class HuntManager:
         Unsubscribe a channel from hunt events
         """
         world = world.strip().lower().title()
-        if world not in self.WORLDS:
+        if world not in Worlds.get_worlds():
             await self.bot.get_channel(channel).send(
-                "No world by that name found on the Crystal DC - please check your spelling and try again"
+                "No world by that name found - please check your spelling and try again"
             )
             return
 
@@ -403,7 +378,7 @@ class HuntManager:
             self._log.debug(f"""Ignoring notifications for {hunt['Rank']} rank hunts""")
             return
 
-        print(f"A hunt has been found on world {world} (Instance {instance}) :: {name}, Rank {xivhunt['rank']}")
+        self._log.info(f"A hunt has been found on world {world} (Instance {instance}) :: {name}, Rank {xivhunt['rank']}")
 
         subs = Subscriptions.select().where(
                 (Subscriptions.world == world)
@@ -476,11 +451,9 @@ class HuntManager:
             return message, log
 
     def get_world(self, id: int):
-        for world, url in self.xivhunt.WORLDS.items():
-            _id = int(url[-2:])
-            if id == _id:
-                return world
-        else:
+        try:
+            return Worlds.get_world_by_id(id)
+        except:
             raise IndexError(f'No world with the ID {id} could be found')
 
     async def _send_sub_message(self, message, embed: discord.Embed, sub: Subscriptions) -> typing.Optional[discord.Message]:

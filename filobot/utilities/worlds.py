@@ -113,17 +113,16 @@ async def update(obj, force = False):
                 logger.debug(f"update(): Saving {obj['name']} data...")
                 write_file(obj['file_path'], obj['data'])
             except Exception as e:
-                logger.warning(f"update(): Unable to save {obj['name']} data")
-                logger.warning(e)
+                logger.exception(f"update(): Unable to save {obj['name']} data")
 
                 # Sets the last updated time for the object
                 obj['last_updated'] = time.time()
         except:
-            logger.warning(f"update(): Unable to download {obj['name']} data")
+            logger.exception(f"update(): Unable to download {obj['name']} data")
 
     # Is there data to begin with?
     if obj['data'] == "":
-        logger.error(f"update(): {obj['name']} data unavailable!!")
+        logger.exception(f"update(): {obj['name']} data unavailable!!")
         sys.exit(1)
 
 
@@ -380,8 +379,7 @@ async def init():
     try:
         await do_update()
     except Exception as e:
-        logger.error("Data processing failed!!")
-        logger.error(e)
+        logger.exception("Data processing failed!!")
         sys.exit(1)
 
     # Debug log the data (testing)

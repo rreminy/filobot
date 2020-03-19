@@ -5,6 +5,7 @@ import sys
 import time
 
 import aiohttp
+import async_timeout
 import discord.ext
 from filobot.utilities.worlds import Worlds
 
@@ -26,35 +27,31 @@ class Horus:
         with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'marks_info.json')) as json_file:
             self.marks_info = json.load(json_file)
 
-        self._cached_response = None
-        self._cached_time = time.time()
+        self._cached_response = {}
+        self._cached_time = 0
 
-    async def load(self, world: str):
+    async def update_horus(self):
         """
         Load Horus data on the specified world
         """
-        if self._cached_response is not None and (time.time() <= self._cached_time + 15):
-            self._log.debug(f"Using cached Horus response for {world}")
-            response = self._cached_response
+        if time.time() <= self._cached_time + 15:
+            self._log.debug(f"Horus data already up to date")
         else:
             self._log.info('Querying Horus')
-            responses = []
             async with aiohttp.ClientSession() as session:
                 for endpoint in self._get_endpoints():
                     self._log.debug(f"Querying: {endpoint}")
                     try:
-                        page = await self._fetch(session, endpoint)
-                        responses.append(json.loads(page))
+                        response = json.loads(await self._fetch(session, endpoint))
+                        self._cached_response.update(response)
                     except:
                         self._log.exception(f"Exception caught while querying {endpoint}")
 
-                response = {}
-                for r in responses:
-                    response.update(r)
-
-            self._cached_response = response
+            self._cached_response.update(response)
             self._cached_time = time.time()
 
+    async def load(self, world: str):
+        response = self._cached_response
         if world not in response.keys():
             raise LookupError(f"""World {world} does not exist""")
         timers = response[world]['timers']
@@ -77,8 +74,9 @@ class Horus:
         return self.marks_info[id]
 
     async def _fetch(self, session, url):
-        async with session.get(url) as response:
-            return await response.text()
+        with async_timeout.timeout(15):
+            async with session.get(url) as response:
+                return await response.text()
 
 
 class HorusHunt:

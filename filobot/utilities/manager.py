@@ -80,6 +80,10 @@ class HuntManager:
         Check and update hunt data from XIVHunt and Horus
         Calls on_change and on_find events respectively
         """
+
+        # Update Horus
+        await self.horus.update_horus()
+
         for world in Worlds.get_worlds():
             if world not in self._hunts:
                 self._hunts[world] = {'horus': {}, 'xivhunt': []}
@@ -107,7 +111,7 @@ class HuntManager:
             #             await self.on_find(world, name, hunt)
 
             # self._hunts[world]['xivhunt'] = xivhunt
-            self._hunts[world]['horus']   = horus
+            self._hunts[world]['horus'] = horus
             await self.on_recheck(world, horus)
 
     async def on_recheck(self, world: str, horus: HorusHunt):

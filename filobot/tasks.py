@@ -6,7 +6,12 @@ from aiohttp import web
 
 from filobot.filobot import bot, GAMES, hunt_manager, log
 from filobot.models import Player
+import filobot.utilities.worlds as worlds
+
 import json
+
+import logging
+logger = logging.getLogger(__name__)
 
 # noinspection PyBroadException
 async def update_hunts():
@@ -33,34 +38,56 @@ async def update_game():
         await asyncio.sleep(60.0)
 
 
+async def _process_data(data):
+    if 'r' in data.keys(): # 'r' is only on hunts (rank)
+        logger.debug(f"Processing {data['id']} as a hunt")
+        await _process_hunt(data)
+    elif 'duration' in data.keys(): # 'duration' is only on fates
+        logger.debug(f"Processing {data['id']} as a fate")
+        await _process_fate(data)
+    else: # when all else fails
+        logger.warning(f"Unable to determine {data['id']}")
+        logger.warning(data)
+
+
+async def _process_hunt(data):
+    try:
+        alive   = data['lastAlive'] == 'True'
+        world   = hunt_manager.get_world(int(data['wId']))
+        hunt    = hunt_manager.horus.id_to_hunt(data['id'])
+        _plus   = 22.5 if hunt['ZoneName'] in hunt_manager.HW_ZONES else 21.5
+        x, y    = round((float(data['x']) * 0.02 + _plus)*10)/10, round((float(data['y']) * 0.02 + _plus)*10)/10
+        xivhunt = {
+            'rank': data['r'],
+            'status': 'seen' if alive else 'dead',
+            'last_seen': data['lastReported'],
+            'coords': f"{x}, {y}"
+        }
+
+    except IndexError:
+        return
+
+    if not alive:
+        # TODO: Deaths
+        return
+
+    return await hunt_manager.on_find(world, hunt['Name'], xivhunt, int(data['i']) or 1)
+
+
+async def _process_fate(data):
+    # TODO
+    return
+
+
 async def discord_listener(channel):
     await bot.wait_until_ready()
 
     async def on_message(message):
-        try:
-            if str(message.channel.id) != channel:
-                return;
+        if str(message.channel.id) != channel:
+            return;
 
-            data    = json.loads(message.content);
-            alive   = data['lastAlive'] == 'True'
-            world   = hunt_manager.get_world(int(data['wId']))
-            hunt    = hunt_manager.horus.id_to_hunt(data['id'])
-            _plus   = 22.5 if hunt['ZoneName'] in hunt_manager.HW_ZONES else 21.5
-            x, y    = round((float(data['x']) * 0.02 + _plus)*10)/10, round((float(data['y']) * 0.02 + _plus)*10)/10
-            xivhunt = {
-                'rank': data['r'],
-                'status': 'seen' if alive else 'dead',
-                'last_seen': data['lastReported'],
-                'coords': f"{x}, {y}"
-            }
-        except IndexError:
-            return
-
-        # Dead? No reason to continue.
-        if not alive:
-            return
-
-        await hunt_manager.on_find(world, hunt['Name'], xivhunt, int(data['i']) or 1)
+        data = json.loads(message.content)
+        await _process_data(data)
         return
 
     bot.add_listener(on_message)
@@ -69,27 +96,8 @@ async def discord_listener(channel):
 
 async def start_server(addr, port):
     async def event(request):
-        try:
-            data    = await request.post()
-            alive   = data['lastAlive'] == 'True'
-            world   = hunt_manager.get_world(int(data['wId']))
-            hunt    = hunt_manager.horus.id_to_hunt(data['id'])
-            _plus   = 22.5 if hunt['ZoneName'] in hunt_manager.HW_ZONES else 21.5
-            x, y    = round((float(data['x']) * 0.02 + _plus)*10)/10, round((float(data['y']) * 0.02 + _plus)*10)/10
-            xivhunt = {
-                'rank': data['r'],
-                'status': 'seen' if alive else 'dead',
-                'last_seen': data['lastReported'],
-                'coords': f"{x}, {y}"
-            }
-        except IndexError:
-            return web.Response(text='200')
-
-        # Dead? No reason to continue.
-        if not alive:
-            return web.Response(text='200')
-
-        await hunt_manager.on_find(world, hunt['Name'], xivhunt, int(data['i']) or 1)
+        data = await request.post()
+        await _process_data(data)
         return web.Response(text='200')
 
     app = web.Application()
@@ -99,6 +107,14 @@ async def start_server(addr, port):
     await runner.setup()
     site = web.TCPSite(runner, addr, port)
     await site.start()
+
+
+async def update_worlds():
+    await bot.wait_until_ready()
+
+    while not bot.is_closed():
+        await worlds.do_update()
+        await asyncio.sleep(1800.0)
 
 
 async def track_stats():

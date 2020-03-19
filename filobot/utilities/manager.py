@@ -235,7 +235,7 @@ class HuntManager:
             await self.bot.get_channel(channel).send(f"Invalid datacenter provided, valid datacenters are: {', '.join(Worlds.get_datacenters())}")
             return
 
-        for world in Worlds.get_datacenter_worlds[datacenter]:
+        for world in Worlds.get_datacenter_worlds(datacenter):
             # Already subscribed? Overwrite it
             Subscriptions.delete().where(
                     (Subscriptions.channel_id == channel)

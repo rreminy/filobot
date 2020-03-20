@@ -59,9 +59,11 @@ async def _process_hunt(data):
         x, y    = round((float(data['x']) * 0.02 + _plus)*10)/10, round((float(data['y']) * 0.02 + _plus)*10)/10
         xivhunt = {
             'rank': data['r'],
+            'i': data['i'],
             'status': 'seen' if alive else 'dead',
             'last_seen': data['lastReported'],
-            'coords': f"{x}, {y}"
+            'coords': f"{x}, {y}",
+            'world': world,
         }
 
     except IndexError:

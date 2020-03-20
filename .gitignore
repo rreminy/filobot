@@ -1,5 +1,5 @@
 config.ini
-data/filobot.db
+data/filobot.db*
 data/datacenters.csv
 data/worlds.csv
 

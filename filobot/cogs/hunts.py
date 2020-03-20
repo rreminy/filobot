@@ -67,7 +67,7 @@ class Hunts(commands.Cog):
         except KeyError as e:
             self._log.info(e)
             await ctx.send(
-                "No world or hunt by that name found on the Crystal DC - please check your spelling and try again"
+                "No world or hunt by that name found - please check your spelling and try again"
             )
             return
 
@@ -76,6 +76,20 @@ class Hunts(commands.Cog):
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def notify(self, ctx: commands.context.Context, role: typing.Optional[discord.Role]):
+        """
+        Adds a role to mention when hunts are found in this channel
+        """
+        if not role:
+            await self.hunt_manager.remove_notifier(ctx.channel.id)
+            await ctx.send("Channel notifier cleared")
+            return
+
+        await self.hunt_manager.set_notifier(ctx.channel.id, role)
+        await ctx.send("Members of this role will now be notified whenever a new hunt is found. To undo this, run the notify command again without any arguments")
+
+    @commands.command(name='sub-notify')
+    @commands.has_permissions(administrator=True)
+    async def sub_notify(self, ctx: commands.context.Context, role: typing.Optional[discord.Role]):
         """
         Adds a role to mention when hunts are found in this channel
         """

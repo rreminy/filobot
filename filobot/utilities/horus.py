@@ -5,12 +5,15 @@ import sys
 import time
 
 import aiohttp
+import asyncio
 import async_timeout
 import discord.ext
 from filobot.utilities.worlds import Worlds
 
 class Horus:
+    CACHE_TTL = 15
     ENDPOINT_BASE = 'https://horus-hunts.net/Timers/GetDcTimers/?DC='
+
     def _get_endpoint(self, datacenter: str):
         return f"{self.ENDPOINT_BASE}{datacenter}"
 
@@ -31,11 +34,8 @@ class Horus:
         self._cached_time = 0
 
     async def update_horus(self):
-        """
-        Load Horus data on the specified world
-        """
-        if time.time() <= self._cached_time + 15:
-            self._log.debug(f"Horus data already up to date")
+        if time.time() <= self._cached_time + self.CACHE_TTL:
+            self._log.debug("Horus data already up to date")
         else:
             self._log.info('Querying Horus')
             async with aiohttp.ClientSession() as session:
@@ -46,8 +46,6 @@ class Horus:
                         self._cached_response.update(response)
                     except:
                         self._log.exception(f"Exception caught while querying {endpoint}")
-
-            self._cached_response.update(response)
             self._cached_time = time.time()
 
     async def load(self, world: str):

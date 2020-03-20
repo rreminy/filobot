@@ -44,9 +44,11 @@ bot.add_cog(Misc(bot, hunt_manager))
 bot.add_cog(Settings(bot))
 
 
-GAMES = ("with moogles", "in Totomo Omo's estate", "in the Izakaya Pub", "pranks on Joel Cleveland'", "with the hunt tracker",
-"Diabolos", "with Hunts", "Marriage", "boredom", "with Sum", "with Eorzea", "Ascians", "Zodiark", "Hydaelyn",
-"Final Fantasy XIV", "FFXIV", "Centurio Hunts", "the Moon", "the Sun", "Zenos", "Hades", "Python", "XIVAPI")
+GAMES = ("with moogles", "in Totomo Omo's estate", "in the Izakaya Pub",
+"pranks on Joel Cleveland'", "with the hunt tracker", "Diabolos", "with hunts",
+"Marriage", "boredom", "with Sum", "with Eorzea", "Ascians", "Zodiark",
+"Hydaelyn", "Final Fantasy XIV", "FFXIV", "Centurio Hunts", "the Moon",
+"the Sun", "Zenos", "Hades", "Python", "XIVAPI", "Horus", "with Tora",)
 
 
 @bot.event

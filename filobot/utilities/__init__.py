@@ -5,6 +5,7 @@ import time
 import arrow
 import discord
 import typing
+from filobot.utilities.worlds import Worlds
 
 with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'marks_info.json')) as json_file:
     marks_info = json.load(json_file)
@@ -69,6 +70,62 @@ SB_ALIASES = [('aqra', 'aqrabuamelu'), ('voch', 'vochstein'), ('lumi', 'luminare
               ('giri', 'girimekhala')]
 
 
+def hunt_simple_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: typing.Optional = None) -> discord.Embed:
+    for _id, mark in marks_info.items():
+        if hunt_name.strip().lower() == mark['Name'].lower():
+            embed = discord.Embed()
+            embed.title = f"Rank {mark['Rank']}: {mark['Name']}"
+
+            # Default rank-based colors (overwritten if horus status is provided)
+            if mark['Rank'] == 'A':
+                embed.colour = COLOR_A
+            elif mark['Rank'] == 'S':
+                embed.colour = COLOR_S
+            elif mark['Rank'] == 'B':
+                embed.colour = COLOR_B
+
+            instance = 0
+            if xivhunt is not None and xivhunt['i']:
+                instance = int(xivhunt['i']) or 1
+            else:
+                instance = horus.instance
+
+            world = ""
+            if xivhunt is not None and xivhunt['world']:
+                world = xivhunt['world']
+            else:
+                world = horus.world
+
+            content = ""
+            if xivhunt is not None and xivhunt['coords']:
+                content += f"[{world}] {mark['ZoneName']} ({xivhunt['coords']}) i{instance}"
+            else:
+                content += f"[{world}] {mark['ZoneName']} i{instance}"
+
+            if horus is not None:
+                # Horus status based color-coding
+                if horus.status == horus.STATUS_OPENED:
+                    embed.colour = COLOR_OPEN
+                elif horus.status == horus.STATUS_MAXED:
+                    embed.colour = COLOR_MAXED
+                elif horus.status == horus.STATUS_DIED:
+                    embed.colour = COLOR_DIED
+                    embed.title += " DEAD"
+                else:
+                    embed.colour = COLOR_CLOSED
+                    embed.title += " DEAD"
+
+                if horus.last_mark:
+                    last_mark = arrow.get(horus.last_mark / 1000).format("MMM Do, H:mma ZZZ")
+                    footer = f"""Marked {last_mark}"""
+                    if horus.last_try_user != 'N/A':
+                        footer = footer + f""" by {horus.last_try_user}"""
+                    embed.set_footer(text=footer)
+
+            embed.description = content
+            return embed
+
+
 def hunt_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: typing.Optional = None) -> discord.Embed:
     for _id, mark in marks_info.items():
         if hunt_name.strip().lower() == mark['Name'].lower():
@@ -119,15 +176,6 @@ def hunt_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: typing.Op
                         footer = footer + f""" by {horus.last_try_user}"""
                     embed.set_footer(text=footer)
 
-            if xivhunt is not None and xivhunt['coords']:
-                embed.colour = COLOR_OPEN
-
-                # Parse the time in a human friendly format
-                ls_human = arrow.get(xivhunt['last_seen'], 'YYYY-MM-DD HH:mm:ss').format("MMM Do, H:mma ZZZ")
-
-                embed.add_field(name='Last seen', value=ls_human)
-                embed.add_field(name='Coords', value=xivhunt['coords'])
-
             return embed
 
     # No hunt by the specified name found
@@ -165,4 +213,3 @@ def parse_duration_string(start: float, end: float):
 
     duration.append(f"""{int(seconds)} seconds""")
     return ', '.join(duration)
-

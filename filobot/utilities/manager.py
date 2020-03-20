@@ -10,7 +10,7 @@ from discord.ext.commands import Bot
 from peewee import fn
 
 from filobot.models import KillLog, Subscriptions, SubscriptionsMeta
-from filobot.utilities import hunt_embed
+from filobot.utilities import hunt_embed, hunt_simple_embed
 from filobot.utilities.horus import HorusHunt
 from .horus import Horus
 from .xivhunt import XivHunt
@@ -80,7 +80,6 @@ class HuntManager:
         Check and update hunt data from XIVHunt and Horus
         Calls on_change and on_find events respectively
         """
-
         # Update Horus
         await self.horus.update_horus()
 
@@ -319,7 +318,7 @@ class HuntManager:
                 (Subscriptions.world == world)
                 & (Subscriptions.category == hunt['Channel'])
         )
-        embed = hunt_embed(new.name, new)
+        embed = hunt_simple_embed(new.name, new)
 
         for sub in subs:  # type: Subscriptions
             if new.status == new.STATUS_OPENED and self.COND_OPEN == sub.event:
@@ -354,12 +353,14 @@ class HuntManager:
                     log.save()
 
                     try:
-                        await notification.edit(content=f"""A scouted hunt has died on **{world}** (**Instance {new.instance}**) after **{', '.join(kill_time)}**!""", embed=embed)
+                        content = f"""**{world}** {new.rank} Rank: **{new.name}** @ {new.zone} i{new.instance} DEAD after **{', '.join(kill_time)}**"""
+                        await notification.edit(content=content, embed=embed)
                         continue
                     except discord.NotFound:
                         self._log.warning(f"Notification message for hunt {new.name} on world {world} has been deleted")
 
-                await self._send_sub_message(f"A hunt has died on **{world}** (**Instance {new.instance}**)!", embed, sub)
+                content = f"""**{world}** {new.rank} Rank: **{new.name}** @ {new.zone} i{new.instance} DEAD"""
+                # await self._send_sub_message(content, embed, sub)
 
             _key = f"{new.name.strip().lower()}_{new.instance}"
             if _key in self._hunts[world]['xivhunt']:
@@ -388,7 +389,7 @@ class HuntManager:
                 (Subscriptions.world == world)
                 & (Subscriptions.category == hunt['Channel'])
         )
-        embed = hunt_embed(name, xivhunt=xivhunt)
+        embed = hunt_simple_embed(name, xivhunt=xivhunt)
 
         for sub in subs:  # type: Subscriptions
             if self.COND_FIND != sub.event:
@@ -398,7 +399,7 @@ class HuntManager:
             meta  = {m.name : m.value for m in _meta}
             role_mention = meta['notifier'] if 'notifier' in meta else None
 
-            content = f"""A hunt has been found on **{world}** (**Instance {instance}**)!"""
+            content = f"""**{world}** {hunt['Rank']} Rank: **{hunt['Name']}** @ {hunt['ZoneName']} ({xivhunt['coords']}) i{instance}"""
             if role_mention:
                 content = f"""{role_mention} {content}"""
 

@@ -96,12 +96,6 @@ def hunt_simple_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: ty
             else:
                 world = horus.world
 
-            content = ""
-            if xivhunt is not None and xivhunt['coords']:
-                content += f"[{world}] {mark['ZoneName']} ({xivhunt['coords']}) i{instance}"
-            else:
-                content += f"[{world}] {mark['ZoneName']} i{instance}"
-
             if horus is not None:
                 # Horus status based color-coding
                 if horus.status == horus.STATUS_OPENED:
@@ -115,14 +109,6 @@ def hunt_simple_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: ty
                     embed.colour = COLOR_CLOSED
                     embed.title += " DEAD"
 
-                if horus.last_mark:
-                    last_mark = arrow.get(horus.last_mark / 1000).format("MMM Do, H:mma ZZZ")
-                    footer = f"""Marked {last_mark}"""
-                    if horus.last_try_user != 'N/A':
-                        footer = footer + f""" by {horus.last_try_user}"""
-                    embed.set_footer(text=footer)
-
-            embed.description = content
             return embed
 
 

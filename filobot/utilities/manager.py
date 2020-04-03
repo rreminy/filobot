@@ -353,14 +353,23 @@ class HuntManager:
                     log.save()
 
                     try:
-                        content = f"""**{world}** {new.rank} Rank: **{new.name}** @ {new.zone} i{new.instance} DEAD after **{', '.join(kill_time)}**"""
+                        # Get the original content
+                        content = notification.content
+
+                        # Remove the ping mention
+                        beg = content.find(f"[{new.world}]")
+                        content = content[beg:]
+
+                        # Set embed description
+                        embed.description = f"~~{content}~~"
+
+                        # Add dead timing to message
+                        content = f"~~{content}~~ **Killed** *(after {', '.join(kill_time)})*"
+
+                        # Edit the message
                         await notification.edit(content=content, embed=embed)
-                        continue
                     except discord.NotFound:
                         self._log.warning(f"Notification message for hunt {new.name} on world {world} has been deleted")
-
-                content = f"""**{world}** {new.rank} Rank: **{new.name}** @ {new.zone} i{new.instance} DEAD"""
-                # await self._send_sub_message(content, embed, sub)
 
             _key = f"{new.name.strip().lower()}_{new.instance}"
             if _key in self._hunts[world]['xivhunt']:
@@ -399,7 +408,9 @@ class HuntManager:
             meta  = {m.name : m.value for m in _meta}
             role_mention = meta['notifier'] if 'notifier' in meta else None
 
-            content = f"""**{world}** {hunt['Rank']} Rank: **{hunt['Name']}** @ {hunt['ZoneName']} ({xivhunt['coords']}) i{instance}"""
+            # content = f"""**{world}** {hunt['Rank']} Rank: **{hunt['Name']}** @ {hunt['ZoneName']} ({xivhunt['coords']}) i{instance}"""
+            content = f"""[{world}] {hunt['ZoneName']} ({xivhunt['coords']}) i{instance}"""
+            embed.description = content
             if role_mention:
                 content = f"""{role_mention} {content}"""
 

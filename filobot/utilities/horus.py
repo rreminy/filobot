@@ -67,7 +67,7 @@ class Horus:
         """
         id = str(id)
         if id not in self.marks_info:
-            raise LookupError(f"""ID {id} does not exist""")
+            raise LookupError(f"""Hunt ID {id} does not exist""")
 
         return self.marks_info[id]
 

@@ -4,7 +4,7 @@ import random
 import discord
 from aiohttp import web
 
-from filobot.filobot import bot, GAMES, hunt_manager, log
+from filobot.filobot import config, bot, GAMES, hunt_manager, log
 from filobot.models import Player
 import filobot.utilities.worlds as worlds
 
@@ -38,30 +38,41 @@ async def update_game():
         await asyncio.sleep(60.0)
 
 
-async def _process_data(data):
-    if 'r' in data.keys(): # 'r' is only on hunts (rank)
-        logger.debug(f"Processing {data['id']} as a hunt")
-        await _process_hunt(data)
-    elif 'duration' in data.keys(): # 'duration' is only on fates
-        logger.debug(f"Processing {data['id']} as a fate")
-        await _process_fate(data)
-    else: # when all else fails
-        logger.warning(f"Unable to determine {data['id']}")
-        logger.warning(data)
+async def _process_data(source, data):
+    with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'marks_info.json')) as json_file:
+            marks_info = json.load(json_file) # Make this more efficient instead of loading 5 times?
+
+            if data[config.get(source, 'id')] in marks_info # It's a hunt
+                logger.debug(f"Processing {data['id']} as a hunt")
+                await _process_hunt(source, data)
+            else:
+                with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'fates_info.json')) as json_file:
+                    fates_info = json.load(json_file) # Make this more efficient instead of loading 5 times?
+
+                    if data[config.get(source, 'id')] in fates_info # It's a FATE
+                        logger.debug(f"Processing {data['id']} as a fate")
+                        await _process_fate(source, data)
+                    else: # when all else fails
+                        logger.warning(f"Unable to determine {data['id']}")
+                        logger.warning(data)
 
 
-async def _process_hunt(data):
+async def _process_hunt(source, data):
     try:
-        alive   = data['lastAlive'] == 'True'
-        world   = hunt_manager.get_world(int(data['wId']))
-        hunt    = hunt_manager.horus.id_to_hunt(data['id'])
+        alive   = data[config.get(source, 'lastAlive')] == 'True'
+        world   = hunt_manager.get_world(int(data[config.get(source, 'wId')]))
+        hunt    = hunt_manager.horus.id_to_hunt(data[config.get(source, 'id')])
         _plus   = 22.5 if hunt['ZoneName'] in hunt_manager.HW_ZONES else 21.5
-        x, y    = round((float(data['x']) * 0.02 + _plus)*10)/10, round((float(data['y']) * 0.02 + _plus)*10)/10
+        if config.get(source, 'x') == config.get(source, 'y') # Some JSON structs use an array for X and Y
+            data[config.get(source, 'x')] = data[config.get(source, 'x')][x]
+            data[config.get(source, 'y')] = data[config.get(source, 'y')][y]
+        x, y    = round((float(data[config.get(source, 'x')]) * 0.02 + _plus)*10)/10, round((float(data[config.get(source, 'y')]) * 0.02 + _plus)*10)/10
+        i = 0 # data['i'] Seeing as this isn't functional anywhere at the moment
         xivhunt = {
-            'rank': data['r'],
-            'i': data['i'],
+            'rank': hunt['Rank'],
+            'i': i, # data['i'], Seeing as this isn't functional anywhere at the moment
             'status': 'seen' if alive else 'dead',
-            'last_seen': data['lastReported'],
+            'last_seen': data[config.get(source, 'lastReported')],
             'coords': f"{x}, {y}",
             'world': world,
         }
@@ -73,41 +84,72 @@ async def _process_hunt(data):
         # TODO: Deaths
         return
 
-    return await hunt_manager.on_find(world, hunt['Name'], xivhunt, int(data['i']) or 1)
+    return await hunt_manager.on_find(world, hunt['Name'], xivhunt, int(i) or 1)
 
 
-async def _process_fate(data):
-    # TODO
-    return
+async def _process_fate(source, data):
+    try:
+        alive   = data[config.get(source, 'lastAlive')] == 'True'
+        world   = hunt_manager.get_world(int(data[config.get(source, 'wId')]))
+        fate    = hunt_manager.id_to_fate(data[config.get(source, 'id')])
+        _plus   = 22.5 if fate['ZoneName'] in hunt_manager.HW_ZONES else 21.5
+        if config.get(source, 'x') == config.get(source, 'y') # Some JSON structs use an array for X and Y
+            data[config.get(source, 'x')] = data[config.get(source, 'x')][x]
+            data[config.get(source, 'y')] = data[config.get(source, 'y')][y]
+        x, y    = round((float(data[config.get(source, 'x')]) * 0.02 + _plus)*10)/10, round((float(data[config.get(source, 'y')]) * 0.02 + _plus)*10)/10
+        i = 0 # data['i'] Seeing as this isn't functional anywhere at the moment
+        xivhunt = { # Using this struct because the alternative is compatibility issues and endless copy & paste
+            'rank': "F",
+            'i': i, # data['i'], Seeing as this isn't functional anywhere at the moment
+            'status': 'seen' if alive else 'dead',
+            'last_seen': data[config.get(source, 'lastReported')],
+            'coords': f"{x}, {y}",
+            'world': world,
+        }
+
+    except IndexError:
+        return
+
+    if not alive:
+        hunt_manager.on_end()
+        return
+
+    return await hunt_manager.on_find(world, fate['Name'], xivhunt, int(i) or 1)
 
 
-async def discord_listener(channel):
+async def discord_listener(source):
     await bot.wait_until_ready()
 
     async def on_message(message):
-        if str(message.channel.id) != channel:
+        if str(message.channel.id) != config.get(source, 'Channel'):
             return;
 
         data = json.loads(message.content)
-        await _process_data(data)
+        await _process_data(source, data)
         return
 
     bot.add_listener(on_message)
     return
 
 
-async def start_server(addr, port):
+async def start_server(source):
     async def event(request):
         data = await request.post()
-        await _process_data(data)
+        if isinstance(data, list): # It's an array of JSON data... process one-by-one
+           for x in data: 
+                await _process_data(source, x)
+        else
+            await _process_data(source, data)
         return web.Response(text='200')
+
+    await asyncio.sleep(20.0) # We don't want to bombard anyone's server (is this handled somewhere I'm not seeing?)
 
     app = web.Application()
     app.router.add_route('POST', '/{tail:.*}', event)
 
     runner = web.AppRunner(app)
     await runner.setup()
-    site = web.TCPSite(runner, addr, port)
+    site = web.TCPSite(runner, config.get(source, 'Address'), config.get(source, 'Port'))
     await site.start()
 
 

@@ -27,6 +27,7 @@ class HuntManager:
     SUB_HW_S    = 'heavensward_s'
     SUB_ARR_A   = 'a_realm_reborn_a'
     SUB_ARR_S   = 'a_realm_reborn_s'
+    SUB_FATE    = 'rare_fates'
 
     ARR_ZONES = ('Central Shroud', 'East Shroud', 'South Shroud', 'North Shroud', 'Western Thanalan',
                  'Central Thanalan', 'Eastern Thanalan', 'Southern Thanalan', 'Northern Thanalan', 'Middle La Noscea',
@@ -56,7 +57,9 @@ class HuntManager:
         self._subscriptions_meta = list(SubscriptionsMeta.select())
 
         self._marks_info = {}
+        self._fates_info = {}
         self._load_marks()
+        self._load_fates()
 
         self._hunts = {}
         self._changed = {}
@@ -169,7 +172,7 @@ class HuntManager:
             sub = getattr(self, f"""SUB_{subscription.upper()}""")
         except AttributeError:
             await self.bot.get_channel(channel).send(
-                "Invalid subscription provided, valid subscriptions are: shb_a, shb_s, sb_a, sb_s, hw_a, hw_s, arr_a, arr_s"
+                "Invalid subscription provided, valid subscriptions are: shb_a, shb_s, sb_a, sb_s, hw_a, hw_s, arr_a, arr_s, rare_fates"
             )
             return
 
@@ -309,6 +312,64 @@ class HuntManager:
 
         return (a_count, s_count)
 
+    async def on_end(self, world: str, name: str, xivhunt: dict, instance=1):
+        """
+        FATE end event handler
+        """
+        fate = self._fates_info[name.lower()]
+        subs = Subscriptions.select().where(
+                (Subscriptions.world == world)
+                & (Subscriptions.category == fate['Channel'])
+        )
+        embed = fate_simple_embed(name, xivhunt) #FIX
+
+        for sub in subs:  # type: Subscriptions
+            if self.COND_DEAD == sub.event:
+                # If we previously sent a notification that the fate was found, edit that message instead of
+                # sending a new one
+                notification = await self.get_notification(sub.channel_id, world, name, instance)
+                if notification:
+                    notification, log = notification
+                    found   = int(notification.created_at.timestamp())
+                    killed  = arrow.get(int(new.last_mark / 1000)).timestamp
+                    seconds = killed - log.found
+
+                    kill_time = []
+                    if seconds > 120:
+                        kill_time.append(f"""{int(seconds / 60)} minutes""")
+                        seconds -= int(seconds / 60) * 60
+                    elif seconds > 60:
+                        kill_time.append(f"""1 minute""")
+                        seconds -= 60
+                    kill_time.append(f"""{int(seconds)} seconds""")
+
+                    log.killed = killed
+                    log.kill_time = seconds
+                    log.save()
+
+                    try:
+                        # Get the original content
+                        content = notification.content
+
+                        # Remove the ping mention
+                        beg = content.find(f"[{new.world}]")
+                        content = content[beg:]
+
+                        # Set embed description
+                        embed.description = f"~~{content}~~"
+
+                        # Add dead timing to message
+                        content = f"~~{content}~~ **Killed** *(after {', '.join(kill_time)})*"
+
+                        # Edit the message
+                        await notification.edit(content=content, embed=embed)
+                    except discord.NotFound:
+                        self._log.warning(f"Notification message for FATE {name} on world {world} has been deleted")
+
+            _key = f"{name.strip().lower()}_{instance}"
+            if _key in self._hunts[world]['xivhunt']:
+                self._hunts[world]['xivhunt'].remove(_key)
+
     async def on_change(self, world: str, old: HorusHunt, new: HorusHunt):
         """
         Hunt status change event handler
@@ -384,21 +445,30 @@ class HuntManager:
 
         _key = f"{name.strip().lower()}_{instance}"
         if _key in self._hunts[world]['xivhunt']:
-            self._log.debug(f"Hunt {name} on instance {instance} already logged")
+            self._log.debug(f"{name} on instance {instance} already logged")
             return
 
-        hunt = self._marks_info[name.lower()]
-        if hunt['Rank'] not in ('A', 'S'):
-            self._log.debug(f"""Ignoring notifications for {hunt['Rank']} rank hunts""")
-            return
+        if hunt['Rank'] in ('A', 'S'):
+            hunt = self._marks_info[name.lower()]
+            self._log.info(f"A hunt has been found on world {world} (Instance {instance}) :: {name}, Rank {xivhunt['rank']}")
 
-        self._log.info(f"A hunt has been found on world {world} (Instance {instance}) :: {name}, Rank {xivhunt['rank']}")
+            subs = Subscriptions.select().where(
+                    (Subscriptions.world == world)
+                    & (Subscriptions.category == hunt['Channel'])
+            )
+            embed = hunt_simple_embed(name, xivhunt=xivhunt)
+        elif hunt['Rank'] == 'F':
+            hunt = self._fates_info[name.lower()]
+            self._log.info(f"A FATE has been found on world {world} (Instance {instance}) :: {name}")
 
-        subs = Subscriptions.select().where(
-                (Subscriptions.world == world)
-                & (Subscriptions.category == hunt['Channel'])
-        )
-        embed = hunt_simple_embed(name, xivhunt=xivhunt)
+            subs = Subscriptions.select().where(
+                    (Subscriptions.world == world)
+                    & (Subscriptions.category == hunt['Channel'])
+            )
+            embed = fate_simple_embed(name, xivhunt=xivhunt)
+        else
+                self._log.debug(f"""Ignoring notifications for {hunt['Rank']} rank hunts""")
+                return
 
         for sub in subs:  # type: Subscriptions
             if self.COND_FIND != sub.event:
@@ -435,7 +505,6 @@ class HuntManager:
                     (SubscriptionsMeta.channel_id == sub.channel_id)
                     & (SubscriptionsMeta.name == _counter_key)
                 ).execute()
-
         self._hunts[world]['xivhunt'].append(_key)
 
     async def log_notification(self, message: discord.Message, channel: int, world: str, hunt_name: str, instance : int = 1) -> None:
@@ -513,3 +582,21 @@ class HuntManager:
                     self._marks_info[key]['Channel'] = channel
                 else:
                     self._log.info(f"""Not binding hunt {mark['Name']} to a subscription channel""")
+
+        def _load_fates(self):
+            with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'fates_info.json')) as json_file:
+                fates = json.load(json_file)
+
+                for _id, fate in fates.items():
+                    key = fate['Name'].lower()
+                    self._fates_info[key] = fate
+                    channel = getattr(self, f"""SUB_FATE""")
+                    self._fates_info[key]['Channel'] = channel
+
+        def id_to_fate(self, id: str):
+            id = str(id)
+            if id not in self.fates_info:
+                raise LookupError(f"""FATE ID {id} does not exist""")
+
+            return self.fates_info[id]
+        

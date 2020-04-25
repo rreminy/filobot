@@ -111,6 +111,25 @@ def hunt_simple_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: ty
 
             return embed
 
+def fate_simple_embed(fate_name: str, xivhunt: typing.Optional = None) -> discord.Embed:
+    for _id, fate in fate_info.items():
+        if fate_name.strip().lower() == fate['Name'].lower():
+            embed = discord.Embed()
+            embed.title = f"{fate['Name']}"
+            if xivhunt['status'] == 'alive':
+                embed.colour = COLOR_OPEN
+            else
+                emebed.colour = COLOR_DIED
+
+            instance = 1
+            if xivhunt is not None and xivhunt['i']:
+                instance = int(xivhunt['i']) or 1
+
+            world = ""
+            if xivhunt is not None and xivhunt['world']:
+                world = xivhunt['world']
+
+            return embed
 
 def hunt_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: typing.Optional = None) -> discord.Embed:
     for _id, mark in marks_info.items():

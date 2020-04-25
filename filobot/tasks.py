@@ -68,11 +68,12 @@ async def _process_hunt(source, data):
             data[config.get(source, 'y')] = data[config.get(source, 'y')][y]
         x, y    = round((float(data[config.get(source, 'x')]) * 0.02 + _plus)*10)/10, round((float(data[config.get(source, 'y')]) * 0.02 + _plus)*10)/10
         i = 0 # data['i'] Seeing as this isn't functional anywhere at the moment
+        lastReported = data[config.get(source, 'lastReported')]
         xivhunt = {
             'rank': hunt['Rank'],
             'i': i, # data['i'], Seeing as this isn't functional anywhere at the moment
             'status': 'seen' if alive else 'dead',
-            'last_seen': data[config.get(source, 'lastReported')],
+            'last_seen': datetime.date.fromtimestamp(int(lastReported)) if lastReported.isnumeric() else lastReported,
             'coords': f"{x}, {y}",
             'world': world,
         }

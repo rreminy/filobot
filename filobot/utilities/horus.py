@@ -30,6 +30,9 @@ class Horus:
         with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'marks_info.json')) as json_file:
             self.marks_info = json.load(json_file)
 
+        with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'fates_info.json')) as json_file:
+            self.fates_info = json.load(json_file)
+
         self._cached_response = {}
         self._cached_time = 0
 
@@ -70,6 +73,16 @@ class Horus:
             raise LookupError(f"""Hunt ID {id} does not exist""")
 
         return self.marks_info[id]
+
+    def id_to_fate(self, id: str):
+        """
+        Map Horus hunt ID's to actual hunts
+        """
+        id = str(id)
+        if id not in self.fates_info:
+            raise LookupError(f"""Fate ID {id} does not exist""")
+
+        return self.fates_info[id]
 
     async def _fetch(self, session, url):
         with async_timeout.timeout(15):

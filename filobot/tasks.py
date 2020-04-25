@@ -83,21 +83,6 @@ async def _process_hunt(source, data):
 
     return await hunt_manager.on_find(world, hunt['Name'], xivhunt, int(i) or 1)
 
-{
-"id":"877",
-"wId":"74",
-"lastReported":"2020-04-25 13:07:44",
-"i":"0",
-"progress":"0",
-"x":"262.6718",
-"y":"-831.4194",
-"zoneID":"402",
-"state":"2",
-"startTimeEpoch":
-"1587819487",
-"duration":"1800"
-}
-
 async def _process_fate(source, data):
     try:
         alive   = int(data['progress']) < 100

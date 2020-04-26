@@ -6,6 +6,7 @@ import typing
 
 import discord
 from discord.ext import commands
+from discord.utils import get
 
 from filobot.models import SubscriptionsMeta
 from filobot.utilities import hunt_embed, parse_sb_hunt_name, SB_HUNTS
@@ -75,7 +76,7 @@ class Hunts(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(administrator=True)
-    async def notify(self, ctx: commands.context.Context, role: typing.Optional[discord.Role]):
+    async def notify(self, ctx: commands.context.Context, role: typing.Union[discord.Role, str, None]):
         """
         Adds a role to mention when hunts are found in this channel
         """
@@ -84,12 +85,16 @@ class Hunts(commands.Cog):
             await ctx.send("Channel notifier cleared")
             return
 
+         if type(role) is str:
+            role = role.strip("`")
+            role = get(guild.roles, name=role)
+
         await self.hunt_manager.set_notifier(ctx.channel.id, role)
-        await ctx.send("Members of this role will now be notified whenever a new hunt is found. To undo this, run the notify command again without any arguments")
+        await ctx.send("Members of this role will now be notified whenever something is found in this channel. To undo this, run the notify command again without any arguments")
 
     @commands.command(name='sub-notify')
     @commands.has_permissions(administrator=True)
-    async def sub_notify(self, ctx: commands.context.Context, role: typing.Optional[discord.Role]):
+    async def sub_notify(self, ctx: commands.context.Context, role: typing.Union[discord.Role, str, None]):
         """
         Adds a role to mention when hunts are found in this channel
         """
@@ -98,8 +103,12 @@ class Hunts(commands.Cog):
             await ctx.send("Channel notifier cleared")
             return
 
+        if type(role) is str:
+            role = role.strip("`")
+            role = get(guild.roles, name=role)
+
         await self.hunt_manager.set_notifier(ctx.channel.id, role)
-        await ctx.send("Members of this role will now be notified whenever a new hunt is found. To undo this, run the notify command again without any arguments")
+        await ctx.send("Members of this role will now be notified whenever something is found in this channel. To undo this, run the notify command again without any arguments")
 
     @commands.command()
     @commands.has_permissions(administrator=True)

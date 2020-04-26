@@ -39,22 +39,18 @@ async def update_game():
 
 
 async def _process_data(source, data):
-    with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'marks_info.json')) as json_file:
-            marks_info = json.load(json_file) # Make this more efficient instead of loading 5 times?
+    marks_info = hunt_manager.horus.marks_info;
+    fates_info = hunt_manager.horus.fates_info;
 
-            if data[config.get(source, 'id')] in marks_info # It's a hunt
-                logger.debug(f"Processing {data['id']} as a hunt")
-                await _process_hunt(source, data)
-            else:
-                with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'fates_info.json')) as json_file:
-                    fates_info = json.load(json_file) # Make this more efficient instead of loading 5 times?
-
-                    if data[config.get(source, 'id')] in fates_info # It's a FATE
-                        logger.debug(f"Processing {data['id']} as a fate")
-                        await _process_fate(source, data)
-                    else: # when all else fails
-                        logger.warning(f"Unable to determine {data['id']}")
-                        logger.warning(data)
+    if data[config.get(source, 'id')] in marks_info: # It's a hunt
+        logger.debug(f"Processing {data['id']} as a hunt")
+        await _process_hunt(source, data)
+    elif data[config.get(source, 'id')] in fates_info: # It's a FATE
+        logger.debug(f"Processing {data['id']} as a fate")
+        await _process_fate(source, data)
+    else: # when all else fails
+        logger.warning(f"Unable to determine {data['id']}")
+        logger.warning(data)
 
 
 async def _process_hunt(source, data):
@@ -63,7 +59,7 @@ async def _process_hunt(source, data):
         world   = hunt_manager.get_world(int(data[config.get(source, 'wId')]))
         hunt    = hunt_manager.horus.id_to_hunt(data[config.get(source, 'id')])
         _plus   = 22.5 if hunt['ZoneName'] in hunt_manager.HW_ZONES else 21.5
-        if config.get(source, 'x') == config.get(source, 'y') # Some JSON structs use an array for X and Y
+        if config.get(source, 'x') == config.get(source, 'y'): # Some JSON structs use an array for X and Y
             data[config.get(source, 'x')] = data[config.get(source, 'x')][x]
             data[config.get(source, 'y')] = data[config.get(source, 'y')][y]
         x, y    = round((float(data[config.get(source, 'x')]) * 0.02 + _plus)*10)/10, round((float(data[config.get(source, 'y')]) * 0.02 + _plus)*10)/10
@@ -87,14 +83,13 @@ async def _process_hunt(source, data):
 
     return await hunt_manager.on_find(world, hunt['Name'], xivhunt, int(i) or 1)
 
-
 async def _process_fate(source, data):
     try:
-        alive   = data[config.get(source, 'lastAlive')] == 'True'
+        alive   = int(data['progress']) < 100
         world   = hunt_manager.get_world(int(data[config.get(source, 'wId')]))
-        fate    = hunt_manager.id_to_fate(data[config.get(source, 'id')])
+        fate    = hunt_manager.horus.id_to_fate(data[config.get(source, 'id')])
         _plus   = 22.5 if fate['ZoneName'] in hunt_manager.HW_ZONES else 21.5
-        if config.get(source, 'x') == config.get(source, 'y') # Some JSON structs use an array for X and Y
+        if config.get(source, 'x') == config.get(source, 'y'): # Some JSON structs use an array for X and Y
             data[config.get(source, 'x')] = data[config.get(source, 'x')][x]
             data[config.get(source, 'y')] = data[config.get(source, 'y')][y]
         x, y    = round((float(data[config.get(source, 'x')]) * 0.02 + _plus)*10)/10, round((float(data[config.get(source, 'y')]) * 0.02 + _plus)*10)/10
@@ -137,9 +132,9 @@ async def start_server(source):
     async def event(request):
         data = await request.post()
         if isinstance(data, list): # It's an array of JSON data... process one-by-one
-           for x in data: 
+           for x in data:
                 await _process_data(source, x)
-        else
+        else:
             await _process_data(source, data)
         return web.Response(text='200')
 

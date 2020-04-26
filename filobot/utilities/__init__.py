@@ -9,6 +9,8 @@ from filobot.utilities.worlds import Worlds
 
 with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'marks_info.json')) as json_file:
     marks_info = json.load(json_file)
+with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'fates_info.json')) as json_file:
+    fates_info = json.load(json_file)
 
 COLOR_A = 0xFB6107
 COLOR_S = 0xF3DE2C
@@ -87,7 +89,7 @@ def hunt_simple_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: ty
             instance = 0
             if xivhunt is not None and xivhunt['i']:
                 instance = int(xivhunt['i']) or 1
-            else:
+            elif horus is not None and horus.instance:
                 instance = horus.instance
 
             world = ""
@@ -112,14 +114,14 @@ def hunt_simple_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: ty
             return embed
 
 def fate_simple_embed(fate_name: str, xivhunt: typing.Optional = None) -> discord.Embed:
-    for _id, fate in fate_info.items():
+    for _id, fate in fates_info.items():
         if fate_name.strip().lower() == fate['Name'].lower():
             embed = discord.Embed()
             embed.title = f"{fate['Name']}"
             if xivhunt['status'] == 'alive':
                 embed.colour = COLOR_OPEN
-            else
-                emebed.colour = COLOR_DIED
+            else:
+                embed.colour = COLOR_DIED
 
             instance = 1
             if xivhunt is not None and xivhunt['i']:

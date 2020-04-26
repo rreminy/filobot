@@ -10,7 +10,7 @@ from discord.ext.commands import Bot
 from peewee import fn
 
 from filobot.models import KillLog, Subscriptions, SubscriptionsMeta
-from filobot.utilities import hunt_embed, hunt_simple_embed
+from filobot.utilities import hunt_embed, hunt_simple_embed, fate_simple_embed
 from filobot.utilities.horus import HorusHunt
 from .horus import Horus
 from .xivhunt import XivHunt
@@ -504,34 +504,41 @@ class HuntManager:
             self._log.debug(f"{name} on instance {instance} already logged")
             return
 
-        if hunt['Rank'] in ('A', 'S'):
+        if name.lower() in self._marks_info.keys():
             hunt = self._marks_info[name.lower()]
-            self._log.info(f"A hunt has been found on world {world} (Instance {instance}) :: {name}, Rank {xivhunt['rank']}")
+            
+            if hunt['Rank'] in ('A', 'S'):
+                self._log.info(f"A hunt has been found on world {world} (Instance {instance}) :: {name}, Rank {xivhunt['rank']}")
 
-            subs = Subscriptions.select().where(
-                    (Subscriptions.world == world)
-                    & (Subscriptions.category == hunt['Channel'])
-            )
-            embed = hunt_simple_embed(name, xivhunt=xivhunt)
+                subs = Subscriptions.select().where(
+                        (Subscriptions.world == world)
+                        & (Subscriptions.category == hunt['Channel'])
+                )
+                embed = hunt_simple_embed(name, xivhunt=xivhunt)
 
-            if hunt['Rank'] == 'A' and hunt['ZoneName'] in self.SHB_ZONES and self._hunts[world]['horus'] is not None:
-                for key, horusHunt in self._hunts[world]['horus'].items():
-                    if horusHunt.rank == 'A' and horusHunt.zone in self.SHB_ZONES:
-                        if horusHunt.status == horusHunt.STATUS_DIED and int(time.time()) - int(horusHunt.last_death) <= 120:
-                            on_train(self, world, name, xivhunt, False, instance=1)
-                            break
-        elif hunt['Rank'] == 'F':
+                if hunt['Rank'] == 'A' and hunt['ZoneName'] in self.SHB_ZONES and self._hunts[world]['horus'] is not None:
+                    for key, horusHunt in self._hunts[world]['horus'].items():
+                        if horusHunt.rank == 'A' and horusHunt.zone in self.SHB_ZONES:
+                            if horusHunt.status == horusHunt.STATUS_DIED and int(time.time()) - int(horusHunt.last_death) <= 120:
+                                on_train(self, world, name, xivhunt, False, instance=1)
+                                break
+            else:
+                self._log.debug(f"""Ignoring notifications for {hunt['Rank']} rank hunts""")
+                return
+
+        elif name.lower() in self._fates_info.keys():
             hunt = self._fates_info[name.lower()]
             self._log.info(f"A FATE has been found on world {world} (Instance {instance}) :: {name}")
 
             subs = Subscriptions.select().where(
-                    (Subscriptions.world == world)
-                    & (Subscriptions.category == hunt['Channel'])
+                (Subscriptions.world == world)
+                & (Subscriptions.category == hunt['Channel'])
             )
             embed = fate_simple_embed(name, xivhunt=xivhunt)
-        else
-                self._log.debug(f"""Ignoring notifications for {hunt['Rank']} rank hunts""")
-                return
+
+        else:
+            self._log.debug(f"""Ignoring notifications for {hunt['Rank']} rank something""")
+            return
 
         for sub in subs:  # type: Subscriptions
             if self.COND_FIND != sub.event:
@@ -553,21 +560,6 @@ class HuntManager:
 
             await self.log_notification(message, sub.channel_id, world, name, instance)
 
-            # Relay counter
-            _counter_key = f"""{hunt['Rank'].lower()}_count"""
-            if _counter_key not in meta:
-                SubscriptionsMeta.insert({
-                    'channel_id'    : sub.channel_id,
-                    'name'          : _counter_key,
-                    'value'         : 1
-                }).execute()
-            else:
-                SubscriptionsMeta.update({
-                    'value'         : int(meta[_counter_key]) + 1
-                }).where(
-                    (SubscriptionsMeta.channel_id == sub.channel_id)
-                    & (SubscriptionsMeta.name == _counter_key)
-                ).execute()
         self._hunts[world]['xivhunt'].append(_key)
 
     async def log_notification(self, message: discord.Message, channel: int, world: str, hunt_name: str, instance : int = 1) -> None:
@@ -646,20 +638,12 @@ class HuntManager:
                 else:
                     self._log.info(f"""Not binding hunt {mark['Name']} to a subscription channel""")
 
-        def _load_fates(self):
-            with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'fates_info.json')) as json_file:
-                fates = json.load(json_file)
+    def _load_fates(self):
+        with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'fates_info.json')) as json_file:
+            fates = json.load(json_file)
 
-                for _id, fate in fates.items():
-                    key = fate['Name'].lower()
-                    self._fates_info[key] = fate
-                    channel = getattr(self, f"""SUB_FATE""")
-                    self._fates_info[key]['Channel'] = channel
-
-        def id_to_fate(self, id: str):
-            id = str(id)
-            if id not in self.fates_info:
-                raise LookupError(f"""FATE ID {id} does not exist""")
-
-            return self.fates_info[id]
-        
+            for _id, fate in fates.items():
+                key = fate['Name'].lower()
+                self._fates_info[key] = fate
+                channel = getattr(self, f"""SUB_FATE""")
+                self._fates_info[key]['Channel'] = channel

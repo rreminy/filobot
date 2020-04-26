@@ -28,6 +28,7 @@ class HuntManager:
     SUB_ARR_A   = 'a_realm_reborn_a'
     SUB_ARR_S   = 'a_realm_reborn_s'
     SUB_FATE    = 'rare_fates'
+    SUB_TRAIN   = 'trains'
 
     ARR_ZONES = ('Central Shroud', 'East Shroud', 'South Shroud', 'North Shroud', 'Western Thanalan',
                  'Central Thanalan', 'Eastern Thanalan', 'Southern Thanalan', 'Northern Thanalan', 'Middle La Noscea',
@@ -436,6 +437,61 @@ class HuntManager:
             if _key in self._hunts[world]['xivhunt']:
                 self._hunts[world]['xivhunt'].remove(_key)
 
+        # Check if all A ranks are dead yet so we can end the train
+        if hunt['Rank'] == 'A' and hunt['ZoneName'] in self.SHB_ZONES and self._hunts[world]['horus'] is not None:
+            for key, horusHunt in self._hunts[world]['horus'].items():
+                if horusHunt.rank == 'A' and horusHunt.zone in self.SHB_ZONES:
+                    if horusHunt.status != horusHunt.STATUS_DIED:
+                        return
+
+            # All A ranks are dead, alter the train message
+            on_train(self, world, name, xivhunt, True, instance=1)
+
+    async def on_train(self, world: str, name: str, xivhunt: dict, complete: bool, instance=1):
+        """
+        Train event handler
+        """
+
+        hunt = self._marks_info[name.lower()]
+
+        subs = Subscriptions.select().where(
+                (Subscriptions.world == world)
+                & (Subscriptions.category == "SUB_TRAIN")
+        )
+
+        for sub in subs:  # type: Subscriptions
+            _meta = SubscriptionsMeta.select().where(SubscriptionsMeta.channel_id == sub.channel_id)
+            meta  = {m.name : m.value for m in _meta}
+            role_mention = meta['notifier'] if 'notifier' in meta else None
+
+            content = f"""[{world}] {hunt['ZoneName']} ({xivhunt['coords']}) i{instance}"""
+            if role_mention:
+                content = f"""{role_mention} {content}"""
+
+            if complete == True:
+                content = f"""[{world}] Complete"""
+
+            # Attempt to edit an existing message first
+            notification = await self.get_notification(sub.channel_id, world, name, instance)
+
+            if notification:
+                lastTrainAnnouncement = int(notification.created_at.timestamp())
+
+                if int(time.time()) - lastTrainAnnouncement < 7200: # Last train announcement less than 2 hours ago? Edit it
+                    try:
+                        await notification.edit(content=content, None) # Edit the message
+                        return
+                    except discord.NotFound:
+                        self._log.warning(f"Train announcement was deleted for {world}.")
+
+            # Sending a new message
+            message = await self._send_sub_message(content, None, sub)
+
+            if not message:
+                continue
+
+            await self.log_notification(message, sub.channel_id, world, name, instance)
+
     async def on_find(self, world: str, name: str, xivhunt: dict, instance=1):
         """
         Hunt found event handler
@@ -457,6 +513,13 @@ class HuntManager:
                     & (Subscriptions.category == hunt['Channel'])
             )
             embed = hunt_simple_embed(name, xivhunt=xivhunt)
+
+            if hunt['Rank'] == 'A' and hunt['ZoneName'] in self.SHB_ZONES and self._hunts[world]['horus'] is not None:
+                for key, horusHunt in self._hunts[world]['horus'].items():
+                    if horusHunt.rank == 'A' and horusHunt.zone in self.SHB_ZONES:
+                        if horusHunt.status == horusHunt.STATUS_DIED and int(time.time()) - int(horusHunt.last_death) <= 120:
+                            on_train(self, world, name, xivhunt, False, instance=1)
+                            break
         elif hunt['Rank'] == 'F':
             hunt = self._fates_info[name.lower()]
             self._log.info(f"A FATE has been found on world {world} (Instance {instance}) :: {name}")

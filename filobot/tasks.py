@@ -1,5 +1,6 @@
 import asyncio
 import random
+import datetime
 
 import discord
 from aiohttp import web
@@ -41,13 +42,12 @@ async def update_game():
 async def _process_data(source, data):
     marks_info = hunt_manager.horus.marks_info;
     fates_info = hunt_manager.horus.fates_info;
-
-    if data[config.get(source, 'id')] in marks_info: # It's a hunt
-        logger.debug(f"Processing {data['id']} as a hunt")
-        await _process_hunt(source, data)
-    elif data[config.get(source, 'id')] in fates_info: # It's a FATE
+    if config.get(source, 'progress') in data and data[config.get(source, 'id')] in fates_info: # It's a FATE
         logger.debug(f"Processing {data['id']} as a fate")
         await _process_fate(source, data)
+    elif data[config.get(source, 'id')] in marks_info: # It's a hunt
+        logger.debug(f"Processing {data['id']} as a hunt")
+        await _process_hunt(source, data)
     else: # when all else fails
         logger.warning(f"Unable to determine {data['id']}")
         logger.warning(data)
@@ -85,7 +85,7 @@ async def _process_hunt(source, data):
 
 async def _process_fate(source, data):
     try:
-        alive   = int(data['progress']) < 100
+        alive   = int(data[config.get(source, 'progress')]) < 100
         world   = hunt_manager.get_world(int(data[config.get(source, 'wId')]))
         fate    = hunt_manager.horus.id_to_fate(data[config.get(source, 'id')])
         _plus   = 22.5 if fate['ZoneName'] in hunt_manager.HW_ZONES else 21.5

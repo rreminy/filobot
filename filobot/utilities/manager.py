@@ -3,6 +3,7 @@ import logging
 import os
 import sys
 import typing
+import time
 
 import arrow
 import discord
@@ -28,7 +29,7 @@ class HuntManager:
     SUB_ARR_A   = 'a_realm_reborn_a'
     SUB_ARR_S   = 'a_realm_reborn_s'
     SUB_FATE    = 'rare_fates'
-    SUB_TRAIN   = 'trains'
+    SUB_TRAINS   = 'trains'
 
     ARR_ZONES = ('Central Shroud', 'East Shroud', 'South Shroud', 'North Shroud', 'Western Thanalan',
                  'Central Thanalan', 'Eastern Thanalan', 'Southern Thanalan', 'Northern Thanalan', 'Middle La Noscea',
@@ -173,7 +174,7 @@ class HuntManager:
             sub = getattr(self, f"""SUB_{subscription.upper()}""")
         except AttributeError:
             await self.bot.get_channel(channel).send(
-                "Invalid subscription provided, valid subscriptions are: shb_a, shb_s, sb_a, sb_s, hw_a, hw_s, arr_a, arr_s, rare_fates"
+                "Invalid subscription provided, valid subscriptions are: shb_a, shb_s, sb_a, sb_s, hw_a, hw_s, arr_a, arr_s, fate, trains"
             )
             return
 
@@ -322,7 +323,7 @@ class HuntManager:
                 (Subscriptions.world == world)
                 & (Subscriptions.category == fate['Channel'])
         )
-        embed = fate_simple_embed(name, xivhunt) #FIX
+        embed = fate_simple_embed(name, xivhunt)
 
         for sub in subs:  # type: Subscriptions
             if self.COND_DEAD == sub.event:
@@ -456,7 +457,7 @@ class HuntManager:
 
         subs = Subscriptions.select().where(
                 (Subscriptions.world == world)
-                & (Subscriptions.category == "SUB_TRAIN")
+                & (Subscriptions.category == "SUB_TRAINS")
         )
 
         for sub in subs:  # type: Subscriptions
@@ -506,7 +507,7 @@ class HuntManager:
 
         if name.lower() in self._marks_info.keys():
             hunt = self._marks_info[name.lower()]
-            
+
             if hunt['Rank'] in ('A', 'S'):
                 self._log.info(f"A hunt has been found on world {world} (Instance {instance}) :: {name}, Rank {xivhunt['rank']}")
 
@@ -551,6 +552,10 @@ class HuntManager:
             # content = f"""**{world}** {hunt['Rank']} Rank: **{hunt['Name']}** @ {hunt['ZoneName']} ({xivhunt['coords']}) i{instance}"""
             content = f"""[{world}] {hunt['ZoneName']} ({xivhunt['coords']}) i{instance}"""
             embed.description = content
+
+            if name.lower() in self._fates_info.keys(): # Displaying FATEs a little differently to absorb the information efficiently
+                embed.description = f"""{hunt['ZoneName']} ({xivhunt['coords']}) i{instance}"""
+
             if role_mention:
                 content = f"""{role_mention} {content}"""
 

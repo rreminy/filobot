@@ -93,7 +93,7 @@ async def _process_fate(source, data):
             data[config.get(source, 'x')] = data[config.get(source, 'x')][x]
             data[config.get(source, 'y')] = data[config.get(source, 'y')][y]
         x, y    = round((float(data[config.get(source, 'x')]) * 0.02 + _plus)*10)/10, round((float(data[config.get(source, 'y')]) * 0.02 + _plus)*10)/10
-        i = 0 # data['i'] Seeing as this isn't functional anywhere at the moment
+        i = data[config.get(source, 'i')] if config.get(source, 'i') in data else 0
         xivhunt = { # Using this struct because the alternative is compatibility issues and endless copy & paste
             'rank': "F",
             'i': i, # data['i'], Seeing as this isn't functional anywhere at the moment

@@ -63,7 +63,7 @@ async def _process_hunt(source, data):
             data[config.get(source, 'x')] = data[config.get(source, 'x')][x]
             data[config.get(source, 'y')] = data[config.get(source, 'y')][y]
         x, y    = round((float(data[config.get(source, 'x')]) * 0.02 + _plus)*10)/10, round((float(data[config.get(source, 'y')]) * 0.02 + _plus)*10)/10
-        i = 0 # data['i'] Seeing as this isn't functional anywhere at the moment
+        i = data[config.get(source, 'i')] if config.get(source, 'i') in data else 0
         lastReported = data[config.get(source, 'lastReported')]
         xivhunt = {
             'rank': hunt['Rank'],

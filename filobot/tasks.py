@@ -85,7 +85,11 @@ async def _process_hunt(source, data):
 
 async def _process_fate(source, data):
     try:
-        alive   = int(data[config.get(source, 'progress')]) < 100
+        try:
+            alive   = int(data[config.get(source, 'progress')]) < 100
+        except ValueError:
+            alive   = True
+
         world   = hunt_manager.get_world(int(data[config.get(source, 'wId')]))
         fate    = hunt_manager.horus.id_to_fate(data[config.get(source, 'id')])
         _plus   = 22.5 if fate['ZoneName'] in hunt_manager.HW_ZONES else 21.5
@@ -97,17 +101,13 @@ async def _process_fate(source, data):
         xivhunt = { # Using this struct because the alternative is compatibility issues and endless copy & paste
             'rank': "F",
             'i': i, # data['i'], Seeing as this isn't functional anywhere at the moment
-            'status': 'seen' if alive else 'dead',
+            'status': data[config.get(source, 'progress')],
             'last_seen': data[config.get(source, 'lastReported')],
             'coords': f"{x}, {y}",
             'world': world,
         }
 
     except IndexError:
-        return
-
-    if not alive:
-        hunt_manager.on_end()
         return
 
     return await hunt_manager.on_find(world, fate['Name'], xivhunt, int(i) or 1)

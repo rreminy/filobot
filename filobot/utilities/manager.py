@@ -314,9 +314,9 @@ class HuntManager:
 
         return (a_count, s_count)
 
-    async def on_end(self, world: str, name: str, xivhunt: dict, instance=1):
+    async def on_progress(self, world: str, name: str, xivhunt: dict, instance=1):
         """
-        FATE end event handler
+        FATE progress event handler
         """
         fate = self._fates_info[name.lower()]
         subs = Subscriptions.select().where(
@@ -326,51 +326,54 @@ class HuntManager:
         embed = fate_simple_embed(name, xivhunt)
 
         for sub in subs:  # type: Subscriptions
-            if self.COND_DEAD == sub.event:
-                # If we previously sent a notification that the fate was found, edit that message instead of
-                # sending a new one
+            try:
+                # If we previously sent a notification that the fate was found, edit that message instead of sending a new one
                 notification = await self.get_notification(sub.channel_id, world, name, instance)
+
                 if notification:
                     notification, log = notification
-                    found   = int(notification.created_at.timestamp())
-                    killed  = arrow.get(int(new.last_mark / 1000)).timestamp
-                    seconds = killed - log.found
 
-                    kill_time = []
-                    if seconds > 120:
-                        kill_time.append(f"""{int(seconds / 60)} minutes""")
-                        seconds -= int(seconds / 60) * 60
-                    elif seconds > 60:
-                        kill_time.append(f"""1 minute""")
-                        seconds -= 60
-                    kill_time.append(f"""{int(seconds)} seconds""")
+                    # Get the original content
+                    content = notification.content
 
-                    log.killed = killed
-                    log.kill_time = seconds
-                    log.save()
+                    if int(xivhunt['status']) == 100 and elf.COND_DEAD == sub.event:
+                        found   = int(notification.created_at.timestamp())
+                        killed  = int(time.time())
+                        seconds = killed - log.found
 
-                    try:
-                        # Get the original content
-                        content = notification.content
+                        kill_time = []
+                        if seconds > 120:
+                            kill_time.append(f"""{int(seconds / 60)} minutes""")
+                            seconds -= int(seconds / 60) * 60
+                        elif seconds > 60:
+                            kill_time.append(f"""1 minute""")
+                            seconds -= 60
+                        kill_time.append(f"""{int(seconds)} seconds""")
+
+                        log.killed = killed
+                        log.kill_time = seconds
+                        log.save()
 
                         # Remove the ping mention
                         beg = content.find(f"[{new.world}]")
                         content = content[beg:]
 
-                        # Set embed description
-                        embed.description = f"~~{content}~~"
-
                         # Add dead timing to message
                         content = f"~~{content}~~ **Killed** *(after {', '.join(kill_time)})*"
 
-                        # Edit the message
-                        await notification.edit(content=content, embed=embed)
-                    except discord.NotFound:
-                        self._log.warning(f"Notification message for FATE {name} on world {world} has been deleted")
+                        _key = f"{name.strip().lower()}_{instance}"
+                        if _key in self._hunts[world]['xivhunt']:
+                            self._hunts[world]['xivhunt'].remove(_key)
 
-            _key = f"{name.strip().lower()}_{instance}"
-            if _key in self._hunts[world]['xivhunt']:
-                self._hunts[world]['xivhunt'].remove(_key)
+                    # Set embed description
+                    embed.description = notification.embeds[0]
+                    embed.description = embed.description[embed.description.find("%")]
+                    embed.description = xivhunt['status'].join(embed.description)
+
+                    # Edit the message
+                    await notification.edit(content=content, embed=embed)
+            except discord.NotFound:
+                self._log.warning(f"Notification message for FATE {name} on world {world} has been deleted")
 
     async def on_change(self, world: str, old: HorusHunt, new: HorusHunt):
         """
@@ -460,12 +463,14 @@ class HuntManager:
                 & (Subscriptions.category == "SUB_TRAINS")
         )
 
+        instanceSymbol = "①" if instance == 1 "②" elif instance == 2 "③" else instance == 3
+
         for sub in subs:  # type: Subscriptions
             _meta = SubscriptionsMeta.select().where(SubscriptionsMeta.channel_id == sub.channel_id)
             meta  = {m.name : m.value for m in _meta}
             role_mention = meta['notifier'] if 'notifier' in meta else None
 
-            content = f"""[{world}] {hunt['ZoneName']} ({xivhunt['coords']}) i{instance}"""
+            content = f"""[{world}] {hunt['ZoneName']} ({xivhunt['coords']}) {instanceSymbol}"""
             if role_mention:
                 content = f"""{role_mention} {content}"""
 
@@ -502,7 +507,10 @@ class HuntManager:
 
         _key = f"{name.strip().lower()}_{instance}"
         if _key in self._hunts[world]['xivhunt']:
-            self._log.debug(f"{name} on instance {instance} already logged")
+            if xivhunt['status'] != self._hunts[world]['xivhunt']['status']:
+                on_progress(self, world, name, xivhunt, instance)
+            else:
+                self._log.debug(f"{name} on instance {instance} already logged")
             return
 
         if name.lower() in self._marks_info.keys():
@@ -550,11 +558,11 @@ class HuntManager:
             role_mention = meta['notifier'] if 'notifier' in meta else None
 
             # content = f"""**{world}** {hunt['Rank']} Rank: **{hunt['Name']}** @ {hunt['ZoneName']} ({xivhunt['coords']}) i{instance}"""
-            content = f"""[{world}] {hunt['ZoneName']} ({xivhunt['coords']}) i{instance}"""
+            content = f"""[{world}] {hunt['ZoneName']} ({xivhunt['coords']}) {instanceSymbol}"""
             embed.description = content
 
             if name.lower() in self._fates_info.keys(): # Displaying FATEs a little differently to absorb the information efficiently
-                embed.description = f"""{hunt['ZoneName']} ({xivhunt['coords']}) i{instance}"""
+                embed.description = f"""{xivhunt['status']}% {hunt['ZoneName']} ({xivhunt['coords']}) {instanceSymbol}"""
 
             if role_mention:
                 content = f"""{role_mention} {content}"""

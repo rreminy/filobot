@@ -212,19 +212,19 @@ class HuntManager:
                 'event'     : condition
             }).execute()
 
-        await self.bot.get_channel(channel).send(f"""Subscribed channel to {str(sub).replace('_', ' ').title()}-Rank hunts on {world}""")
+        await self.bot.get_channel(channel).send(f"""Subscribed channel to {str(sub).replace('_', ' ').title()} on {world}""")
         self._reload()
 
     async def subscribe_all(self, datacenter: str, channel: int, subscription: str, conditions: typing.Optional[str] = 'all'):
         """
-        Subscribe a channel to hunt events on all worlds
+        Subscribe a channel to hunt and fate events on all worlds
         """
         # Validate subscription channel
         try:
             sub = getattr(self, f"""SUB_{subscription.upper()}""")
         except AttributeError:
             await self.bot.get_channel(channel).send(
-                "Invalid subscription provided, valid subscriptions are: sb_a, sb_s, hw_a, hw_s, arr_a, arr_s"
+                "Invalid subscription provided, valid subscriptions are: shb_a, shb_s, sb_a, sb_s, hw_a, hw_s, arr_a, arr_s, fate, trains"
             )
             return
 
@@ -263,13 +263,13 @@ class HuntManager:
                 }).execute()
 
         await self.bot.get_channel(channel).send(
-            f"""Subscribed channel to {str(sub).replace('_', ' ').title()}-Rank hunts on **all worlds**"""
+            f"""Subscribed channel to {str(sub).replace('_', ' ').title()} on **all worlds**"""
         )
         self._reload()
 
     async def unsubscribe(self, channel: int, world: str, subscription: str):
         """
-        Unsubscribe a channel from hunt events
+        Unsubscribe a channel from hunt and fate events
         """
         world = world.strip().lower().title()
         if world not in Worlds.get_worlds():
@@ -282,7 +282,7 @@ class HuntManager:
             sub = getattr(self, f"""SUB_{subscription.upper()}""")
         except AttributeError:
             await self.bot.get_channel(channel).send(
-                "Invalid subscription provided, valid subscriptions are: sb_a, sb_s, hw_a, hw_s, arr_a, arr_s"
+                "Invalid subscription provided, valid subscriptions are: shb_a, shb_s, sb_a, sb_s, hw_a, hw_s, arr_a, arr_s, fate, trains"
             )
             return
 
@@ -292,7 +292,7 @@ class HuntManager:
                 & (Subscriptions.category == sub)
         ).execute()
 
-        await self.bot.get_channel(channel).send(f"""Unsubscribed channel from {str(sub).replace('_', ' ').title()}-Rank hunts on {world}""")
+        await self.bot.get_channel(channel).send(f"""Unsubscribed channel from {str(sub).replace('_', ' ').title()} on {world}""")
         self._reload()
 
     async def get_subscriptions(self, channel: int) -> typing.List[Subscriptions]:
@@ -504,7 +504,7 @@ class HuntManager:
 
     async def on_find(self, world: str, name: str, xivhunt: dict, instance=1):
         """
-        Hunt found event handler
+        Hunt and fate found event handler
         """
         if world not in self._hunts:
             self._hunts[world] = {'horus': {}, 'xivhunt': []}
@@ -550,7 +550,7 @@ class HuntManager:
             embed = fate_simple_embed(name, xivhunt=xivhunt)
 
         else:
-            self._log.debug(f"""Ignoring notifications for {hunt['Rank']} rank something""")
+            self._log.debug(f"""Ignoring notifications for {hunt['Name']}""")
             return
 
         for sub in subs:  # type: Subscriptions
@@ -582,7 +582,7 @@ class HuntManager:
 
     async def log_notification(self, message: discord.Message, channel: int, world: str, hunt_name: str, instance : int = 1) -> None:
         """
-        Log a hunt found notification for editing later
+        Log a found notification for editing later
         """
         key = f"{hunt_name.lower()}_{instance}"
         if channel not in self._notifications:
@@ -596,7 +596,7 @@ class HuntManager:
 
     async def get_notification(self, channel: int, world: str, hunt_name: str, instance : int = 1) -> typing.Optional[typing.Tuple[discord.Message, KillLog]]:
         """
-        Attempt to retrieve a notification message for a previously located hunt
+        Attempt to retrieve a notification message for a previously located hunt or fate
         NOTE: Notifications are automatically purged after retrieved using this method
         """
         key = f"{hunt_name.lower()}_{instance}"

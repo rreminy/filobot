@@ -166,7 +166,7 @@ class Hunts(commands.Cog):
     async def sub_all(self, ctx: commands.context.Context, datacenter: str, category: str, *, conditions: typing.Optional[str] = 'FINDS, DEATHS'):
         """
         Subscribe the channel to hunt and fate events on ALL of a datacenters worlds
-        Allowed datacenters: Aether, Primal, Crystal, Chaos, Light
+        Allowed datacenters: Elemental, Gaia, Mana, Aether, Primal, Crystal, Chaos, Light
         Allowed categories: SHB_A, SHB_S, SB_A, SB_S, HW_A, HW_S, ARR_A, ARR_S, FATE, TRAINS
         Allowed conditions: FINDS, DEATHS, OPENINGS
         """

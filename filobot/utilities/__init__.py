@@ -188,6 +188,25 @@ def hunt_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: typing.Op
     # No hunt by the specified name found
     raise KeyError
 
+def fate_embed(fate_name: str, horus: typing.Optional = None, xivhunt: typing.Optional = None) -> discord.Embed:
+    for _id, fate in fates_info.items():
+        if fate_name.strip().lower() == fate['Name'].lower():
+            embed = discord.Embed(title=fate['Name'])
+            embed.colour = COLOR_S
+            embed.add_field(name='Zone', value=fate['ZoneName'])
+            embed.add_field(name='Region', value=fate['RegionName'])
+
+            # Only display spawning tips if the hunt is open
+            if mark['SpawnTrigger']:
+                embed.add_field(name='Spawn trigger', value=fate['SpawnTrigger'])
+
+            if mark['Tips']:
+                embed.add_field(name='Tips', value=fate['Tips'])
+
+            return embed
+
+    # No hunt by the specified name found
+    raise KeyError
 
 def parse_sb_hunt_name(hunt_name: str) -> str:
     """

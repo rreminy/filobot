@@ -29,6 +29,7 @@ class Subscriptions(BaseModel):
 
 class SubscriptionsMeta(BaseModel):
     channel_id = IntegerField(index=True)
+    attachName = CharField(index=True)
     name = CharField()
     value = CharField()
 

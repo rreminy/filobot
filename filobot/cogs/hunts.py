@@ -9,7 +9,7 @@ from discord.ext import commands
 from discord.utils import get
 
 from filobot.models import SubscriptionsMeta
-from filobot.utilities import hunt_embed, parse_sb_hunt_name, SB_HUNTS
+from filobot.utilities import hunt_embed, fate_embed, parse_sb_hunt_name, SB_HUNTS
 from filobot.utilities.manager import HuntManager
 from filobot.utilities.train import Conductor
 
@@ -31,7 +31,7 @@ class Hunts(commands.Cog):
     @commands.command()
     async def info(self, ctx: commands.context.Context, *, hunt_name: str):
         """
-        Return information on the specified hunt target
+        Return information on the specified hunt or fate target
         """
         try:
             hunt_name = parse_sb_hunt_name(hunt_name)
@@ -41,8 +41,11 @@ class Hunts(commands.Cog):
         try:
             embed = hunt_embed(hunt_name)
         except KeyError:
-            await ctx.send("No hunt by that name found - please check your spelling and try again")
-            return
+            try:
+                embed = fate_simple_embed(hunt_name)
+            except KeyError:
+                await ctx.send("No hunt or fate by that name found - please check your spelling and try again")
+                return
 
         await ctx.send(embed=embed)
 
@@ -76,45 +79,83 @@ class Hunts(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(administrator=True)
-    async def notify(self, ctx: commands.context.Context, role: typing.Union[discord.Role, str, None]):
+    async def notify(self, ctx: commands.context.Context, role: typing.Union[discord.Role, str, None], attachName: typing.Optional[str]):
         """
-        Adds a role to mention when hunts are found in this channel
+        Adds a role to mention when something is found in this channel
         """
         if not role:
             await self.hunt_manager.remove_notifier(ctx.channel.id)
-            await ctx.send("Channel notifier cleared")
+            await ctx.send("Channel notifiers cleared.")
             return
 
          if type(role) is str:
             role = role.strip("`")
             role = get(guild.roles, name=role)
 
-        await self.hunt_manager.set_notifier(ctx.channel.id, role)
-        await ctx.send("Members of this role will now be notified whenever something is found in this channel. To undo this, run the notify command again without any arguments")
+        if attachName not None:
+            found = False
+            attachName = attachName.strip().lower()
+
+            for _id, fate in fates_info.items():
+                if fate['Name'].lower().find(attachName) > -1:
+                    attachName = fate['Name'].lower()
+                    found = True
+                    break
+            for _id, hunt in hunts_info.items():
+                if hunt['Name'].lower().find(attachName) > -1:
+                    attachName = hunt['Name'].lower()
+                    found = True
+                    break
+            if not found:
+                await ctx.send("Cannot find hunt or fate name.")
+                return
+
+        await self.hunt_manager.set_notifier(ctx.channel.id, role, attachName)
+
+        await ctx.send(f"Members of this role will now be notified whenever {"something" if not attachName else attachName} is found in this channel. To undo this, run the notify command again without any arguments")
 
     @commands.command(name='sub-notify')
     @commands.has_permissions(administrator=True)
-    async def sub_notify(self, ctx: commands.context.Context, role: typing.Union[discord.Role, str, None]):
+    async def sub_notify(self, ctx: commands.context.Context, role: typing.Union[discord.Role, str, None], attachName: typing.Optional[str]):
         """
-        Adds a role to mention when hunts are found in this channel
+        Adds a role to mention when something is found in this channel
         """
         if not role:
             await self.hunt_manager.remove_notifier(ctx.channel.id)
-            await ctx.send("Channel notifier cleared")
+            await ctx.send("Channel notifiers cleared.")
             return
 
         if type(role) is str:
             role = role.strip("`")
             role = get(guild.roles, name=role)
 
-        await self.hunt_manager.set_notifier(ctx.channel.id, role)
-        await ctx.send("Members of this role will now be notified whenever something is found in this channel. To undo this, run the notify command again without any arguments")
+        if attachName not None:
+            found = False
+            attachName = attachName.strip().lower()
+
+            for _id, fate in fates_info.items():
+                if fate['Name'].lower().find(attachName) > -1:
+                    attachName = fate['Name'].lower()
+                    found = True
+                    break
+            for _id, hunt in hunts_info.items():
+                if hunt['Name'].lower().find(attachName) > -1:
+                    attachName = hunt['Name'].lower()
+                    found = True
+                    break
+            if not found:
+                await ctx.send("Cannot find hunt or fate name.")
+                return
+
+        await self.hunt_manager.set_notifier(ctx.channel.id, role, attachName)
+
+        await ctx.send(f"Members of this role will now be notified whenever {"something" if not attachName else attachName} is found in this channel. To undo this, run the notify command again without any arguments")
 
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def sub(self, ctx: commands.context.Context, world: str, category: str, *, conditions: typing.Optional[str] = 'FINDS, DEATHS'):
         """
-        Subscribe the channel to hunt events
+        Subscribe the channel to hunt and fate events
         Allowed categories: SHB_A, SHB_S, SB_A, SB_S, HW_A, HW_S, ARR_A, ARR_S, FATE, TRAINS
         Allowed conditions: FINDS, DEATHS, OPENINGS
         """
@@ -124,7 +165,7 @@ class Hunts(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def sub_all(self, ctx: commands.context.Context, datacenter: str, category: str, *, conditions: typing.Optional[str] = 'FINDS, DEATHS'):
         """
-        Subscribe the channel to hunt events on ALL of a datacenters worlds
+        Subscribe the channel to hunt and fate events on ALL of a datacenters worlds
         Allowed datacenters: Aether, Primal, Crystal, Chaos, Light
         Allowed categories: SHB_A, SHB_S, SB_A, SB_S, HW_A, HW_S, ARR_A, ARR_S, FATE, TRAINS
         Allowed conditions: FINDS, DEATHS, OPENINGS
@@ -135,7 +176,7 @@ class Hunts(commands.Cog):
     @commands.has_permissions(administrator=True)
     async def unsub(self, ctx: commands.context.Context, world: str, category: str):
         """
-        Subscribe the channel to hunt events
+        Unsubscribe the channel from hunt and fate events
         Allowed categories: SHB_A, SHB_S, SB_A, SB_S, HW_A, HW_S, ARR_A, ARR_S, FATE, TRAINS
         """
         await self.hunt_manager.unsubscribe(ctx.channel.id, world, category)

@@ -129,10 +129,11 @@ class HuntManager:
 
         self._recheck_cbs.append(callback)
 
-    async def set_notifier(self, channel: int, role: discord.Role) -> None:
+    async def set_notifier(self, channel: int, role: discord.Role, attachName: str) -> None:
         """
         Set channel notifier
         """
+
         # Init our channel/world if needed
         SubscriptionsMeta.delete().where(
                 (SubscriptionsMeta.channel_id == channel)
@@ -140,6 +141,7 @@ class HuntManager:
         ).execute()
         SubscriptionsMeta.insert({
             'channel_id': channel,
+            'attachName': attachName,
             'name'      : 'notifier',
             'value'     : role.mention
         }).execute()
@@ -150,6 +152,7 @@ class HuntManager:
         """
         Remove notifier from channel
         """
+
         SubscriptionsMeta.delete().where(
                 (SubscriptionsMeta.channel_id == channel)
                 & (SubscriptionsMeta.name == 'notifier')
@@ -159,7 +162,7 @@ class HuntManager:
 
     async def subscribe(self, channel: int, world: str, subscription: str, conditions: typing.Optional[str] = 'all'):
         """
-        Subscribe a channel to hunt events
+        Subscribe a channel to hunt and fate events
         """
         # Validate world
         world = world.strip().lower().title()
@@ -466,7 +469,8 @@ class HuntManager:
         instanceSymbol = "①" if instance == 1 "②" elif instance == 2 "③" else instance == 3
 
         for sub in subs:  # type: Subscriptions
-            _meta = SubscriptionsMeta.select().where(SubscriptionsMeta.channel_id == sub.channel_id)
+            _meta = SubscriptionsMeta.select().where((SubscriptionsMeta.channel_id == sub.channel_id)
+            & (SubscriptionsMeta.attachName == "trains"))
             meta  = {m.name : m.value for m in _meta}
             role_mention = meta['notifier'] if 'notifier' in meta else None
 
@@ -507,7 +511,7 @@ class HuntManager:
 
         _key = f"{name.strip().lower()}_{instance}"
         if _key in self._hunts[world]['xivhunt']:
-            if xivhunt['status'] != self._hunts[world]['xivhunt']['status']:
+            if xivhunt['rank'] == "F" and xivhunt['status'] != self._hunts[world]['xivhunt']['status']:
                 on_progress(self, world, name, xivhunt, instance)
             else:
                 self._log.debug(f"{name} on instance {instance} already logged")
@@ -553,7 +557,8 @@ class HuntManager:
             if self.COND_FIND != sub.event:
                 continue
 
-            _meta = SubscriptionsMeta.select().where(SubscriptionsMeta.channel_id == sub.channel_id)
+            _meta = SubscriptionsMeta.select().where((SubscriptionsMeta.channel_id == sub.channel_id)
+            & ((SubscriptionsMeta.attachName == hunt["Name"].lower()) | (SubscriptionsMeta.attachName == None))) # Matches this hunt/fate or none (aka all)
             meta  = {m.name : m.value for m in _meta}
             role_mention = meta['notifier'] if 'notifier' in meta else None
 

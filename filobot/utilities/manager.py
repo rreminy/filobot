@@ -452,7 +452,8 @@ class HuntManager:
                         return
 
             # All A ranks are dead, alter the train message
-            on_train(self, world, name, xivhunt, True, instance=1)
+            _key = f"{new.name.strip().lower()}_{new.instance}"
+            on_train(self, world, name, _hunts[world]['xivhunt'][_key], True, instance=1)
 
     async def on_train(self, world: str, name: str, xivhunt: dict, complete: bool, instance=1):
         """

@@ -29,7 +29,7 @@ class Subscriptions(BaseModel):
 
 class SubscriptionsMeta(BaseModel):
     channel_id = IntegerField(index=True)
-    attachName = CharField(index=True)
+    attachName = CharField(index=True, null=True)
     name = CharField()
     value = CharField()
 
@@ -134,4 +134,3 @@ class GuildSettings(BaseModel):
     async def all(ctx: commands.context.Context):
         settings = GuildSettings.select().where(GuildSettings.guild_id == ctx.guild.id).execute()
         return list(settings)
-

@@ -12,7 +12,7 @@ from filobot.models import SubscriptionsMeta
 from filobot.utilities import hunt_embed, fate_embed, parse_sb_hunt_name, SB_HUNTS
 from filobot.utilities.manager import HuntManager
 from filobot.utilities.train import Conductor
-
+from filobot.utilities.horus import Horus
 
 class Hunts(commands.Cog):
 
@@ -24,6 +24,8 @@ class Hunts(commands.Cog):
 
         with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'marks_info.json')) as json_file:
             self.marks_info = json.load(json_file)
+        with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'fates_info.json')) as json_file:
+            self.fates_info = json.load(json_file)
 
         self._trains = {}
         self.hunt_manager.add_recheck_cb(self._update_train)
@@ -96,12 +98,12 @@ class Hunts(commands.Cog):
             found = False
             attachName = attachName.strip().lower()
 
-            for _id, fate in fates_info.items():
+            for _id, fate in self.fates_info.items():
                 if fate['Name'].lower().find(attachName) > -1:
                     attachName = fate['Name'].lower()
                     found = True
                     break
-            for _id, hunt in hunts_info.items():
+            for _id, hunt in self.marks_info.items():
                 if hunt['Name'].lower().find(attachName) > -1:
                     attachName = hunt['Name'].lower()
                     found = True
@@ -133,12 +135,12 @@ class Hunts(commands.Cog):
             found = False
             attachName = attachName.strip().lower()
 
-            for _id, fate in fates_info.items():
+            for _id, fate in self.fates_info.items():
                 if fate['Name'].lower().find(attachName) > -1:
                     attachName = fate['Name'].lower()
                     found = True
                     break
-            for _id, hunt in hunts_info.items():
+            for _id, hunt in self.marks_info.items():
                 if hunt['Name'].lower().find(attachName) > -1:
                     attachName = hunt['Name'].lower()
                     found = True

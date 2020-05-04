@@ -453,7 +453,7 @@ class HuntManager:
 
             # All A ranks are dead, alter the train message
             _key = f"{new.name.strip().lower()}_{new.instance}"
-            self.on_train(world, name, self._hunts[world]['xivhunt'][_key], True, instance)
+            await self.on_train(world, name, self._hunts[world]['xivhunt'][_key], True, instance)
 
     async def on_train(self, world: str, name: str, xivhunt: dict, complete: bool, instance=1):
         """
@@ -534,7 +534,7 @@ class HuntManager:
                     for key, horusHunt in self._hunts[world]['horus'].items():
                         if horusHunt.rank == 'A' and horusHunt.zone in self.SHB_ZONES:
                             if horusHunt.status == horusHunt.STATUS_DIED and int(time.time()) - int(horusHunt.last_death) <= 120:
-                                self.on_train(world, name, xivhunt, False, instance)
+                                await self.on_train(world, name, xivhunt, False, instance)
                                 break
             else:
                 self._log.debug(f"""Ignoring notifications for {hunt['Rank']} rank hunts""")

@@ -1,8 +1,7 @@
 xivapi
 aiohttp
 peewee
-discord.py>=1.1.0,<=1.2.0
+discord.py>=1.2.5,<=1.2.5
 arrow
 PyYAML
 gitpython
-xivapi.py

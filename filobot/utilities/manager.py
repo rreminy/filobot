@@ -453,7 +453,7 @@ class HuntManager:
 
             # All A ranks are dead, alter the train message
             _key = f"{new.name.strip().lower()}_{new.instance}"
-            on_train(self, world, name, _hunts[world]['xivhunt'][_key], True, instance=1)
+            self.on_train(world, name, _hunts[world]['xivhunt'][_key], True, instance)
 
     async def on_train(self, world: str, name: str, xivhunt: dict, complete: bool, instance=1):
         """
@@ -467,7 +467,7 @@ class HuntManager:
                 & (Subscriptions.category == "SUB_TRAINS")
         )
 
-        instanceSymbol = "①" if instance == 1 "②" elif instance == 2 "③" else instance == 3
+        instanceSymbol = "①" if instance == 1 else "②" if instance == 2 else "③" if instance == 3 else instance
 
         for sub in subs:  # type: Subscriptions
             _meta = SubscriptionsMeta.select().where((SubscriptionsMeta.channel_id == sub.channel_id)
@@ -490,7 +490,7 @@ class HuntManager:
 
                 if int(time.time()) - lastTrainAnnouncement < 7200: # Last train announcement less than 2 hours ago? Edit it
                     try:
-                        await notification.edit(content=content, None) # Edit the message
+                        await notification.edit(content=content) # Edit the message
                         return
                     except discord.NotFound:
                         self._log.warning(f"Train announcement was deleted for {world}.")
@@ -534,7 +534,7 @@ class HuntManager:
                     for key, horusHunt in self._hunts[world]['horus'].items():
                         if horusHunt.rank == 'A' and horusHunt.zone in self.SHB_ZONES:
                             if horusHunt.status == horusHunt.STATUS_DIED and int(time.time()) - int(horusHunt.last_death) <= 120:
-                                on_train(self, world, name, xivhunt, False, instance=1)
+                                self.on_train(world, name, xivhunt, False, instance)
                                 break
             else:
                 self._log.debug(f"""Ignoring notifications for {hunt['Rank']} rank hunts""")
@@ -564,6 +564,7 @@ class HuntManager:
             role_mention = meta['notifier'] if 'notifier' in meta else None
 
             # content = f"""**{world}** {hunt['Rank']} Rank: **{hunt['Name']}** @ {hunt['ZoneName']} ({xivhunt['coords']}) i{instance}"""
+            instanceSymbol = "①" if instance == 1 else "②" if instance == 2 else "③" if instance == 3 else instance
             content = f"""[{world}] {hunt['ZoneName']} ({xivhunt['coords']}) {instanceSymbol}"""
             embed.description = content
 

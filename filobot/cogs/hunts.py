@@ -88,11 +88,11 @@ class Hunts(commands.Cog):
             await ctx.send("Channel notifiers cleared.")
             return
 
-         if type(role) is str:
+        if type(role) is str:
             role = role.strip("`")
             role = get(guild.roles, name=role)
 
-        if attachName not None:
+        if attachName is not None:
             found = False
             attachName = attachName.strip().lower()
 
@@ -112,7 +112,7 @@ class Hunts(commands.Cog):
 
         await self.hunt_manager.set_notifier(ctx.channel.id, role, attachName)
 
-        await ctx.send(f"Members of this role will now be notified whenever {"something" if not attachName else attachName} is found in this channel. To undo this, run the notify command again without any arguments")
+        await ctx.send(f"Members of this role will now be notified whenever {'something' if not attachName else attachName} is found in this channel. To undo this, run the notify command again without any arguments")
 
     @commands.command(name='sub-notify')
     @commands.has_permissions(administrator=True)
@@ -129,7 +129,7 @@ class Hunts(commands.Cog):
             role = role.strip("`")
             role = get(guild.roles, name=role)
 
-        if attachName not None:
+        if attachName is not None:
             found = False
             attachName = attachName.strip().lower()
 
@@ -149,7 +149,7 @@ class Hunts(commands.Cog):
 
         await self.hunt_manager.set_notifier(ctx.channel.id, role, attachName)
 
-        await ctx.send(f"Members of this role will now be notified whenever {"something" if not attachName else attachName} is found in this channel. To undo this, run the notify command again without any arguments")
+        await ctx.send(f"Members of this role will now be notified whenever {'something' if not attachName else attachName} is found in this channel. To undo this, run the notify command again without any arguments")
 
     @commands.command()
     @commands.has_permissions(administrator=True)

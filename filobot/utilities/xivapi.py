@@ -5,6 +5,8 @@ import aiohttp
 import discord
 import xivapi
 
+from filobot.utilities.worlds import Worlds
+
 
 class XivApi:
 
@@ -76,13 +78,16 @@ class Character:
     COLOR_FEMALE = 0xad2742
     COLOR_MALE = 0x275dad
 
-    DATACENTERS = {
+    DATACENTERS_BACKUP = { # if a reference error happens because DATACENTER no longer exist i know why
         'Elemental': ('Aegis', 'Atomos', 'Carbuncle', 'Garuda', 'Gungnir', 'Kujata', 'Ramuh', 'Tonberry', 'Typhon', 'Unicorn'),
-        'Gaia': ('Alexander', 'Bahamut', 'Durandal', 'Fenrir', 'Ifrit', 'Ridill', 'Tiamat', 'Ultima', 'Valefor', 'Yojimbo', 'Zeromus')
+        'Gaia': ('Alexander', 'Bahamut', 'Durandal', 'Fenrir', 'Ifrit', 'Ridill', 'Tiamat', 'Ultima', 'Valefor', 'Yojimbo', 'Zeromus'),
         'Mana': ('Anima', 'Asura', 'Belias', 'Chocobo', 'Hades', 'Ixion', 'Mandragora', 'Masamune', 'Pandaemonium', 'Shinryu', 'Titan'),
+
         'Crystal': ('Balmung', 'Brynhildr', 'Coeurl', 'Diabolos', 'Goblin', 'Malboro', 'Mateus', 'Zalera'),
         'Aether' : ('Adamantoise', 'Cactuar', 'Faerie', 'Gilgamesh', 'Jenova', 'Midgardsormr', 'Sargatanas', 'Siren'),
         'Primal' : ('Behemoth', 'Excalibur', 'Exodus', 'Famfrit', 'Hyperion', 'Lamia', 'Leviathan', 'Ultros')
+
+        # missing EU but we have worlds.py we can use so I'll replace the functions here
     }
 
     def __init__(self, api_response: dict):
@@ -102,10 +107,8 @@ class Character:
         self.updated    = datetime.datetime.utcfromtimestamp(api_response['Character']['ParseDate'])
 
         self.datacenter = None
-        for dc, worlds in self.DATACENTERS.items():
-            if self.server in worlds:
-                self.datacenter = dc
-                break
+        if Worlds.is_world(self.server):
+            self.datacenter = Worlds.get_world_datacenter
 
         self.jobs = {}
         if api_response['Character']['ClassJobs']:

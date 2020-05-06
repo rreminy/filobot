@@ -117,19 +117,16 @@ def fate_simple_embed(fate_name: str, xivhunt: typing.Optional = None) -> discor
     for _id, fate in fates_info.items():
         if fate_name.strip().lower() == fate['Name'].lower():
             embed = discord.Embed()
-            embed.title = f"[{xivhunt.world}] {fate['Name']}"
+
             if xivhunt['status'] == 'alive':
                 embed.colour = COLOR_OPEN
             else:
                 embed.colour = COLOR_DIED
 
-            instance = 1
-            if xivhunt is not None and xivhunt['i']:
-                instance = int(xivhunt['i']) or 1
-
-            world = ""
             if xivhunt is not None and xivhunt['world']:
-                world = xivhunt['world']
+                embed.title = f"[{xivhunt['world']}] {fate['Name']}"
+            else:
+                embed.title = f"{fate['Name']}"
 
             return embed
 

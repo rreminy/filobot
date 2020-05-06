@@ -135,23 +135,28 @@ class Hunts(commands.Cog):
             found = False
             attachName = attachName.strip().lower()
 
-            for _id, fate in self.fates_info.items():
-                if fate['Name'].lower().find(attachName) > -1:
-                    attachName = fate['Name'].lower()
-                    found = True
-                    break
-            for _id, hunt in self.marks_info.items():
-                if hunt['Name'].lower().find(attachName) > -1:
-                    attachName = hunt['Name'].lower()
-                    found = True
-                    break
+            if attachName in self.hunt_manager.HUNT_SUBSCRIPTIONS or attachName == "trains":
+                found = True
+
+            if not found:
+                for _id, fate in self.fates_info.items():
+                    if fate['Name'].lower().find(attachName) > -1:
+                        attachName = fate['Name'].lower()
+                        found = True
+                        break
+            if not found:
+                for _id, hunt in self.marks_info.items():
+                    if hunt['Name'].lower().find(attachName) > -1:
+                        attachName = hunt['Name'].lower()
+                        found = True
+                        break
             if not found:
                 await ctx.send("Cannot find hunt or fate name.")
                 return
 
         await self.hunt_manager.set_notifier(ctx.channel.id, role, attachName)
 
-        await ctx.send(f"Members of this role will now be notified whenever {'something' if not attachName else attachName} is found in this channel. To undo this, run the notify command again without any arguments")
+        await ctx.send(f"Members of this role will now be notified whenever {'something' if not attachName else attachName.title()} is found in this channel. To undo this, run the notify command again without any arguments")
 
     @commands.command()
     @commands.has_permissions(administrator=True)

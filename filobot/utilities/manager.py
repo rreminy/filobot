@@ -31,6 +31,8 @@ class HuntManager:
     SUB_FATE    = 'rare_fates'
     SUB_TRAINS   = 'trains'
 
+    HUNT_SUBSCRIPTIONS = ('shb_a', 'shb_s', 'sb_a', 'sb_s', 'hw_a', 'hw_s', 'arr_a', 'arr_s')
+
     ARR_ZONES = ('Central Shroud', 'East Shroud', 'South Shroud', 'North Shroud', 'Western Thanalan',
                  'Central Thanalan', 'Eastern Thanalan', 'Southern Thanalan', 'Northern Thanalan', 'Middle La Noscea',
                  'Lower La Noscea', 'Eastern La Noscea', 'Western La Noscea', 'Upper La Noscea', 'Outer La Noscea',
@@ -558,8 +560,20 @@ class HuntManager:
             if self.COND_FIND != sub.event:
                 continue
 
+            if hunt['ZoneName'] in self.ARR_ZONES:
+                attachCategory = "ARR_"
+            if hunt['ZoneName'] in self.HW_ZONES:
+                attachCategory = "HW_"
+            if hunt['ZoneName'] in self.SB_ZONES:
+                attachCategory = "SB_"
+            if hunt['ZoneName'] in self.SHB_ZONES:
+                attachCategory = "SHB_"
+            if hunt['Rank']:
+                attachCategory.join(hunt['Rank'])
+
             _meta = SubscriptionsMeta.select().where((SubscriptionsMeta.channel_id == sub.channel_id)
-            & ((SubscriptionsMeta.attachName == hunt["Name"].lower()) | (SubscriptionsMeta.attachName == None))) # Matches this hunt/fate or none (aka all)
+            & ((SubscriptionsMeta.attachName == hunt["Name"].lower()) | (SubscriptionsMeta.attachName == attachCategory.lower()) | (SubscriptionsMeta.attachName == None)))
+            # Matches this hunt/fate, hunt category or all's notifier (in that order)
             meta  = {m.name : m.value for m in _meta}
             role_mention = meta['notifier'] if 'notifier' in meta else None
 

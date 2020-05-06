@@ -454,8 +454,7 @@ class HuntManager:
                         return
 
             # All A ranks are dead, alter the train message
-            _key = f"{new.name.strip().lower()}_{new.instance}"
-            await self.on_train(world, new.name, self._hunts[world]['xivhunt'][_key], True, new.instance)
+            await self.on_train(world, new.name, None, True, new.instance)
 
     async def on_train(self, world: str, name: str, xivhunt: dict, complete: bool, instance=1):
         """
@@ -477,11 +476,11 @@ class HuntManager:
             meta  = {m.name : m.value for m in _meta}
             role_mention = meta['notifier'] if 'notifier' in meta else None
 
-            content = f"""[{world}] {hunt['ZoneName']} ({xivhunt['coords']}) {instanceSymbol}"""
-            if role_mention:
-                content = f"""{role_mention} {content}"""
-
-            if complete == True:
+            if not complete:
+                content = f"""[{world}] {hunt['ZoneName']} ({xivhunt['coords']}) {instanceSymbol}"""
+                if role_mention:
+                    content = f"""{role_mention} {content}"""
+            else:
                 content = f"""[{world}] Complete"""
 
             # Attempt to edit an existing message first

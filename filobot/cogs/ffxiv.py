@@ -8,8 +8,8 @@ import peewee
 from discord.ext import commands
 
 from filobot.models import GuildSettings, Player
-from filobot.utilities.manager import HuntManager
 from filobot.utilities.xivapi import XivApi
+from filobot.utilities.worlds import Worlds
 
 
 class FFXIV(commands.Cog):
@@ -45,7 +45,7 @@ class FFXIV(commands.Cog):
             await ctx.send('Invalid character name provided. Please provide the world name first, then your characters first and last names. For example, `f.iam Mateus Totomo Omo`', delete_after=10.0)
             return
 
-        if world.title() not in HuntManager.WORLDS:
+        if world.title() not in Worlds.get_worlds():
             await ctx.send('Invalid world provided. Please provide the world name first, then your characters first and last names. For example, `f.iam Mateus Totomo Omo`', delete_after=10.0)
             return
 

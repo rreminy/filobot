@@ -11,7 +11,7 @@ from discord.ext.commands import Bot
 from peewee import fn
 
 from filobot.models import KillLog, Subscriptions, SubscriptionsMeta
-from filobot.utilities import hunt_embed, hunt_simple_embed, fate_simple_embed
+from filobot.utilities import hunt_simple_embed, fate_simple_embed
 from filobot.utilities.horus import HorusHunt
 from .horus import Horus
 from .xivhunt import XivHunt
@@ -131,7 +131,7 @@ class HuntManager:
 
         self._recheck_cbs.append(callback)
 
-    async def set_notifier(self, channel: int, role: discord.Role, attachName: str) -> None:
+    async def set_notifier(self, channel: int, role: discord.Role, attachname: str) -> None:
         """
         Set channel notifier
         """
@@ -143,7 +143,7 @@ class HuntManager:
         ).execute()
         SubscriptionsMeta.insert({
             'channel_id': channel,
-            'attachName': attachName,
+            'attachName': attachname,
             'name'      : 'notifier',
             'value'     : role.mention
         }).execute()
@@ -341,8 +341,7 @@ class HuntManager:
                     # Get the original content
                     content = notification.content
 
-                    if int(xivhunt['status']) == 100 and elf.COND_DEAD == sub.event:
-                        found   = int(notification.created_at.timestamp())
+                    if int(xivhunt['status']) == 100 and self.COND_DEAD == sub.event:
                         killed  = int(time.time())
                         seconds = killed - log.found
 
@@ -360,7 +359,7 @@ class HuntManager:
                         log.save()
 
                         # Remove the ping mention
-                        beg = content.find(f"[{new.world}]")
+                        beg = content.find(f"[{world}]")
                         content = content[beg:]
 
                         # Add dead timing to message
@@ -406,7 +405,6 @@ class HuntManager:
                 notification = await self.get_notification(sub.channel_id, world, new.name, new.instance)
                 if notification:
                     notification, log = notification
-                    found   = int(notification.created_at.timestamp())
                     killed  = arrow.get(int(new.last_mark / 1000)).timestamp
                     seconds = killed - log.found
 
@@ -468,16 +466,15 @@ class HuntManager:
                 & (Subscriptions.category == "SUB_TRAINS")
         )
 
-        instanceSymbol = "①" if instance == 1 else "②" if instance == 2 else "③" if instance == 3 else instance
+        instancesymbol = "①" if instance == 1 else "②" if instance == 2 else "③" if instance == 3 else instance
 
         for sub in subs:  # type: Subscriptions
-            _meta = SubscriptionsMeta.select().where((SubscriptionsMeta.channel_id == sub.channel_id)
-            & (SubscriptionsMeta.attachName == "trains"))
+            _meta = SubscriptionsMeta.select().where((SubscriptionsMeta.channel_id == sub.channel_id) & (SubscriptionsMeta.attachName == "trains"))
             meta  = {m.name : m.value for m in _meta}
             role_mention = meta['notifier'] if 'notifier' in meta else None
 
             if not complete:
-                content = f"""[{world}] {hunt['ZoneName']} ({xivhunt['coords']}) {instanceSymbol}"""
+                content = f"""[{world}] {hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol}"""
                 if role_mention:
                     content = f"""{role_mention} {content}"""
             else:
@@ -487,9 +484,10 @@ class HuntManager:
             notification = await self.get_notification(sub.channel_id, world, name, instance)
 
             if notification:
-                lastTrainAnnouncement = int(notification.created_at.timestamp())
+                notification, log = notification
+                lasttrainannouncement = int(notification.created_at.timestamp())
 
-                if int(time.time()) - lastTrainAnnouncement < 7200: # Last train announcement less than 2 hours ago? Edit it
+                if int(time.time()) - lasttrainannouncement < 7200: # Last train announcement less than 2 hours ago? Edit it
                     try:
                         await notification.edit(content=content) # Edit the message
                         return
@@ -514,7 +512,7 @@ class HuntManager:
         _key = f"{name.strip().lower()}_{instance}"
         if _key in self._hunts[world]['xivhunt']:
             if xivhunt['rank'] == "F" and xivhunt['status'] != self._hunts[world]['xivhunt']['status']:
-                on_progress(self, world, name, xivhunt, instance)
+                await self.on_progress(world, name, xivhunt, instance)
             else:
                 self._log.debug(f"{name} on instance {instance} already logged")
             return
@@ -552,37 +550,39 @@ class HuntManager:
             embed = fate_simple_embed(name, xivhunt=xivhunt)
 
         else:
-            self._log.debug(f"""Ignoring notifications for {hunt['Name']}""")
+            self._log.debug(f"""Ignoring notifications for {name}""")
             return
 
         for sub in subs:  # type: Subscriptions
             if self.COND_FIND != sub.event:
                 continue
 
+            attachcategory = hunt["Name"].lower()
+
             if hunt['ZoneName'] in self.ARR_ZONES:
-                attachCategory = "ARR_"
+                attachcategory = "ARR_"
             if hunt['ZoneName'] in self.HW_ZONES:
-                attachCategory = "HW_"
+                attachcategory = "HW_"
             if hunt['ZoneName'] in self.SB_ZONES:
-                attachCategory = "SB_"
+                attachcategory = "SB_"
             if hunt['ZoneName'] in self.SHB_ZONES:
-                attachCategory = "SHB_"
+                attachcategory = "SHB_"
             if hunt['Rank']:
-                attachCategory.join(hunt['Rank'])
+                attachcategory.join(hunt['Rank']).lower()
 
             _meta = SubscriptionsMeta.select().where((SubscriptionsMeta.channel_id == sub.channel_id)
-            & ((SubscriptionsMeta.attachName == hunt["Name"].lower()) | (SubscriptionsMeta.attachName == attachCategory.lower()) | (SubscriptionsMeta.attachName == None)))
+            & ((SubscriptionsMeta.attachName == hunt["Name"].lower()) | (SubscriptionsMeta.attachName == attachcategory) | (SubscriptionsMeta.attachName is None)))
             # Matches this hunt/fate, hunt category or all's notifier (in that order)
             meta  = {m.name : m.value for m in _meta}
             role_mention = meta['notifier'] if 'notifier' in meta else None
 
             # content = f"""**{world}** {hunt['Rank']} Rank: **{hunt['Name']}** @ {hunt['ZoneName']} ({xivhunt['coords']}) i{instance}"""
-            instanceSymbol = "①" if instance == 1 else "②" if instance == 2 else "③" if instance == 3 else instance
-            content = f"""[{world}] {hunt['ZoneName']} ({xivhunt['coords']}) {instanceSymbol}"""
+            instancesymbol = "①" if instance == 1 else "②" if instance == 2 else "③" if instance == 3 else instance
+            content = f"""[{world}] {hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol}"""
             embed.description = content
 
             if name.lower() in self._fates_info.keys(): # Displaying FATEs a little differently to absorb the information efficiently
-                embed.description = f"""{xivhunt['status']}% {hunt['ZoneName']} ({xivhunt['coords']}) {instanceSymbol}"""
+                embed.description = f"""{xivhunt['status']}% {hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol}"""
 
             if role_mention:
                 content = f"""{role_mention} {content}"""
@@ -680,3 +680,9 @@ class HuntManager:
                 self._fates_info[key] = fate
                 channel = getattr(self, f"""SUB_FATE""")
                 self._fates_info[key]['Channel'] = channel
+
+    def getmarksinfo(self):
+        return self._marks_info
+
+    def getfatesinfo(self):
+        return self._fates_info

@@ -1,9 +1,12 @@
+from filobot.utilities.hunts.hunt import Hunt
+
+
 class HuntsManager:
-    def __init__(self):
-        (some big thing goes here)
+    def __init__(self):  # (some big thing goes here)
+        pass
 
     def get(self, key: str) -> Hunt:
-        return
+        return Hunt(0, 0, 1)
 
     def set(self, key: str, hunt: Hunt):
         return
@@ -14,5 +17,5 @@ class HuntsManager:
     def on_kill(self, key: str, update_time: float, source: str):
         return
 
-    def on_maybe_kill(self, str: key, update_time: float, source: str):
+    def on_maybe_kill(self, key: str, update_time: float, source: str):
         return

@@ -2,11 +2,14 @@ import time
 import typing
 
 # from ...worlds import Worlds
+from filobot.utilities import Worlds
 from huntinfo import HuntInfo
 
 # Configuration constants
-FOUND_TO_STALE = float(7200) # Time to consider OPEN as UNKNOWN
-TIME_TOLERANCE = float(300) # Tolerance time for slightly inaccurate reports
+
+FOUND_TO_STALE = float(7200)  # Time to consider OPEN as UNKNOWN
+TIME_TOLERANCE = float(300)  # Tolerance time for slightly inaccurate reports
+
 
 class Hunt:
     def __init__(self, world_id: int, hunt_id: int, instance_id: int):
@@ -98,15 +101,14 @@ class Hunt:
         # NOTE: The above could probably be optimized
         return
 
-
     # Basic Informational functions
     def get_hunt_id(self) -> int:
-        return self.hunt_id
+        return self._hunt_id
 
     def get_hunt_name(self) -> str:
         return self._info.name
 
-    def get_name(self) -> str: # alias of get_hunt_name
+    def get_name(self) -> str:  # alias of get_hunt_name
         return self._info.name
 
     def get_rank(self) -> str:
@@ -142,12 +144,11 @@ class Hunt:
     def get_short_call_string(self) -> str:
         return f"[{self.get_world()}] {self.get_zone()} {str(self.get_coords_str())} i{self.get_instance_id()}"
 
-
     # Discord helpers
     def discord_message(self) -> str:
         text = f"self.get_short_call_string"
         if self._status == HuntStatus.DEAD:
-            text = f"~~{text}~~ **Killed** *(after how to do self...)*" # TODO: How long
+            text = f"~~{text}~~ **Killed** *(after how to do self...)*"  # TODO: How long
         return text
 
     def embed_title(self) -> str:
@@ -165,10 +166,9 @@ class Hunt:
     def embed_footer(self) -> str:
         return self._source
 
-
     # Log helpers
     def log_hunt_identification(self) -> str:
-        return f"[{self.get_world()}] {self._get_name()} i{self.get_instance_id()}"
+        return f"[{self.get_world()}] {self.get_name()} i{self.get_instance_id()}"
 
     def __log_hunt_status_change_1(self, old_status, new_status) -> str:
         return f"{old_status} => {new_status}"
@@ -179,17 +179,16 @@ class Hunt:
             text = f"{text} | {self.get_short_call_string()}"
         return text
 
-
     # Tracking Informational functions
     def is_open(self) -> bool:
         self._auto_update_status()
         return True if self._status == HuntStatus.OPEN else False
 
-    def is_maybe_open(self) -> bool: # this function consider open as maybe open
+    def is_maybe_open(self) -> bool:  # this function consider open as maybe open
         self._auto_update_status()
         return True if self._status == HuntStatus.MAYBE_OPEN or self._status == HuntStatus.OPEN else False
 
-    def is_dead(self) -> bool: # this considers maybe dead as dead
+    def is_dead(self) -> bool:  # this considers maybe dead as dead
         self._auto_update_status()
         return True if self._status == HuntStatus.DEAD or self._status == HuntStatus.MAYBE_DEAD else False
 
@@ -205,24 +204,24 @@ class Hunt:
         self._auto_update_status()
         return True if self._status == HuntStatus.UNKNOWN else False
 
-    def get_status(self) -> str: # -> HuntStatus:
+    def get_status(self) -> str:  # -> HuntStatus:
         self._auto_update_status()
         return self._status
 
     def get_status_str(self) -> str:
         status = self._status
         if status == HuntStatus.MAYBE_OPEN or status == HuntStatus.OPEN:
-            return 'Open' # Hunt can spawn at anytime
+            return 'Open'  # Hunt can spawn at anytime
         elif status == HuntStatus.FORCED:
-            return 'Forced' # Hunt must be force spawned
+            return 'Forced'  # Hunt must be force spawned
         elif status == HuntStatus.FOUND:
-            return 'Found' # Hunt is found
+            return 'Found'  # Hunt is found
         elif status == HuntStatus.MAYBE_DEAD:
-            return 'Maybe dead' # Is probably dead
+            return 'Maybe dead'  # Is probably dead
         elif status == HuntStatus.DEAD:
-            return 'Dead' # Is dead
+            return 'Dead'  # Is dead
         else:
-            return 'Unknown' # Huh? HuntStatus.UNKNOWN?
+            return 'Unknown'  # Huh? HuntStatus.UNKNOWN?
 
     def get_last_updated(self) -> float:
         return self._last_updated
@@ -233,13 +232,12 @@ class Hunt:
     def get_last_updated_since(self) -> float:
         return time.time() - self._last_updated
 
-
     # Modifying functions
     def update_status(self, new_status: str, update_time: float = time.time(), source: str = "", found_x: typing.Optional[float] = None, found_y: typing.Optional[float] = None) -> bool:
         self._auto_update_status()
 
         # Sanity checks
-        if update_time <= (self._update_time - TIME_TOLERANCE):
+        if update_time <= (self._last_updated - TIME_TOLERANCE):
             # Update is in the past
             return False
         elif update_time > (time.time() + TIME_TOLERANCE):
@@ -289,7 +287,7 @@ class Hunt:
                 update = True
 
         # If the hunt should be updated
-        if update == True:
+        if update:
             self._status = new_status
             self._time_since_previous_update = update_time - self._last_updated
             self._last_updated = update_time

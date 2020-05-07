@@ -45,8 +45,7 @@ class Admin(commands.Cog):
             player.status = Player.STATUS_BANNED
             player.save()
         except peewee.DoesNotExist:
-            player = Player.create(lodestone_id=0, discord_id=id, name="Banned player",
-                                   world="None", validation_code=uuid.uuid4())
+            Player.create(lodestone_id=0, discord_id=id, name="Banned player", world="None", validation_code=uuid.uuid4())
 
         await ctx.send(f"Discord member `{id}` banned from accessing Filo")
 
@@ -60,7 +59,7 @@ class Admin(commands.Cog):
             bl = Blacklist.get(Blacklist.guild_id == guild_id)
             await ctx.send(f"Guild `{bl.guild_id}`` is already blacklisted")
         except peewee.DoesNotExist:
-            bl = Blacklist.create(guild_id=guild_id)
+            Blacklist.create(guild_id=guild_id)
 
         for guild in self.bot.guilds:  # type: Guild
             if guild.id == guild_id:
@@ -77,7 +76,6 @@ class Admin(commands.Cog):
         Unbans a Guild from using Filo
         """
         try:
-            bl = Blacklist.get(Blacklist.guild_id == guild_id)
             Blacklist.delete_by_id(guild_id)
             await ctx.send(f"Guild `{guild_id}` removed from the blacklist")
         except peewee.DoesNotExist:

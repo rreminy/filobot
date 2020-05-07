@@ -30,7 +30,7 @@ class Conductor:
             self._hunt_manager.get(self.world, 'girimekhala'),
             self._hunt_manager.get(self.world, 'sum')
         ]
-        self._first = self._hunt_manager.get(self.world, starting_target)[0] if starting_target else self._hunts[0][0]
+        self._first = self._hunt_manager.get(self.world, starting_target) if starting_target else self._hunts[0][0]
         self._hunts = list(filter(lambda h: h[0].status != h[0].STATUS_DIED, self._hunts))
         self._previous = None  # type: typing.Optional[HorusHunt]
         self._next = []  # type: typing.List[str]

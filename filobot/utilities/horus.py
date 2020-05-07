@@ -10,6 +10,7 @@ import async_timeout
 import discord.ext
 from filobot.utilities.worlds import Worlds
 
+
 class Horus:
     CACHE_TTL = 15
     ENDPOINT_BASE = 'https://horus-hunts.net/Timers/GetDcTimers/?DC='
@@ -47,7 +48,7 @@ class Horus:
                     try:
                         response = json.loads(await self._fetch(session, endpoint))
                         self._cached_response.update(response)
-                    except:
+                    except Exception:
                         self._log.exception(f"Exception caught while querying {endpoint}")
             self._cached_time = time.time()
 

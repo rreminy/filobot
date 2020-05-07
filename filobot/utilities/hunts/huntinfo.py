@@ -1,6 +1,8 @@
 # Configuration constants
+from filobot.filobot import hunt_manager
+
 STALE_MULTIPLIER = 1.5
-STALE_MULTIPLIER_S = 1.0 # S are killed too quick
+STALE_MULTIPLIER_S = 1.0  # S are killed too quick
 
 
 class HuntInfo:
@@ -21,9 +23,25 @@ class HuntInfo:
 
 
 def get(hunt_id: int) -> HuntInfo:
-    # TODO: well... should be something like _huntinfo[hunt_id]
-    return
+    for mark in hunt_manager.getmarksinfo.values():
+        if int(mark['ID']) == hunt_id:
+            id = hunt_id
+            name = mark['Name']
+            rank = mark['Rank']
+            zone = mark['Zone']
 
-def _init():
-    # TODO: Gigantic initialization function
-    return
+            if zone in hunt_manager.ARR_ZONES:
+                expansion = "ARR"
+            elif zone in hunt_manager.HW_ZONES:
+                expansion = "HW"
+            elif zone in hunt_manager.SB_ZONES:
+                expansion = "SB"
+            elif zone in hunt_manager.SHB_ZONES:
+                expansion = "SHB"
+            else:
+                expansion = "Unknown"
+
+            open_time = mark['MinSpawn']
+            forced_time = mark['MaxSpawn']
+
+            return HuntInfo(id, name, rank, expansion, zone, open_time, forced_time)

@@ -8,11 +8,10 @@ import discord
 from discord.ext import commands
 from discord.utils import get
 
-from filobot.models import SubscriptionsMeta
 from filobot.utilities import hunt_embed, fate_embed, parse_sb_hunt_name, SB_HUNTS
 from filobot.utilities.manager import HuntManager
 from filobot.utilities.train import Conductor
-from filobot.utilities.horus import Horus
+
 
 class Hunts(commands.Cog):
 
@@ -44,7 +43,7 @@ class Hunts(commands.Cog):
             embed = hunt_embed(hunt_name)
         except KeyError:
             try:
-                embed = fate_simple_embed(hunt_name)
+                embed = fate_embed(hunt_name)
             except KeyError:
                 await ctx.send("No hunt or fate by that name found - please check your spelling and try again")
                 return
@@ -81,7 +80,7 @@ class Hunts(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(administrator=True)
-    async def notify(self, ctx: commands.context.Context, role: typing.Union[discord.Role, str, None], attachName: typing.Optional[str]):
+    async def notify(self, ctx: commands.context.Context, role: typing.Union[discord.Role, str, None], attachname: typing.Optional[str]):
         """
         Adds a role to mention when something is found in this channel
         """
@@ -94,31 +93,31 @@ class Hunts(commands.Cog):
             role = role.strip("`")
             role = get(guild.roles, name=role)
 
-        if attachName is not None:
+        if attachname is not None:
             found = False
-            attachName = attachName.strip().lower()
+            attachname = attachname.strip().lower()
 
             for _id, fate in self.fates_info.items():
-                if fate['Name'].lower().find(attachName) > -1:
-                    attachName = fate['Name'].lower()
+                if fate['Name'].lower().find(attachname) > -1:
+                    attachname = fate['Name'].lower()
                     found = True
                     break
             for _id, hunt in self.marks_info.items():
-                if hunt['Name'].lower().find(attachName) > -1:
-                    attachName = hunt['Name'].lower()
+                if hunt['Name'].lower().find(attachname) > -1:
+                    attachname = hunt['Name'].lower()
                     found = True
                     break
             if not found:
                 await ctx.send("Cannot find hunt or fate name.")
                 return
 
-        await self.hunt_manager.set_notifier(ctx.channel.id, role, attachName)
+        await self.hunt_manager.set_notifier(ctx.channel.id, role, attachname)
 
-        await ctx.send(f"Members of this role will now be notified whenever {'something' if not attachName else attachName} is found in this channel. To undo this, run the notify command again without any arguments")
+        await ctx.send(f"Members of this role will now be notified whenever {'something' if not attachname else attachname} is found in this channel. To undo this, run the notify command again without any arguments")
 
     @commands.command(name='sub-notify')
     @commands.has_permissions(administrator=True)
-    async def sub_notify(self, ctx: commands.context.Context, role: typing.Union[discord.Role, str, None], attachName: typing.Optional[str]):
+    async def sub_notify(self, ctx: commands.context.Context, role: typing.Union[discord.Role, str, None], attachname: typing.Optional[str]):
         """
         Adds a role to mention when something is found in this channel
         """
@@ -131,32 +130,32 @@ class Hunts(commands.Cog):
             role = role.strip("`")
             role = get(guild.roles, name=role)
 
-        if attachName is not None:
+        if attachname is not None:
             found = False
-            attachName = attachName.strip().lower()
+            attachname = attachname.strip().lower()
 
-            if attachName in self.hunt_manager.HUNT_SUBSCRIPTIONS or attachName == "trains":
+            if attachname in self.hunt_manager.HUNT_SUBSCRIPTIONS or attachname == "trains":
                 found = True
 
             if not found:
                 for _id, fate in self.fates_info.items():
-                    if fate['Name'].lower().find(attachName) > -1:
-                        attachName = fate['Name'].lower()
+                    if fate['Name'].lower().find(attachname) > -1:
+                        attachname = fate['Name'].lower()
                         found = True
                         break
             if not found:
                 for _id, hunt in self.marks_info.items():
-                    if hunt['Name'].lower().find(attachName) > -1:
-                        attachName = hunt['Name'].lower()
+                    if hunt['Name'].lower().find(attachname) > -1:
+                        attachname = hunt['Name'].lower()
                         found = True
                         break
             if not found:
                 await ctx.send("Cannot find hunt or fate name.")
                 return
 
-        await self.hunt_manager.set_notifier(ctx.channel.id, role, attachName)
+        await self.hunt_manager.set_notifier(ctx.channel.id, role, attachname)
 
-        await ctx.send(f"Members of this role will now be notified whenever {'something' if not attachName else attachName.title()} is found in this channel. To undo this, run the notify command again without any arguments")
+        await ctx.send(f"Members of this role will now be notified whenever {'something' if not attachname else attachname.title()} is found in this channel. To undo this, run the notify command again without any arguments")
 
     @commands.command()
     @commands.has_permissions(administrator=True)

@@ -87,7 +87,7 @@ async def fetch(url):
             return await response.text()
 
 
-async def update(obj, force = False):
+async def update(obj, force=False):
     # Is the list updated? (Early check)
     if (not update_needed_for(obj)) and (obj['data'] != "") and (not force):
         # No need to update
@@ -112,7 +112,7 @@ async def update(obj, force = False):
                 # Write the data to the file
                 logger.debug(f"update(): Saving {obj['name']} data...")
                 write_file(obj['file_path'], obj['data'])
-            except Exception as e:
+            except Exception:
                 logger.exception(f"update(): Unable to save {obj['name']} data")
 
                 # Sets the last updated time for the object
@@ -135,12 +135,12 @@ def process_datacenters():
     datacenter_to_id = {}
     datacenter_worlds = {}
     datacenter_data = {}
-    list = []
+    datacenter_list = []
 
     logger.debug("Processing Datacenters data...")
 
     # Get datacenters data lines
-    lines = datacenters['data'].split('\n');
+    lines = datacenters['data'].split('\n')
 
     # First 3 lines are heading
     lines.pop(0)
@@ -177,7 +177,7 @@ def process_datacenters():
             'name': name,
             'region_id': region_id
         }
-        list.append(name)
+        datacenter_list.append(name)
 
     # Store all information
     datacenters['id_to_datacenter'] = id_to_datacenter
@@ -188,8 +188,7 @@ def process_datacenters():
 
     datacenters['datacenter_data'] = datacenter_data
     datacenters['dc_data'] = datacenter_data # alias
-    datacenters['list'] = list
-
+    datacenters['list'] = datacenter_list
 
     # =================
     # Worlds processing
@@ -198,7 +197,7 @@ def process_datacenters():
     world_datacenter = {}
     id_to_world = {}
     world_to_id = {}
-    list = []
+    datacenter_list = []
 
     logger.debug("Processing worlds...")
 
@@ -222,7 +221,7 @@ def process_datacenters():
         # Fields to variables
         id = int(field[0])
         name = field[1][1:-1]
-        user_type = field[2] # Unused
+        # user_type = field[2] # Unused
         datacenter_id = int(field[3])
         public = True if field[4][0] == 'T' else False
 
@@ -246,7 +245,7 @@ def process_datacenters():
             'id': id,
             'datacenter': datacenter
         }
-        list.append(name)
+        datacenter_list.append(name)
 
     # Store all the information
     datacenters['datacenter_worlds'] = datacenter_worlds
@@ -262,18 +261,18 @@ def process_datacenters():
     worlds['world_to_id'] = world_to_id
 
     worlds['world_data'] = world_data
-    worlds['list'] = list
+    worlds['list'] = datacenter_list
 
 
-async def do_update(force = False):
+async def do_update(force=False):
     # Debug feedback additional string
     forced_string = ""
 
     # Should updating be forced?
-    if (force_update_needed() == True):
+    if (force_update_needed()):
         forced_string = " (auto-forced)"
         force = True
-    elif (force == True):
+    elif (force is True):
         forced_string = " (user-forced)"
 
     # Debug feedback
@@ -337,7 +336,6 @@ class Worlds:
     def is_datacenter(datacenter: str):
         return True if datacenter in datacenters['list'] else False
 
-
     # Worlds functions
     @staticmethod
     def get_worlds():
@@ -360,9 +358,8 @@ class Worlds:
         return worlds['world_datacenter'][world]
 
     @staticmethod
-    def is_world(world:str):
+    def is_world(world: str):
         return True if world in worlds['list'] else False
-
 
     # Debugging functions (why would you want this...direct access)
     @staticmethod
@@ -378,7 +375,7 @@ async def init():
     # Update all the data
     try:
         await do_update()
-    except Exception as e:
+    except Exception:
         logger.exception("Data processing failed!!")
         sys.exit(1)
 

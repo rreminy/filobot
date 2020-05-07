@@ -11,8 +11,7 @@ from filobot.cogs.admin import Admin
 from filobot.cogs.ffxiv import FFXIV
 from filobot.cogs.misc import Misc
 from filobot.cogs.settings import Settings
-from filobot.models import db, GuildSettings, KillLog, Player, ScoutingHunts, ScoutingSessions, Subscriptions, \
-    SubscriptionsMeta, Blacklist
+from filobot.models import db, GuildSettings, KillLog, Player, ScoutingHunts, ScoutingSessions, Subscriptions, SubscriptionsMeta, Blacklist
 from filobot.utilities.manager import HuntManager
 
 # Load our configuration
@@ -43,12 +42,11 @@ bot.add_cog(Admin(bot))
 bot.add_cog(Misc(bot, hunt_manager))
 bot.add_cog(Settings(bot))
 
-
 GAMES = ("with moogles", "in Totomo Omo's estate", "in the Izakaya Pub",
-"pranks on Joel Cleveland'", "with the hunt tracker", "Diabolos", "with hunts",
-"Marriage", "boredom", "with Sum", "with Eorzea", "Ascians", "Zodiark",
-"Hydaelyn", "Final Fantasy XIV", "FFXIV", "Centurio Hunts", "the Moon",
-"the Sun", "Zenos", "Hades", "Python", "XIVAPI", "Horus", "with Tora",)
+         "pranks on Joel Cleveland'", "with the hunt tracker", "Diabolos", "with hunts",
+         "Marriage", "boredom", "with Sum", "with Eorzea", "Ascians", "Zodiark",
+         "Hydaelyn", "Final Fantasy XIV", "FFXIV", "Centurio Hunts", "the Moon",
+         "the Sun", "Zenos", "Hades", "Python", "XIVAPI", "Horus", "with Tora",)
 
 
 @bot.event

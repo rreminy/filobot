@@ -1,7 +1,6 @@
 import json
 import os
 import sys
-import time
 import arrow
 import discord
 import typing
@@ -86,17 +85,17 @@ def hunt_simple_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: ty
             elif mark['Rank'] == 'B':
                 embed.colour = COLOR_B
 
-            instance = 0
-            if xivhunt is not None and xivhunt['i']:
-                instance = int(xivhunt['i']) or 1
-            elif horus is not None and horus.instance:
-                instance = horus.instance
+            # instance = 0
+            # if xivhunt is not None and xivhunt['i']:
+            #     instance = int(xivhunt['i']) or 1
+            # elif horus is not None and horus.instance:
+            #     instance = horus.instance
 
-            world = ""
-            if xivhunt is not None and xivhunt['world']:
-                world = xivhunt['world']
-            else:
-                world = horus.world
+            # world = ""
+            # if xivhunt is not None and xivhunt['world']:
+            #     world = xivhunt['world']
+            # else:
+            #     world = horus.world
 
             if horus is not None:
                 # Horus status based color-coding
@@ -112,6 +111,7 @@ def hunt_simple_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: ty
                     embed.title += " DEAD"
 
             return embed
+
 
 def fate_simple_embed(fate_name: str, xivhunt: typing.Optional = None) -> discord.Embed:
     for _id, fate in fates_info.items():
@@ -129,6 +129,7 @@ def fate_simple_embed(fate_name: str, xivhunt: typing.Optional = None) -> discor
                 embed.title = f"{fate['Name']}"
 
             return embed
+
 
 def hunt_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: typing.Optional = None) -> discord.Embed:
     for _id, mark in marks_info.items():
@@ -185,7 +186,8 @@ def hunt_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: typing.Op
     # No hunt by the specified name found
     raise KeyError
 
-def fate_embed(fate_name: str, horus: typing.Optional = None, xivhunt: typing.Optional = None) -> discord.Embed:
+
+def fate_embed(fate_name: str) -> discord.Embed:
     for _id, fate in fates_info.items():
         if fate_name.strip().lower() == fate['Name'].lower():
             embed = discord.Embed(title=fate['Name'])
@@ -194,16 +196,17 @@ def fate_embed(fate_name: str, horus: typing.Optional = None, xivhunt: typing.Op
             embed.add_field(name='Region', value=fate['RegionName'])
 
             # Only display spawning tips if the hunt is open
-            if mark['SpawnTrigger']:
+            if fate['SpawnTrigger']:
                 embed.add_field(name='Spawn trigger', value=fate['SpawnTrigger'])
 
-            if mark['Tips']:
+            if fate['Tips']:
                 embed.add_field(name='Tips', value=fate['Tips'])
 
             return embed
 
     # No hunt by the specified name found
     raise KeyError
+
 
 def parse_sb_hunt_name(hunt_name: str) -> str:
     """

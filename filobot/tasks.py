@@ -14,7 +14,7 @@ import json
 import logging
 logger = logging.getLogger(__name__)
 
-# noinspection PyBroadException
+
 async def update_hunts():
     await bot.wait_until_ready()
 
@@ -40,8 +40,8 @@ async def update_game():
 
 
 async def _process_data(source, data):
-    marks_info = hunt_manager.horus.marks_info;
-    fates_info = hunt_manager.horus.fates_info;
+    marks_info = hunt_manager.horus.marks_info
+    fates_info = hunt_manager.horus.fates_info
     if config.get(source, 'progress') in data and data[config.get(source, 'id')] in fates_info: # It's a FATE
         logger.debug(f"Processing {data['id']} as a fate")
         await _process_fate(source, data)
@@ -60,16 +60,16 @@ async def _process_hunt(source, data):
         hunt    = hunt_manager.horus.id_to_hunt(data[config.get(source, 'id')])
         _plus   = 22.5 if hunt['ZoneName'] in hunt_manager.HW_ZONES else 21.5
         if config.get(source, 'x') == config.get(source, 'y'): # Some JSON structs use an array for X and Y
-            data[config.get(source, 'x')] = data[config.get(source, 'x')][x]
-            data[config.get(source, 'y')] = data[config.get(source, 'y')][y]
+            data[config.get(source, 'x')] = data[config.get(source, 'x')]['x']
+            data[config.get(source, 'y')] = data[config.get(source, 'y')]['y']
         x, y    = round((float(data[config.get(source, 'x')]) * 0.02 + _plus)*10)/10, round((float(data[config.get(source, 'y')]) * 0.02 + _plus)*10)/10
         i = data[config.get(source, 'i')] if config.get(source, 'i') in data else 0
-        lastReported = data[config.get(source, 'lastReported')]
+        lastreported = data[config.get(source, 'lastReported')]
         xivhunt = {
             'rank': hunt['Rank'],
             'i': i, # data['i'], Seeing as this isn't functional anywhere at the moment
             'status': 'seen' if alive else 'dead',
-            'last_seen': datetime.date.fromtimestamp(int(lastReported)) if lastReported.isnumeric() else lastReported,
+            'last_seen': datetime.date.fromtimestamp(int(lastreported)) if lastreported.isnumeric() else lastreported,
             'coords': f"{x}, {y}",
             'world': world,
         }
@@ -83,19 +83,15 @@ async def _process_hunt(source, data):
 
     return await hunt_manager.on_find(world, hunt['Name'], xivhunt, int(i) or 1)
 
+
 async def _process_fate(source, data):
     try:
-        try:
-            alive   = int(data[config.get(source, 'progress')]) < 100
-        except ValueError:
-            alive   = True
-
         world   = hunt_manager.get_world(int(data[config.get(source, 'wId')]))
         fate    = hunt_manager.horus.id_to_fate(data[config.get(source, 'id')])
         _plus   = 22.5 if fate['ZoneName'] in hunt_manager.HW_ZONES else 21.5
         if config.get(source, 'x') == config.get(source, 'y'): # Some JSON structs use an array for X and Y
-            data[config.get(source, 'x')] = data[config.get(source, 'x')][x]
-            data[config.get(source, 'y')] = data[config.get(source, 'y')][y]
+            data[config.get(source, 'x')] = data[config.get(source, 'x')]['x']
+            data[config.get(source, 'y')] = data[config.get(source, 'y')]['y']
         x, y    = round((float(data[config.get(source, 'x')]) * 0.02 + _plus)*10)/10, round((float(data[config.get(source, 'y')]) * 0.02 + _plus)*10)/10
         i = data[config.get(source, 'i')] if config.get(source, 'i') in data else 0
         xivhunt = { # Using this struct because the alternative is compatibility issues and endless copy & paste
@@ -118,7 +114,7 @@ async def discord_listener(source):
 
     async def on_message(message):
         if str(message.channel.id) != config.get(source, 'Channel'):
-            return;
+            return
 
         data = json.loads(message.content)
         await _process_data(source, data)
@@ -132,7 +128,7 @@ async def start_server(source):
     async def event(request):
         data = await request.post()
         if isinstance(data, list): # It's an array of JSON data... process one-by-one
-           for x in data:
+            for x in data:
                 await _process_data(source, x)
         else:
             await _process_data(source, data)

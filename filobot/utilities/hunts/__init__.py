@@ -1,8 +1,8 @@
 
 
 class HuntUtil:
-    def getkey(self: int, hunt_id: int, instance_id: int) -> str:
-        return str(self) + '_' + str(hunt_id) + '_' + str(instance_id)
+    def getkey(self, world_id: int, hunt_id: int, instance_id: int) -> str:
+        return str(world_id) + '_' + str(hunt_id) + '_' + str(instance_id)
 
     def getinfo(self, key: str) -> dict:
         field = key.split('_')

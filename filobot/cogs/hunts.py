@@ -21,11 +21,6 @@ class Hunts(commands.Cog):
 
         self.hunt_manager = hunt_manager
 
-        with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'marks_info.json')) as json_file:
-            self.marks_info = json.load(json_file)
-        with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'fates_info.json')) as json_file:
-            self.fates_info = json.load(json_file)
-
         self._trains = {}
         self.hunt_manager.add_recheck_cb(self._update_train)
 
@@ -97,14 +92,17 @@ class Hunts(commands.Cog):
             found = False
             attachname = attachname.strip().lower()
 
-            for _id, fate in self.fates_info.items():
-                if fate['Name'].lower().find(attachname) > -1:
-                    attachname = fate['Name'].lower()
+            if attachname in self.hunt_manager.HUNT_SUBSCRIPTIONS or attachname == "trains":
+                found = True
+
+            for fate in self.hunt_manager.getfatesinfo.keys():
+                if fate.find(attachname) > -1:
+                    attachname = fate
                     found = True
                     break
-            for _id, hunt in self.marks_info.items():
-                if hunt['Name'].lower().find(attachname) > -1:
-                    attachname = hunt['Name'].lower()
+            for hunt in self.hunt_manager.getmarksinfo().keys():
+                if hunt.find(attachname) > -1:
+                    attachname = hunt
                     found = True
                     break
             if not found:
@@ -137,18 +135,16 @@ class Hunts(commands.Cog):
             if attachname in self.hunt_manager.HUNT_SUBSCRIPTIONS or attachname == "trains":
                 found = True
 
-            if not found:
-                for _id, fate in self.fates_info.items():
-                    if fate['Name'].lower().find(attachname) > -1:
-                        attachname = fate['Name'].lower()
-                        found = True
-                        break
-            if not found:
-                for _id, hunt in self.marks_info.items():
-                    if hunt['Name'].lower().find(attachname) > -1:
-                        attachname = hunt['Name'].lower()
-                        found = True
-                        break
+            for fate in self.hunt_manager.getfatesinfo.keys():
+                if fate.find(attachname) > -1:
+                    attachname = fate
+                    found = True
+                    break
+            for hunt in self.hunt_manager.getmarksinfo().keys():
+                if hunt.find(attachname) > -1:
+                    attachname = hunt
+                    found = True
+                    break
             if not found:
                 await ctx.send("Cannot find hunt or fate name.")
                 return

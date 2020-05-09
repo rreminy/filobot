@@ -560,15 +560,15 @@ class HuntManager:
             attachcategory = hunt["Name"].lower()
 
             if hunt['ZoneName'] in self.ARR_ZONES:
-                attachcategory = "ARR_"
+                attachcategory = "ARR"
             if hunt['ZoneName'] in self.HW_ZONES:
-                attachcategory = "HW_"
+                attachcategory = "HW"
             if hunt['ZoneName'] in self.SB_ZONES:
-                attachcategory = "SB_"
+                attachcategory = "SB"
             if hunt['ZoneName'] in self.SHB_ZONES:
-                attachcategory = "SHB_"
+                attachcategory = "SHB"
             if 'Rank' in hunt.keys() and hunt['Rank']:
-                attachcategory.join(hunt['Rank']).lower()
+                attachcategory = '_'.join((attachcategory, hunt['Rank'])).lower()
 
             _meta = SubscriptionsMeta.select().where((SubscriptionsMeta.channel_id == sub.channel_id)
             & ((SubscriptionsMeta.attachName == hunt["Name"].lower()) | (SubscriptionsMeta.attachName == attachcategory) | (SubscriptionsMeta.attachName is None)))

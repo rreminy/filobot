@@ -135,7 +135,7 @@ class Hunts(commands.Cog):
             if attachname in self.hunt_manager.HUNT_SUBSCRIPTIONS or attachname == "trains":
                 found = True
 
-            for fate in self.hunt_manager.getfatesinfo.keys():
+            for fate in self.hunt_manager.getfatesinfo().keys():
                 if fate.find(attachname) > -1:
                     attachname = fate
                     found = True

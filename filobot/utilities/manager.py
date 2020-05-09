@@ -567,7 +567,7 @@ class HuntManager:
                 attachcategory = "SB_"
             if hunt['ZoneName'] in self.SHB_ZONES:
                 attachcategory = "SHB_"
-            if hunt['Rank']:
+            if 'Rank' in hunt.keys() and hunt['Rank']:
                 attachcategory.join(hunt['Rank']).lower()
 
             _meta = SubscriptionsMeta.select().where((SubscriptionsMeta.channel_id == sub.channel_id)

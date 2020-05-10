@@ -36,10 +36,9 @@ class HuntManager:
     ARR_ZONES = ('Central Shroud', 'East Shroud', 'South Shroud', 'North Shroud', 'Western Thanalan',
                  'Central Thanalan', 'Eastern Thanalan', 'Southern Thanalan', 'Northern Thanalan', 'Middle La Noscea',
                  'Lower La Noscea', 'Eastern La Noscea', 'Western La Noscea', 'Upper La Noscea', 'Outer La Noscea',
-                 'Mor Dhona')
+                 'Mor Dhona', 'Coerthas Central Highlands')
 
-    HW_ZONES = ('Coerthas Central Highlands', 'Coerthas Western Highlands', 'The Dravanian Forelands',
-                'The Dravanian Hinterlands', 'The Churning Mists', 'The Sea of Clouds', 'Azys Lla')
+    HW_ZONES = ('Coerthas Western Highlands', 'The Dravanian Forelands', 'The Dravanian Hinterlands', 'The Churning Mists', 'The Sea of Clouds', 'Azys Lla')
 
     SB_ZONES = ('The Ruby Sea', 'Yanxia', 'The Azim Steppe', 'The Fringes', 'The Peaks', 'The Lochs')
 

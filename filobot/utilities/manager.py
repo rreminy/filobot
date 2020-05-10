@@ -481,7 +481,7 @@ class HuntManager:
                 content = f"""[{world}] Complete"""
 
             # Attempt to edit an existing message first
-            notification = await self.get_notification(sub.channel_id, world, self.SUB_TRAINS, instance, True)
+            notification = await self.get_notification(sub.channel_id, world, self.SUB_TRAINS, instance, complete)
 
             if notification:
                 notification, log = notification

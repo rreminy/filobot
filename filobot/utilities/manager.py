@@ -481,7 +481,7 @@ class HuntManager:
                 content = f"""[{world}] Complete"""
 
             # Attempt to edit an existing message first
-            notification = await self.get_notification(sub.channel_id, world, SUB_TRAINS, instance, True)
+            notification = await self.get_notification(sub.channel_id, world, self.SUB_TRAINS, instance, True)
 
             if notification:
                 notification, log = notification
@@ -490,7 +490,7 @@ class HuntManager:
                 if notification.content != content and int(time.time()) - lasttrainannouncement < 7200: # Last train announcement less than 2 hours ago? Edit it
                     try:
                         await notification.edit(content=content) # Edit the message
-                        await self.log_notification(notification, sub.channel_id, world, SUB_TRAINS, instance)
+                        await self.log_notification(notification, sub.channel_id, world, self.SUB_TRAINS, instance)
                         return
                     except discord.NotFound:
                         self._log.warning(f"Train announcement was deleted for {world}.")
@@ -501,7 +501,7 @@ class HuntManager:
                 if not message:
                     continue
 
-                await self.log_notification(message, sub.channel_id, world, SUB_TRAINS, instance)
+                await self.log_notification(message, sub.channel_id, world, self.SUB_TRAINS, instance)
 
     async def on_find(self, world: str, name: str, xivhunt: dict, instance=1):
         """

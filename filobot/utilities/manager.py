@@ -463,7 +463,7 @@ class HuntManager:
 
         subs = Subscriptions.select().where(
                 (Subscriptions.world == world)
-                & (Subscriptions.category == getattr(self, SUB_TRAINS))
+                & (Subscriptions.category == getattr(self, "SUB_TRAINS"))
         )
 
         instancesymbol = "①" if instance == 1 else "②" if instance == 2 else "③" if instance == 3 else instance

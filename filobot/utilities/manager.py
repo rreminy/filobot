@@ -511,7 +511,7 @@ class HuntManager:
 
         _key = f"{name.strip().lower()}_{instance}"
         if _key in self._hunts[world]['xivhunt']:
-            if xivhunt['rank'] == "F" and xivhunt['status'] != self._hunts[world]['xivhunt']['status']:
+            if xivhunt['rank'] == "F":
                 await self.on_progress(world, name, xivhunt, instance)
             else:
                 self._log.debug(f"{name} on instance {instance} already logged")

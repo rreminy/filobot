@@ -463,7 +463,7 @@ class HuntManager:
 
         subs = Subscriptions.select().where(
                 (Subscriptions.world == world)
-                & (Subscriptions.category == "SUB_TRAINS")
+                & (Subscriptions.category == getattr(self, SUB_TRAINS))
         )
 
         instancesymbol = "①" if instance == 1 else "②" if instance == 2 else "③" if instance == 3 else instance
@@ -530,10 +530,13 @@ class HuntManager:
                 embed = hunt_simple_embed(name, xivhunt=xivhunt)
 
                 if hunt['Rank'] == 'A' and hunt['ZoneName'] in self.SHB_ZONES and self._hunts[world]['horus'] is not None:
+                    self._log.info("Shadowbringers A rank - checking for train...")
                     for key, horusHunt in self._hunts[world]['horus'].items():
                         if horusHunt.rank == 'A' and horusHunt.zone in self.SHB_ZONES:
                             if horusHunt.status == horusHunt.STATUS_DIED and int(time.time()) - int(horusHunt.last_death) <= 120:
+                                self._log.info("Train detected")
                                 await self.on_train(world, name, xivhunt, False, instance)
+                                self._log.info("On train call successful")
                                 break
             else:
                 self._log.debug(f"""Ignoring notifications for {hunt['Rank']} rank hunts""")

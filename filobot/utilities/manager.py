@@ -481,7 +481,7 @@ class HuntManager:
                 content = f"""[{world}] Complete"""
 
             # Attempt to edit an existing message first
-            notification = await self.get_notification(sub.channel_id, world, SUB_TRAINS, instance)
+            notification = await self.get_notification(sub.channel_id, world, SUB_TRAINS, instance, True)
 
             if notification:
                 notification, log = notification
@@ -613,7 +613,7 @@ class HuntManager:
         self._notifications[channel][world][key] = (message, log)
         self._log.debug("Notification message logged: " + repr(message))
 
-    async def get_notification(self, channel: int, world: str, hunt_name: str, instance : int = 1) -> typing.Optional[typing.Tuple[discord.Message, KillLog]]:
+    async def get_notification(self, channel: int, world: str, hunt_name: str, instance : int = 1, delete_notification : bool = True) -> typing.Optional[typing.Tuple[discord.Message, KillLog]]:
         """
         Attempt to retrieve a notification message for a previously located hunt or fate
         NOTE: Notifications are automatically purged after retrieved using this method
@@ -624,7 +624,8 @@ class HuntManager:
 
         if key in self._notifications[channel][world]:
             message, log = self._notifications[channel][world][key]
-            del self._notifications[channel][world][key]
+            if delete_notification:
+                del self._notifications[channel][world][key]
             return message, log
 
     def get_world(self, id: int):

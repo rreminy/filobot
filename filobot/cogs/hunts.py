@@ -95,7 +95,7 @@ class Hunts(commands.Cog):
             if attachname in self.hunt_manager.HUNT_SUBSCRIPTIONS or attachname == "trains":
                 found = True
 
-            for fate in self.hunt_manager.getfatesinfo.keys():
+            for fate in self.hunt_manager.getfatesinfo().keys():
                 if fate.find(attachname) > -1:
                     attachname = fate
                     found = True
@@ -111,7 +111,7 @@ class Hunts(commands.Cog):
 
         await self.hunt_manager.set_notifier(ctx.channel.id, role, attachname)
 
-        await ctx.send(f"Members of this role will now be notified whenever {'something' if not attachname else attachname} is found in this channel. To undo this, run the notify command again without any arguments")
+        await ctx.send(f"Members of this role will now be notified whenever {'something' if not attachname else attachname.title()} is found in this channel. To undo this, run the notify command again without any arguments")
 
     @commands.command(name='sub-notify')
     @commands.has_permissions(administrator=True)

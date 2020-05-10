@@ -140,6 +140,7 @@ class HuntManager:
         SubscriptionsMeta.delete().where(
                 (SubscriptionsMeta.channel_id == channel)
                 & (SubscriptionsMeta.name == 'notifier')
+                & (SubscriptionsMeta.attachName == attachname)
         ).execute()
         SubscriptionsMeta.insert({
             'channel_id': channel,

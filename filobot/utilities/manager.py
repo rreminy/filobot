@@ -371,8 +371,8 @@ class HuntManager:
 
                     # Set embed description
                     embed = notification.embeds[0]
-                    embed.description = embed.description[embed.description.find("%")]
-                    embed.description = xivhunt['status'].join(embed.description)
+                    embed.description = embed.description[embed.description.find("%") + 1:]
+                    embed.description = f"{xivhunt['status']}%{embed.description}"
 
                     # Edit the message
                     await notification.edit(content=content, embed=embed)

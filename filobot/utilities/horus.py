@@ -132,3 +132,28 @@ class HorusHunt:
             self.status = self.STATUS_DIED
         else:
             self.status = self.STATUS_CLOSED
+
+    def __repr__(self) -> str:
+        ret = '{'
+        ret += f'"name" : "{self.name}",'
+        ret += f'"instance" : "{self.instance}",'
+        ret += f'"rank" : "{self.rank}",'
+        ret += f'"image" : "{self.image}",'
+        ret += f'"zone" : "{self.zone}",'
+        ret += f'"spawn_trigger" : "{self.spawn_trigger}",'
+        ret += f'"region" : "{self.region}",'
+        ret += f'"tips" : "{self.tips}",'
+
+        ret += f'"world" : "{self.world}",'
+        ret += f'"min_respawn" : "{self.min_respawn}",'
+        ret += f'"max_respawn" : "{self.max_respawn}",'
+        ret += f'"last_death" : "{self.last_death}",'
+        ret += f'"open_date" : "{self.open_date}",'
+        ret += f'"max_date" : "{self.max_date}",'
+        ret += f'"last_alive" : "{self.last_alive}",'
+        ret += f'"last_try" : "{self.last_try}",'
+        ret += f'"last_try_user" : "{self.last_try_user}",'
+        ret += f'"last_mark" : "{self.last_mark}"'
+
+        ret += '}'
+        return ret;

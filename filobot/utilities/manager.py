@@ -333,7 +333,7 @@ class HuntManager:
         for sub in subs:  # type: Subscriptions
             try:
                 # If we previously sent a notification that the fate was found, edit that message instead of sending a new one
-                notification = await self.get_notification(sub.channel_id, world, name, instance)
+                notification = await self.get_notification(sub.channel_id, world, name, instance, False)
 
                 if notification:
                     notification, log = notification
@@ -376,6 +376,7 @@ class HuntManager:
 
                     # Edit the message
                     await notification.edit(content=content, embed=embed)
+                    await self.log_notification(notification, sub.channel_id, world, fate['Channel'], instance)
             except discord.NotFound:
                 self._log.warning(f"Notification message for FATE {name} on world {world} has been deleted")
 

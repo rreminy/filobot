@@ -370,7 +370,7 @@ class HuntManager:
                             self._hunts[world]['xivhunt'].remove(_key)
 
                     # Set embed description
-                    embed.description = notification.embeds[0]
+                    embed = notification.embeds[0]
                     embed.description = embed.description[embed.description.find("%")]
                     embed.description = xivhunt['status'].join(embed.description)
 

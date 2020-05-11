@@ -440,20 +440,19 @@ class HuntManager:
                     except discord.NotFound:
                         self._log.warning(f"Notification message for hunt {new.name} on world {world} has been deleted")
 
-                # Check if all A ranks are dead yet so we can end the train
-                if hunt['Rank'] == 'A' and hunt['ZoneName'] in self.SHB_ZONES and self._hunts[world]['horus'] is not None:
-                    for key, horusHunt in self._hunts[world]['horus'].items():
-                        if horusHunt.rank == 'A' and horusHunt.zone in self.SHB_ZONES:
-                            if horusHunt.status != horusHunt.STATUS_DIED and horusHunt.name is not new.name:
-                                return
-
-                    # All A ranks are dead, alter the train message
-                    await self.on_train(world, new.name, None, True, new.instance)
-
             _key = f"{new.name.strip().lower()}_{new.instance}"
             if _key in self._hunts[world]['xivhunt']:
                 self._hunts[world]['xivhunt'].remove(_key)
 
+        # Check if all A ranks are dead yet so we can end the train
+        if hunt['Rank'] == 'A' and hunt['ZoneName'] in self.SHB_ZONES and self._hunts[world]['horus'] is not None and new.status == new.STATUS_DIED:
+            for key, horusHunt in self._hunts[world]['horus'].items():
+                if horusHunt.rank == 'A' and horusHunt.zone in self.SHB_ZONES:
+                    if horusHunt.status != horusHunt.STATUS_DIED and horusHunt.name is not new.name:
+                        return
+
+            # All A ranks are dead, alter the train message
+            await self.on_train(world, new.name, None, True, new.instance)
 
     async def on_train(self, world: str, name: str, xivhunt: dict, complete: bool, instance=1):
         """

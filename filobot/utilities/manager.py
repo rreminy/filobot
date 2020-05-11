@@ -534,7 +534,7 @@ class HuntManager:
                     self._log.info("Shadowbringers A rank - checking for train...")
                     for key, horusHunt in self._hunts[world]['horus'].items():
                         if horusHunt.rank == 'A' and horusHunt.zone in self.SHB_ZONES:
-                            if horusHunt.status == horusHunt.STATUS_DIED and int(time.time()) - int(horusHunt.last_death) <= 120:
+                            if horusHunt.status == horusHunt.STATUS_DIED and int(time.time()) - (int(horusHunt.last_death) / 1000) <= 120:
                                 self._log.info("Train detected")
                                 await self.on_train(world, name, xivhunt, False, instance)
                                 self._log.info("On train call successful")

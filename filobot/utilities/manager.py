@@ -513,12 +513,6 @@ class HuntManager:
             self._hunts[world] = {'horus': {}, 'xivhunt': []}
 
         _key = f"{name.strip().lower()}_{instance}"
-        if _key in self._hunts[world]['xivhunt']:
-            if xivhunt['rank'] == "F":
-                await self.on_progress(world, name, xivhunt, instance)
-            else:
-                self._log.debug(f"{name} on instance {instance} already logged")
-            return
 
         if name.lower() in self._marks_info.keys():
             hunt = self._marks_info[name.lower()]
@@ -546,11 +540,20 @@ class HuntManager:
                                 await self.on_train(world, name, xivhunt, False, instance)
                                 self._log.info("On train call successful")
                                 break
+
+                if _key in self._hunts[world]['xivhunt']:
+                    self._log.debug(f"{name} on instance {instance} already logged")
+                    return
             else:
                 self._log.debug(f"""Ignoring notifications for {hunt['Rank']} rank hunts""")
                 return
 
         elif name.lower() in self._fates_info.keys():
+            if _key in self._hunts[world]['xivhunt']:
+                self._log.debug(f"FATE {name} on instance {instance} already logged, updating progress.")
+                await self.on_progress(world, name, xivhunt, instance)
+                return
+
             hunt = self._fates_info[name.lower()]
             self._log.info(f"A FATE has been found on world {world} (Instance {instance}) :: {name}")
 

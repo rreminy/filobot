@@ -525,8 +525,7 @@ class HuntManager:
 
             if hunt['Rank'] in ('A', 'S'):
 
-                key = f"{name.lower().strip()}_{instance}"
-                if key in self._hunts[world]['horus'].keys() and int(time.time()) - (int(self._hunts[world]['horus'][key].last_death) / 1000) <= 300:
+                if _key in self._hunts[world]['horus'].keys() and int(time.time()) - (int(self._hunts[world]['horus'][_key].last_death) / 1000) <= 300:
                     self._log.info(f"A hunt was found that just died! Laggy computer? World: {world} (Instance {instance}) :: {name}, Rank {xivhunt['rank']}")
                     return  # Trying to report a hunt that already died in the last 5 minutes. Someone's laggy computer?
 

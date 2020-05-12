@@ -496,13 +496,14 @@ class HuntManager:
                     except discord.NotFound:
                         self._log.warning(f"Train announcement was deleted for {world}.")
             else:
-                # Sending a new message
-                message = await self._send_sub_message(content, None, sub)
+                if not complete or self.COND_DEAD == sub.event:
+                    # Sending a new message
+                    message = await self._send_sub_message(content, None, sub)
 
-                if not message:
-                    continue
+                    if not message:
+                        continue
 
-                await self.log_notification(message, sub.channel_id, world, self.SUB_TRAINS, instance)
+                    await self.log_notification(message, sub.channel_id, world, self.SUB_TRAINS, instance)
 
     async def on_find(self, world: str, name: str, xivhunt: dict, instance=1):
         """

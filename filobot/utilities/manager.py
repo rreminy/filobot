@@ -447,13 +447,26 @@ class HuntManager:
 
         # Check if all A ranks are dead yet so we can end the train
         if hunt['Rank'] == 'A' and hunt['ZoneName'] in self.SHB_ZONES and self._hunts[world]['horus'] is not None and new.status == new.STATUS_DIED:
-            for key, horusHunt in self._hunts[world]['horus'].items():
-                if horusHunt.rank == 'A' and horusHunt.zone in self.SHB_ZONES:
-                    if horusHunt.status != horusHunt.STATUS_DIED and horusHunt.name is not new.name:
-                        return
+            hunts_living, previous_death = False, 0
 
-            # All A ranks are dead, alter the train message
-            await self.on_train(world, new.name, None, True, new.instance)
+            for key, horusHunt in self._hunts[world]['horus'].items():
+                if horusHunt.rank == 'A' and horusHunt.zone in self.SHB_ZONES and horusHunt.name is not new.name:
+                    if horusHunt.status != horusHunt.STATUS_DIED:
+                        hunts_living = True
+                    if horusHunt.status == horusHunt.STATUS_DIED and int(horusHunt.last_death) / 1000 > previous_death:
+                        previous_death = int(horusHunt.last_death) / 1000
+
+            if not hunts_living:
+                # All A ranks are dead, alter the train message
+                await self.on_train(world, new.name, None, True, new.instance)
+                return
+
+            if previous_death:
+                time_between = (int(new.last_death) / 1000) - previous_death
+                
+                if time_between > 40 and time_between < 180:  # More than 40 seconds, less than 3 minutes between deaths?
+                    await self.on_train(world, new.name, None, False, new.instance)  # It's a train then
+
 
     async def on_train(self, world: str, name: str, xivhunt: dict, complete: bool, instance=1):
         """
@@ -475,7 +488,14 @@ class HuntManager:
             role_mention = meta['notifier'] if 'notifier' in meta else None
 
             if not complete:
-                content = f"""[{world}] {hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol}"""
+                if xivhunt is not None:
+                    content = f"""[{world}] {hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol}"""
+                else:
+                    if self.COND_DEAD == sub.event:  # Announce train updates using only death reports!
+                        content = f"""[{world}] {hunt['ZoneName']} {instancesymbol}"""
+                    else:
+                        return
+
                 if role_mention:
                     content = f"""{role_mention} {content}"""
             else:

@@ -456,7 +456,7 @@ class HuntManager:
                     if horusHunt.status == horusHunt.STATUS_DIED and int(horusHunt.last_death) / 1000 > previous_death:
                         previous_death = int(horusHunt.last_death) / 1000
 
-            if not hunts_living:
+            if not hunts_living and int(time.time()) - (int(new.last_death) / 1000) < 60:  # If last death report is retroactive, don't send a random "Complete" message
                 # All A ranks are dead, alter the train message
                 await self.on_train(world, new.name, None, True, new.instance)
                 return
@@ -464,7 +464,7 @@ class HuntManager:
             if previous_death:
                 time_between = (int(new.last_death) / 1000) - previous_death
                 
-                if time_between > 40 and time_between < 180:  # More than 40 seconds, less than 3 minutes between deaths?
+                if time_between > 40 and time_between < 240:  # More than 40 seconds, less than 4 minutes between deaths?
                     await self.on_train(world, new.name, None, False, new.instance)  # It's a train then
 
 

@@ -88,6 +88,10 @@ class Hunts(commands.Cog):
             role = role.strip("`")
             role = get(guild.roles, name=role)
 
+            if not role:
+                await ctx.send("Role does not exist.")
+                return
+
         if attachname is not None:
             found = False
             attachname = attachname.strip().lower()
@@ -119,6 +123,7 @@ class Hunts(commands.Cog):
         """
         Adds a role to mention when something is found in this channel
         """
+
         if not role:
             await self.hunt_manager.remove_notifier(ctx.channel.id)
             await ctx.send("Channel notifiers cleared.")
@@ -127,6 +132,10 @@ class Hunts(commands.Cog):
         if type(role) is str:
             role = role.strip("`")
             role = get(guild.roles, name=role)
+
+            if not role:
+                await ctx.send("Role does not exist.")
+                return
 
         if attachname is not None:
             found = False

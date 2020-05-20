@@ -341,7 +341,9 @@ class HuntManager:
                     # Get the original content
                     content = notification.content
 
-                    if int(xivhunt['status']) == 100 and self.COND_DEAD == sub.event:
+                    time_left = xivhunt['last_seen']
+
+                    if (int(xivhunt['status']) == 100 or not time_left) and self.COND_DEAD == sub.event:
                         killed  = int(time.time())
                         seconds = killed - log.found
 
@@ -362,8 +364,12 @@ class HuntManager:
                         beg = content.find(f"[{world}]")
                         content = content[beg:]
 
-                        # Add dead timing to message
-                        content = f"~~{content}~~ **Killed** *(after {', '.join(kill_time)})*"
+                        if time_left:
+                            # Add dead timing to message
+                            content = f"~~{content}~~ **Killed** *(after {', '.join(kill_time)})*"
+                        else:
+                            # Add expired message
+                            content = f"~~{content}~~ **Expired** *(after {', '.join(kill_time)})*"
 
                         _key = f"{name.strip().lower()}_{instance}"
                         if _key in self._hunts[world]['xivhunt']:
@@ -373,6 +379,9 @@ class HuntManager:
                     embed = notification.embeds[0]
                     embed.description = embed.description[embed.description.find("%") + 1:]
                     embed.description = f"{xivhunt['status']}%{embed.description}"
+
+                    if time_left > 0:
+                        embed.set_footer(text=f"""{(time_left / 60):02d}:{(time_left % 60):02d} remaining"""
 
                     # Edit the message
                     await notification.edit(content=content, embed=embed)
@@ -617,6 +626,11 @@ class HuntManager:
 
             if name.lower() in self._fates_info.keys(): # Displaying FATEs a little differently to absorb the information efficiently
                 embed.description = f"""{xivhunt['status']}% {hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol}"""
+
+                time_left = xivhunt['last_seen']
+
+                if time_left > 0:
+                    embed.set_footer(text=f"""{(time_left / 60):02d}:{(time_left % 60):02d} remaining"""
 
             if role_mention:
                 content = f"""{role_mention} {content}"""

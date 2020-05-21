@@ -25,6 +25,15 @@ async def update_hunts():
             log.exception('Exception thrown while reloading hunts')
         await asyncio.sleep(7.0)
 
+async def update_fates():
+    await bot.wait_until_ready()
+
+    while not bot.is_closed():
+        try:
+            await hunt_manager.check_fates()
+        except Exception:
+            log.exception('Exception thrown while checking fates')
+        await asyncio.sleep(60.0)
 
 # noinspection PyBroadException
 async def update_game():

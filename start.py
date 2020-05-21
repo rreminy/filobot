@@ -1,6 +1,6 @@
 import asyncio
 from filobot.filobot import config, bot
-from filobot.tasks import update_game, update_hunts, update_worlds, start_server, discord_listener, track_stats
+from filobot.tasks import update_game, update_hunts, update_fates, update_worlds, start_server, discord_listener, track_stats
 import filobot.utilities.worlds as worlds
 
 # Initialize datacenters and worlds data
@@ -8,6 +8,7 @@ asyncio.run(worlds.init())
 
 # Add bot tasks
 bot.loop.create_task(update_hunts())
+bot.loop.create_task(update_fates())
 bot.loop.create_task(update_game())
 bot.loop.create_task(track_stats())
 bot.loop.create_task(update_worlds())

@@ -130,6 +130,21 @@ class HuntManager:
 
         self._recheck_cbs.append(callback)
 
+    async def check_fates(self):
+        for channel in self._notifications:
+            for world in self._notifications[channel]:
+                for key in self._notifications[channel][world]:
+                    name = key.rsplit("_")[0]
+
+                    if self._notifications[channel][world][key] and name in self._fates_info.keys():
+                        message, log = self._notifications[channel][world][key]
+                        embed = message.embeds[0]
+                        secondsLeft = (embed.footer.text.rsplit(":")[0] if embed and not isinstance(embed.footer, discord.Embed.Empty) else 30) * 60
+
+                        if time.timestamp() <= (int(message.created_at.timestamp()) + secondLeft):
+                            #  Strikethrough the fate!
+                            on_progress(world, self._fates_info[name]['Name'], None, int(key.rsplit("_")[1]))
+
     async def set_notifier(self, channel: int, role: discord.Role, attachname: str) -> None:
         """
         Set channel notifier
@@ -341,7 +356,7 @@ class HuntManager:
                     # Get the original content
                     content = notification.content
 
-                    time_left = xivhunt['last_seen']
+                    time_left = xivhunt['last_seen'] if xivhunt else 0
 
                     if (int(xivhunt['status']) == 100 or not time_left) and self.COND_DEAD == sub.event:
                         killed  = int(time.time())
@@ -375,17 +390,21 @@ class HuntManager:
                         if _key in self._hunts[world]['xivhunt']:
                             self._hunts[world]['xivhunt'].remove(_key)
 
+                        del self._notifications[sub.channel_id][world][_key]
+
                     # Set embed description
                     embed = notification.embeds[0]
-                    embed.description = embed.description[embed.description.find("%") + 1:]
-                    embed.description = f"{xivhunt['status']}%{embed.description}"
 
-                    if time_left > 0:
+                    if xivhunt:
+                        embed.description = embed.description[embed.description.find("%") + 1:]
+                        embed.description = f"{xivhunt['status']}%{embed.description}"
+
+                    if time_left >= 0:
                         embed.set_footer(text=f"""{(time_left / 60):02d}:{(time_left % 60):02d} remaining"""
 
                     # Edit the message
                     await notification.edit(content=content, embed=embed)
-                    await self.log_notification(notification, sub.channel_id, world, fate['Channel'], instance)
+                    #  await self.log_notification(notification, sub.channel_id, world, fate['Channel'], instance) #  I think this isn't needed and it'll break another thing
             except discord.NotFound:
                 self._log.warning(f"Notification message for FATE {name} on world {world} has been deleted")
 
@@ -624,7 +643,7 @@ class HuntManager:
             content = f"""[{world}] {hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol}"""
             embed.description = content
 
-            if name.lower() in self._fates_info.keys(): # Displaying FATEs a little differently to absorb the information efficiently
+            if name.lower() in self._fates_info.keys(): #  Displaying FATEs a little differently to absorb the information efficiently
                 embed.description = f"""{xivhunt['status']}% {hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol}"""
 
                 time_left = xivhunt['last_seen']

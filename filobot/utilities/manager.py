@@ -630,7 +630,7 @@ class HuntManager:
                         for n_channel in self._notifications:
                             if world in self._notifications[n_channel]:
                                 if _key in self._notifications[n_channel][world]:
-                                    del self._notifications[n_channel][world][key]
+                                    del self._notifications[n_channel][world][_key]
             else:
                 self._log.debug(f"""Ignoring notifications for {hunt['Rank']} rank hunts""")
                 return

@@ -109,7 +109,7 @@ async def _process_fate(source, data):
         last_seen = time.mktime(time.strptime(lastreported, '%Y-%m-%d %H:%M:%S'))
         startTimeEpoch = data['startTimeEpoch'] if 'startTimeEpoch' in data else 0
         duration = data['duration'] if 'duration' in data else 0
-        time_left = (duration - (last_seen - int(startTimeEpoch))) if duration else -1
+        time_left = (int(duration) - (last_seen - int(startTimeEpoch))) if duration else -1
         xivhunt = { # Using this struct because the alternative is compatibility issues and endless copy & paste
             'rank': "F",
             'i': i, # data['i'], Seeing as this isn't functional anywhere at the moment

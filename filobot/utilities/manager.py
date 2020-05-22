@@ -604,26 +604,29 @@ class HuntManager:
                                 self._log.info("On train call successful")
                                 break
 
+                #  Checks if another hunt from the same world and expansion has been reported since this one.
+                #  If so, report as a new discord message instead of editing.
+                #  Fixes the issue of someone scouting hunts in advance and then them not being re-reported when the actual train happens
                 if _key in self._hunts[world]['xivhunt']:
                     lastNotificationTime = 0
                     lastNotificationName = name
 
                     for n_channel in self._notifications:
-                        if world in self._notifications:
+                        if world in self._notifications:  # Same world?
                             for n_key in self._notifications[n_channel][world]:
                                 n_name = n_key.rsplit("_")[0]
 
-                                if self.getExpansion(self._marks_info[n_name]) == self.getExpansion(hunt):
+                                if self.getExpansion(self._marks_info[n_name]) == self.getExpansion(hunt):  # Same expansion?
                                     if self._notifications[n_channel][world][n_key]:
                                         message, log = self._notifications[n_channel][world][n_key]
                                         if int(message.created_at.timestamp()) > lastNotificationTime:
                                             lastNotificationTime = int(message.created_at.timestamp())
                                             lastNotificationName = n_name
 
-                    if lastNotificationName == name and (int(time.time()) - lastNotificationTime) < 3600: #  60 minutes
+                    if lastNotificationName == name and (int(time.time()) - lastNotificationTime) < 3600:  # If there's been no new reports since, re-report only after 60 minutes
                         self._log.debug(f"{name} on instance {instance} already logged")
                         return
-                    else: #  Delete the notification from memory so it sends a new one instead of editing it
+                    else:  # Delete the notification from memory so it sends a new one instead of editing it
                         for n_channel in self._notifications:
                             if world in self._notifications[n_channel]:
                                 if _key in self.notifications[n_channel][world]

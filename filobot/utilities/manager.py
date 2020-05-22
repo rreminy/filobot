@@ -81,6 +81,18 @@ class HuntManager:
         _key = f"{hunt_name.lower().strip()}_{instance}"
         return self._hunts[world]['horus'][_key]
 
+    def getExpansion(self, name: dict) -> str:
+        zone_id = int(name['ZoneID'])
+
+        if zone_id < 211:
+            return "arr"
+        elif zone_id < 354:
+            return "hw"
+        elif zone_id < 494:
+            return "sb"
+        else:
+            return "shb"
+
     async def recheck(self):
         """
         Check and update hunt data from XIVHunt and Horus
@@ -590,8 +602,29 @@ class HuntManager:
                                 break
 
                 if _key in self._hunts[world]['xivhunt']:
-                    self._log.debug(f"{name} on instance {instance} already logged")
-                    return
+                    lastNotificationTime = 0
+                    lastNotificationName = name
+
+                    for n_channel in self._notifications:
+                        if world in self._notifications:
+                            for n_key in self._notifications[n_channel][world]:
+                                n_name = n_key.rsplit("_")[0]
+
+                                if self.getExpansion(self._marks_info[n_name]) == self.getExpansion(hunt):
+                                    if self._notifications[n_channel][world][n_key]:
+                                        message, log = self._notifications[n_channel][world][n_key]
+                                        if int(message.created_at.timestamp()) > lastNotificationTime:
+                                            lastNotificationTime = int(message.created_at.timestamp())
+                                            lastNotificationName = n_name
+
+                    if lastNotificationName == name and (int(time.time()) - lastNotificationTime) < 3600: #  60 minutes
+                        self._log.debug(f"{name} on instance {instance} already logged")
+                        return
+                    else: #  Delete the notification from memory so it sends a new one instead of editing it
+                        for n_channel in self._notifications:
+                            if world in self._notifications[n_channel]:
+                                if _key in self.notifications[n_channel][world]
+                                    del self._notifications[channel][world][key]
             else:
                 self._log.debug(f"""Ignoring notifications for {hunt['Rank']} rank hunts""")
                 return

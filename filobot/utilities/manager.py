@@ -151,7 +151,7 @@ class HuntManager:
                     if self._notifications[channel][world][key] and name in self._fates_info.keys():
                         message, log = self._notifications[channel][world][key]
                         embed = message.embeds[0]
-                        secondsLeft = (embed.footer.text.rsplit(":")[0] if embed and not isinstance(embed.footer, discord.Embed.Empty) else 30) * 60
+                        secondsLeft = (embed.footer.text.rsplit(":")[0] if embed and embed.footer != discord.Embed.Empty else 30) * 60
 
                         if time.time() <= (int(message.created_at.timestamp()) + secondLeft):
                             #  Strikethrough the fate!

@@ -1,6 +1,7 @@
 import asyncio
 import random
 import datetime
+import time
 
 import discord
 from aiohttp import web
@@ -74,12 +75,12 @@ async def _process_hunt(source, data):
         x, y    = round((float(data[config.get(source, 'x')]) * 0.02 + _plus)*10)/10, round((float(data[config.get(source, 'y')]) * 0.02 + _plus)*10)/10
         i = data[config.get(source, 'i')] if config.get(source, 'i') in data else 0
         lastreported = data[config.get(source, 'lastReported')]
-        last_seen = datetime.datetime.fromtimestamp(int(lastreported)) if lastreported.isnumeric() else lastreported
+        last_seen = time.mktime(time.strptime(lastreported, '%Y-%m-%d %H:%M:%S'))
         xivhunt = {
             'rank': hunt['Rank'],
             'i': i, # data['i'], Seeing as this isn't functional anywhere at the moment
             'status': 'seen' if alive else 'dead',
-            'last_seen': int(last_seen.timestamp()),
+            'last_seen': last_seen,
             'coords': f"{x}, {y}",
             'world': world,
         }
@@ -105,15 +106,15 @@ async def _process_fate(source, data):
         x, y    = round((float(data[config.get(source, 'x')]) * 0.02 + _plus)*10)/10, round((float(data[config.get(source, 'y')]) * 0.02 + _plus)*10)/10
         i = data[config.get(source, 'i')] if config.get(source, 'i') in data else 0
         lastreported = data[config.get(source, 'lastReported')]
-        last_seen = datetime.datetime.fromtimestamp(int(lastreported)) if lastreported.isnumeric() else lastreported
+        last_seen = time.mktime(time.strptime(lastreported, '%Y-%m-%d %H:%M:%S'))
         startTimeEpoch = data['startTimeEpoch'] if 'startTimeEpoch' in data else 0
         duration = data['duration'] if 'duration' in data else 0
-        time_left = (duration - (int(last_seen.timestamp()) - startTimeEpoch)) if duration else -1
+        time_left = (duration - (last_seen - int(startTimeEpoch))) if duration else -1
         xivhunt = { # Using this struct because the alternative is compatibility issues and endless copy & paste
             'rank': "F",
             'i': i, # data['i'], Seeing as this isn't functional anywhere at the moment
             'status': data[config.get(source, 'progress')],
-            'last_seen': time_left,
+            'last_seen': time_left, # hack by osc, reusing / repurposing the variable because its not being used anywhere else
             'coords': f"{x}, {y}",
             'world': world,
         }

@@ -412,7 +412,7 @@ class HuntManager:
                         embed.description = f"{xivhunt['status']}%{embed.description}"
 
                     if time_left >= 0:
-                        embed.set_footer(text=f"""{(time_left / 60):02d}:{(time_left % 60):02d} remaining"""
+                        embed.set_footer(text=f"""{(time_left / 60):02d}:{(time_left % 60):02d} remaining""")
 
                     # Edit the message
                     await notification.edit(content=content, embed=embed)
@@ -503,7 +503,7 @@ class HuntManager:
 
             if previous_death:
                 time_between = (int(new.last_death) / 1000) - previous_death
-                
+
                 if time_between > 40 and time_between < 240:  # More than 40 seconds, less than 4 minutes between deaths?
                     await self.on_train(world, new.name, None, False, new.instance)  # It's a train then
 
@@ -629,7 +629,7 @@ class HuntManager:
                     else:  # Delete the notification from memory so it sends a new one instead of editing it
                         for n_channel in self._notifications:
                             if world in self._notifications[n_channel]:
-                                if _key in self.notifications[n_channel][world]
+                                if _key in self._notifications[n_channel][world]:
                                     del self._notifications[channel][world][key]
             else:
                 self._log.debug(f"""Ignoring notifications for {hunt['Rank']} rank hunts""")
@@ -688,7 +688,7 @@ class HuntManager:
                 time_left = xivhunt['last_seen']
 
                 if time_left > 0:
-                    embed.set_footer(text=f"""{(time_left / 60):02d}:{(time_left % 60):02d} remaining"""
+                    embed.set_footer(text=f"""{(time_left / 60):02d}:{(time_left % 60):02d} remaining""")
 
             if role_mention:
                 content = f"""{role_mention} {content}"""

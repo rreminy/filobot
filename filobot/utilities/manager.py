@@ -490,7 +490,7 @@ class HuntManager:
             hunts_living, previous_death = False, 0
 
             for key, horusHunt in self._hunts[world]['horus'].items():
-                if horusHunt.rank == 'A' and horusHunt.zone in self.SHB_ZONES and horusHunt.name is not new.name:
+                if horusHunt.rank == 'A' and horusHunt.zone in self.SHB_ZONES and horusHunt.name != new.name:
                     if horusHunt.status != horusHunt.STATUS_DIED:
                         hunts_living = True
                     if horusHunt.status == horusHunt.STATUS_DIED and int(horusHunt.last_death) / 1000 > previous_death:

@@ -153,9 +153,9 @@ class HuntManager:
                         embed = message.embeds[0]
                         secondsLeft = (embed.footer.text.rsplit(":")[0] if embed and not isinstance(embed.footer, discord.Embed.Empty) else 30) * 60
 
-                        if time.timestamp() <= (int(message.created_at.timestamp()) + secondLeft):
+                        if time.time() <= (int(message.created_at.timestamp()) + secondLeft):
                             #  Strikethrough the fate!
-                            on_progress(world, self._fates_info[name]['Name'], None, int(key.rsplit("_")[1]))
+                            self.on_progress(world, self._fates_info[name]['Name'], None, int(key.rsplit("_")[1]))
 
     async def set_notifier(self, channel: int, role: discord.Role, attachname: str) -> None:
         """

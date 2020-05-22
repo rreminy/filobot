@@ -548,22 +548,25 @@ class HuntManager:
                 notification, log = notification
                 lasttrainannouncement = int(notification.created_at.timestamp())
 
-                if notification.content != content and int(time.time()) - lasttrainannouncement < 7200: # Last train announcement less than 2 hours ago? Edit it
-                    try:
-                        await notification.edit(content=content) # Edit the message
-                        await self.log_notification(notification, sub.channel_id, world, self.SUB_TRAINS, instance)
-                        return
-                    except discord.NotFound:
-                        self._log.warning(f"Train announcement was deleted for {world}.")
-            else:
-                if not complete or self.COND_DEAD == sub.event:
-                    # Sending a new message
-                    message = await self._send_sub_message(content, None, sub)
+                if int(time.time()) - lasttrainannouncement < 7200: #  Last train announcement less than 2 hours ago? Edit it
+                    if notification.content != content:
+                        try:
+                            await notification.edit(content=content) #  Edit the message
+                            await self.log_notification(notification, sub.channel_id, world, self.SUB_TRAINS, instance)
+                            return
+                        except discord.NotFound:
+                            self._log.warning(f"Train announcement was deleted for {world}.")
+                else:
+                    del self._notifications[sub.channel_id][world][self.SUB_TRAINS]
 
-                    if not message:
-                        continue
+            if not complete or self.COND_DEAD == sub.event:
+                # Sending a new message
+                message = await self._send_sub_message(content, None, sub)
 
-                    await self.log_notification(message, sub.channel_id, world, self.SUB_TRAINS, instance)
+                if not message:
+                    continue
+
+                await self.log_notification(message, sub.channel_id, world, self.SUB_TRAINS, instance)
 
     async def on_find(self, world: str, name: str, xivhunt: dict, instance=1):
         """

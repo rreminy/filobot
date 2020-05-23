@@ -151,11 +151,11 @@ class HuntManager:
                     if self._notifications[channel][world][key] and name in self._fates_info.keys():
                         message, log = self._notifications[channel][world][key]
                         embed = message.embeds[0]
-                        secondsLeft = (embed.footer.text.rsplit(":")[0] if embed and embed.footer != discord.Embed.Empty else 30) * 60
+                        secondsLeft = (embed.footer.text.rsplit(":")[0] if embed and isinstance(embed.footer.text, str) else 30) * 60
 
-                        if time.time() <= (int(message.created_at.timestamp()) + secondLeft):
+                        if time.time() >= (int(message.created_at.timestamp()) + secondsLeft):
                             #  Strikethrough the fate!
-                            self.on_progress(world, self._fates_info[name]['Name'], None, int(key.rsplit("_")[1]))
+                            await self.on_progress(world, self._fates_info[name]['Name'], None, int(key.rsplit("_")[1]))
 
     async def set_notifier(self, channel: int, role: discord.Role, attachname: str) -> None:
         """

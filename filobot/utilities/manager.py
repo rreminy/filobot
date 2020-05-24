@@ -4,6 +4,7 @@ import os
 import sys
 import typing
 import time
+import datetime
 
 import arrow
 import discord
@@ -153,7 +154,7 @@ class HuntManager:
                         embed = message.embeds[0]
                         secondsLeft = (embed.footer.text.rsplit(":")[0] if embed and isinstance(embed.footer.text, str) else 30) * 60
 
-                        if time.time() >= (int(message.created_at.timestamp()) + secondsLeft):
+                        if time.time() >= (int(message.created_at.replace(tzinfo=datetime.timezone.utc).timestamp()) + secondsLeft):
                             #  Strikethrough the fate!
                             await self.on_progress(world, self._fates_info[name]['Name'], None, int(key.rsplit("_")[1]))
 

@@ -63,7 +63,6 @@ async def on_guild_join(guild: discord.Guild):
         await guild.owner.send(f"The server **{guild.name}** bas been blacklisted from accessing Filo. For more information, please contact Totomo Omo on Mateus")
         await guild.leave()
 
-
 @bot.event
 async def on_command_error(ctx: commands.context.Context, error: Exception):
     # if command has local error handler, return

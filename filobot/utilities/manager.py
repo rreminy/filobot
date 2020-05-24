@@ -371,7 +371,7 @@ class HuntManager:
 
                     time_left = xivhunt['last_seen'] if xivhunt else 0
 
-                    if (int(xivhunt['status']) == 100 or not time_left) and self.COND_DEAD == sub.event:
+                    if (not time_left or int(xivhunt['status']) == 100) and self.COND_DEAD == sub.event:
                         killed  = int(time.time())
                         seconds = killed - log.found
 

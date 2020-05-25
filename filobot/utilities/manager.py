@@ -435,11 +435,11 @@ class HuntManager:
         for sub in subs:  # type: Subscriptions
             if new.status == new.STATUS_OPENED and self.COND_OPEN == sub.event:
                 await self._send_sub_message(f"A hunt has opened on **{world}** (**Instance {new.instance}**)!", embed, sub)
-                break
+                continue
 
             if new.status == new.STATUS_MAXED and self.COND_OPEN == sub.event:
                 await self._send_sub_message(f"A hunts maximum spawn window has been reached on **{world}** (**Instance {new.instance}**)!", embed, sub)
-                break
+                continue
 
             if new.status == new.STATUS_DIED and self.COND_DEAD == sub.event:
                 # If we previously sent a notification that the hunt was found, edit that message instead of

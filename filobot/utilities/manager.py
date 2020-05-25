@@ -535,7 +535,7 @@ class HuntManager:
                     if self.COND_DEAD == sub.event:  # Announce train updates using only death reports!
                         content = f"""[{world}] {hunt['ZoneName']} {instancesymbol}"""
                     else:
-                        return
+                        continue
 
                 if role_mention:
                     content = f"""{role_mention} {content}"""
@@ -554,7 +554,7 @@ class HuntManager:
                         try:
                             await notification.edit(content=content) #  Edit the message
                             await self.log_notification(notification, sub.channel_id, world, self.SUB_TRAINS, instance)
-                            return
+                            continue
                         except discord.NotFound:
                             self._log.warning(f"Train announcement was deleted for {world}.")
                 else:

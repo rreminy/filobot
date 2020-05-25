@@ -547,9 +547,9 @@ class HuntManager:
 
             if notification:
                 notification, log = notification
-                lasttrainannouncement = int(notification.created_at.timestamp())
+                last_train_announcement = int(notification.created_at.timestamp())
 
-                if int(time.time()) - lasttrainannouncement < 7200: #  Last train announcement less than 2 hours ago? Edit it
+                if int(time.time()) - last_train_announcement < 7200: #  Last train announcement less than 2 hours ago? Edit it
                     if notification.content != content:
                         try:
                             await notification.edit(content=content) #  Edit the message
@@ -558,7 +558,8 @@ class HuntManager:
                         except discord.NotFound:
                             self._log.warning(f"Train announcement was deleted for {world}.")
                 else:
-                    del self._notifications[sub.channel_id][world][self.SUB_TRAINS]
+                    if not complete:
+                        del self._notifications[sub.channel_id][world][self.SUB_TRAINS]
 
             if not complete or self.COND_DEAD == sub.event:
                 # Sending a new message

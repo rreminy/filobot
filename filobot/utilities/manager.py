@@ -413,7 +413,7 @@ class HuntManager:
                         embed.description = f"{xivhunt['status']}%{embed.description}"
 
                     if time_left >= 0:
-                        embed.set_footer(text=f"""{(time_left / 60):02d}:{(time_left % 60):02d} remaining""")
+                        embed.set_footer(text=f"""{int(time_left / 60):02d}:{int(time_left % 60):02d} remaining""")
 
                     # Edit the message
                     await notification.edit(content=content, embed=embed)
@@ -612,13 +612,13 @@ class HuntManager:
                 if _key in self._hunts[world]['xivhunt']:
                     lastNotificationTime = 0
                     lastNotificationName = name
-                    
+
                     if hunt['Rank'] == 'A':
                         for n_channel in self._notifications:
                             if world in self._notifications:  # Same world?
                                 for n_key in self._notifications[n_channel][world]:
                                     n_name = n_key.rsplit("_")[0]
-                                    
+
                                     if self._marks_info[n_name]['Rank'] == 'A':
                                         if self.getExpansion(self._marks_info[n_name]) == self.getExpansion(hunt):  # Same expansion?
                                             if self._notifications[n_channel][world][n_key]:

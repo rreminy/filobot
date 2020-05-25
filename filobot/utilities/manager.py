@@ -550,10 +550,10 @@ class HuntManager:
                 last_train_announcement = int(notification.created_at.timestamp())
 
                 if int(time.time()) - last_train_announcement < 7200: #  Last train announcement less than 2 hours ago? Edit it
-                    if notification.content != content:
                         try:
-                            await notification.edit(content=content) #  Edit the message
-                            await self.log_notification(notification, sub.channel_id, world, self.SUB_TRAINS, instance)
+                            if notification.content != content:
+                                await notification.edit(content=content) #  Edit the message
+                                await self.log_notification(notification, sub.channel_id, world, self.SUB_TRAINS, instance)
                             continue
                         except discord.NotFound:
                             self._log.warning(f"Train announcement was deleted for {world}.")

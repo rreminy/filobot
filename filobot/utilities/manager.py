@@ -611,18 +611,20 @@ class HuntManager:
                 if _key in self._hunts[world]['xivhunt']:
                     lastNotificationTime = 0
                     lastNotificationName = name
-
-                    for n_channel in self._notifications:
-                        if world in self._notifications:  # Same world?
-                            for n_key in self._notifications[n_channel][world]:
-                                n_name = n_key.rsplit("_")[0]
-
-                                if self.getExpansion(self._marks_info[n_name]) == self.getExpansion(hunt):  # Same expansion?
-                                    if self._notifications[n_channel][world][n_key]:
-                                        message, log = self._notifications[n_channel][world][n_key]
-                                        if int(message.created_at.timestamp()) > lastNotificationTime:
-                                            lastNotificationTime = int(message.created_at.timestamp())
-                                            lastNotificationName = n_name
+                    
+                    if hunt['Rank'] == 'A':
+                        for n_channel in self._notifications:
+                            if world in self._notifications:  # Same world?
+                                for n_key in self._notifications[n_channel][world]:
+                                    n_name = n_key.rsplit("_")[0]
+                                    
+                                    if self._marks_info[n_name]['Rank'] == 'A':
+                                        if self.getExpansion(self._marks_info[n_name]) == self.getExpansion(hunt):  # Same expansion?
+                                            if self._notifications[n_channel][world][n_key]:
+                                                message, log = self._notifications[n_channel][world][n_key]
+                                                if int(message.created_at.timestamp()) > lastNotificationTime:
+                                                    lastNotificationTime = int(message.created_at.timestamp())
+                                                    lastNotificationName = n_name
 
                     if lastNotificationName == name and (int(time.time()) - lastNotificationTime) < 3600:  # If there's been no new reports since, re-report only after 60 minutes
                         self._log.debug(f"{name} on instance {instance} already logged")

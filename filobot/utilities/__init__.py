@@ -118,7 +118,7 @@ def fate_simple_embed(fate_name: str, xivhunt: typing.Optional = None) -> discor
         if fate_name.strip().lower() == fate['Name'].lower():
             embed = discord.Embed()
 
-            if xivhunt['status'] == 'alive':
+            if xivhunt is not None and xivhunt['status'] == 'alive':
                 embed.colour = COLOR_OPEN
             else:
                 embed.colour = COLOR_DIED

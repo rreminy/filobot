@@ -547,7 +547,7 @@ class HuntManager:
 
             if notification:
                 notification, log = notification
-                last_train_announcement = int(notification.created_at.timestamp())
+                last_train_announcement = int(notification.created_at.replace(tzinfo=datetime.timezone.utc).timestamp())
 
                 if int(time.time()) - last_train_announcement < 7200: #  Last train announcement less than 2 hours ago? Edit it
                         try:
@@ -558,7 +558,7 @@ class HuntManager:
                         except discord.NotFound:
                             self._log.warning(f"Train announcement was deleted for {world}.")
                 else:
-                    if not complete:
+                    if not complete and self.SUB_TRAINS in self._notifications[sub.channel_id][world]:
                         del self._notifications[sub.channel_id][world][self.SUB_TRAINS]
 
             if not complete or self.COND_DEAD == sub.event:
@@ -623,8 +623,8 @@ class HuntManager:
                                         if self.getExpansion(self._marks_info[n_name]) == self.getExpansion(hunt):  # Same expansion?
                                             if self._notifications[n_channel][world][n_key]:
                                                 message, log = self._notifications[n_channel][world][n_key]
-                                                if int(message.created_at.timestamp()) > lastNotificationTime:
-                                                    lastNotificationTime = int(message.created_at.timestamp())
+                                                if int(message.created_at.replace(tzinfo=datetime.timezone.utc).timestamp()) > lastNotificationTime:
+                                                    lastNotificationTime = int(message.created_at.replace(tzinfo=datetime.timezone.utc).timestamp())
                                                     lastNotificationName = n_name
 
                     if lastNotificationName == name and (int(time.time()) - lastNotificationTime) < 3600:  # If there's been no new reports since, re-report only after 60 minutes

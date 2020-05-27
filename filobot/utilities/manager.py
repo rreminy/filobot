@@ -372,7 +372,7 @@ class HuntManager:
                     time_left = xivhunt['last_seen'] if xivhunt else 0
 
                     if (not time_left or int(xivhunt['status']) == 100) and self.COND_DEAD == sub.event:
-                        killed  = int(time.time())
+                        killed  = notification.edited_at.timestamp() if not time_left and notification.edited_at is not None else int(time.time())
                         seconds = killed - log.found
 
                         kill_time = []
@@ -393,11 +393,14 @@ class HuntManager:
                         content = content[beg:]
 
                         if time_left:
-                            # Add dead timing to message
-                            content = f"~~{content}~~ **Killed** *(after {', '.join(kill_time)})*"
+                            content = f"~~{content}~~ **Killed** *(after {', '.join(kill_time)})*"  # Add dead timing to message
+                        elif (xivhunt is not None and int(xivhunt['status']) > 0):
+                            if notification.edited_at is not None and (time.time() - notification.edited_at.timestamp()) > 120:
+                                content = f"~~{content}~~ **Killed** *(after {', '.join(kill_time)})*"  # Add dead timing to message
+                            else:
+                                content = f"~~{content}~~ **Expired** *(after {', '.join(kill_time)})*"  # Add expired message
                         else:
-                            # Add expired message
-                            content = f"~~{content}~~ **Expired** *(after {', '.join(kill_time)})*"
+                            content = f"~~{content}~~ **Expired** (after 30 minutes)"  # Add expired message
 
                         _key = f"{name.strip().lower()}_{instance}"
                         if _key in self._hunts[world]['xivhunt']:

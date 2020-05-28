@@ -110,6 +110,7 @@ async def _process_fate(source, data):
         startTimeEpoch = int(data['startTimeEpoch']) if 'startTimeEpoch' in data and data['startTimeEpoch'] and data['startTimeEpoch'].isnumeric() else 0
         duration = int(data['duration']) if 'duration' in data and data['duration'] and data['duration'].isnumeric() else 0
         time_left = (duration - (last_seen - startTimeEpoch)) if duration else -1
+        logger.debug(f"time_left is {time_left}")
         xivhunt = { # Using this struct because the alternative is compatibility issues and endless copy & paste
             'rank': "F",
             'i': i, # data['i'], Seeing as this isn't functional anywhere at the moment

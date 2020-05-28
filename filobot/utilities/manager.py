@@ -630,7 +630,7 @@ class HuntManager:
                                                     lastNotificationTime = int(message.created_at.replace(tzinfo=datetime.timezone.utc).timestamp())
                                                     lastNotificationName = n_name
 
-                    if lastNotificationName == name and (int(time.time()) - lastNotificationTime) < 3600):  # If there's been no new reports since, re-report only after 60 minutes
+                    if lastNotificationName == name and (int(time.time()) - lastNotificationTime) < 3600:  # If there's been no new reports since, re-report only after 60 minutes
                         self._log.debug(f"{name} on instance {instance} already logged")
                         return
                     else:  # Delete the notification from memory so it sends a new one instead of editing it

@@ -613,7 +613,7 @@ class HuntManager:
                 #  If so, report as a new discord message instead of editing.
                 #  Fixes the issue of someone scouting hunts in advance and then them not being re-reported when the actual train happens
                 if _key in self._hunts[world]['xivhunt']:
-                    lastNotificationTime = int(sorted((lambda n : ([(c if world in c and key in c[world] else None) for c in n]))(_notifications.values()), key=lambda e : e is None)[0][world][_key][0].created_at.replace(tzinfo=datetime.timezone.utc).timestamp())
+                    lastNotificationTime = int(sorted((lambda n : ([(c if world in c and _key in c[world] else None) for c in n]))(self._notifications.values()), key=lambda e : e is None)[0][world][_key][0].created_at.replace(tzinfo=datetime.timezone.utc).timestamp())
                     lastNotificationName = name
 
                     if hunt['Rank'] == 'A':

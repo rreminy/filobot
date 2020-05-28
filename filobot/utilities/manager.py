@@ -613,7 +613,7 @@ class HuntManager:
                 #  If so, report as a new discord message instead of editing.
                 #  Fixes the issue of someone scouting hunts in advance and then them not being re-reported when the actual train happens
                 if _key in self._hunts[world]['xivhunt']:
-                    lastNotificationTime = 0
+                    lastNotificationTime = int(sorted((lambda n : ([(c if world in c and key in c[world] else None) for c in n]))(_notifications.values()), key=lambda e : e is None)[0][world][_key][0].created_at.replace(tzinfo=datetime.timezone.utc).timestamp())
                     lastNotificationName = name
 
                     if hunt['Rank'] == 'A':
@@ -625,12 +625,12 @@ class HuntManager:
                                     if self._marks_info[n_name]['Rank'] == 'A':
                                         if self.getExpansion(self._marks_info[n_name]) == self.getExpansion(hunt):  # Same expansion?
                                             if self._notifications[n_channel][world][n_key]:
-                                                message, log = self._notifications[n_channel][world][n_key]
+                                                message = self._notifications[n_channel][world][n_key][0]
                                                 if int(message.created_at.replace(tzinfo=datetime.timezone.utc).timestamp()) > lastNotificationTime:
                                                     lastNotificationTime = int(message.created_at.replace(tzinfo=datetime.timezone.utc).timestamp())
                                                     lastNotificationName = n_name
 
-                    if lastNotificationName == name and (int(time.time()) - lastNotificationTime) < 3600:  # If there's been no new reports since, re-report only after 60 minutes
+                    if lastNotificationName == name and (int(time.time()) - lastNotificationTime) < 3600):  # If there's been no new reports since, re-report only after 60 minutes
                         self._log.debug(f"{name} on instance {instance} already logged")
                         return
                     else:  # Delete the notification from memory so it sends a new one instead of editing it

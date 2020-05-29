@@ -106,7 +106,7 @@ async def _process_fate(source, data):
         x, y    = round((float(data[config.get(source, 'x')]) * 0.02 + _plus)*10)/10, round((float(data[config.get(source, 'y')]) * 0.02 + _plus)*10)/10
         i = data[config.get(source, 'i')] if config.get(source, 'i') in data else 0
         lastreported = data[config.get(source, 'lastReported')]
-        last_seen = datetime.datetime.fromisoformat(lastreported).timestamp()
+        last_seen = datetime.datetime.fromisoformat(lastreported).replace(tzinfo=datetime.timezone.utc).timestamp()
         startTimeEpoch = int(data['startTimeEpoch']) if 'startTimeEpoch' in data and data['startTimeEpoch'] and data['startTimeEpoch'].isnumeric() else 0
         duration = int(data['duration']) if 'duration' in data and data['duration'] and data['duration'].isnumeric() else 0
         time_left = (duration - (last_seen - startTimeEpoch)) if duration else -1

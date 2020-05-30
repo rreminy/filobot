@@ -120,7 +120,12 @@ async def _process_fate(source, data):
             'world': world,
         }
 
-    except IndexError:
+        # A hack to get the correct zone name (each fate id is in a unique zone and position, so this should work)
+        zone = hunt_manager.get_zone(int(data["zoneID"]))
+        hunt_manager._fates_info[int(data['id'])]['ZoneName'] = zone
+
+    except IndexError as e:
+        log.exception('Exception thrown while reloading hunts') # for testing fates stuff
         return
 
     return await hunt_manager.on_find(world, fate['Name'], xivhunt, int(i) or 1)

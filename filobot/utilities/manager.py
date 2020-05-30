@@ -62,8 +62,10 @@ class HuntManager:
 
         self._marks_info = {}
         self._fates_info = {}
+        self._zones_info = {}
         self._load_marks()
         self._load_fates()
+        self._load_zones()
 
         self._hunts = {}
         self._changed = {}
@@ -767,6 +769,12 @@ class HuntManager:
         except:
             raise IndexError(f'No world with the ID {id} could be found')
 
+    def get_zone(self, id: int):
+        try:
+            return self._fates_info[id].name
+        except:
+            raise IndexError(f'No zone with the ID {id} could be found')
+
     async def _send_sub_message(self, message, embed: discord.Embed, sub: Subscriptions) -> typing.Optional[discord.Message]:
         """
         Attempt to send a subscription message
@@ -819,8 +827,15 @@ class HuntManager:
                 channel = getattr(self, f"""SUB_FATE""")
                 self._fates_info[key]['Channel'] = channel
 
+    def _load_zones(self):
+        with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'zones_info.json')) as json_file:
+            self._zones_info = json.load(json_file)
+
     def getmarksinfo(self):
         return self._marks_info
 
     def getfatesinfo(self):
         return self._fates_info
+
+    def getzonesinfo(self):
+        return self._zones_info

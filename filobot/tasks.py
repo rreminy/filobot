@@ -122,7 +122,7 @@ async def _process_fate(source, data):
 
         # A hack to get the correct zone name (each fate id is in a unique zone and position, so this should work)
         zone = hunt_manager.get_zone(data["zoneID"])
-        hunt_manager._fates_info[int(data['id'])]['ZoneName'] = zone
+        hunt_manager._fates_info[fate['Name'].lower()]['ZoneName'] = zone
 
     except IndexError as e:
         log.exception('Exception thrown while reloading hunts') # for testing fates stuff

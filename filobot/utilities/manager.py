@@ -771,7 +771,7 @@ class HuntManager:
 
     def get_zone(self, id: int):
         try:
-            return self._fates_info[id]['name']
+            return self._zones_info[id]['name']
         except:
             raise IndexError(f'No zone with the ID {id} could be found')
 

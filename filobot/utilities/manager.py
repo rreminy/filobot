@@ -152,7 +152,7 @@ class HuntManager:
                     if self._notifications[channel][world][key] and name in self._fates_info.keys():
                         message, log = self._notifications[channel][world][key]
                         embed = message.embeds[0]
-                        secondsLeft = (embed.footer.text.rsplit(":")[0] if embed and isinstance(embed.footer.text, str) else 30) * 60
+                        secondsLeft = (int(embed.footer.text.rsplit(":")[0]) if embed and isinstance(embed.footer.text, str) else 30) * 60
 
                         if time.time() >= (int(message.created_at.replace(tzinfo=datetime.timezone.utc).timestamp()) + secondsLeft):
                             #  Strikethrough the fate!
@@ -695,7 +695,7 @@ class HuntManager:
                 time_left = xivhunt['last_seen']
 
                 if time_left > 0:
-                    embed.set_footer(text=f"""{(time_left / 60):02d}:{(time_left % 60):02d} remaining""")
+                    embed.set_footer(text=f"""{int(time_left / 60):02d}:{int(time_left % 60):02d} remaining""")
 
             if role_mention:
                 content = f"""{role_mention} {content}"""

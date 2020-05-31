@@ -5,6 +5,7 @@ import sys
 import typing
 import time
 import datetime
+import asyncio
 
 import arrow
 import discord
@@ -115,11 +116,13 @@ class HuntManager:
             horus   = await self.horus.load(world)
 
             # Look for updated Horus entries
+            delete_list = list()
             for key, hunt in horus.items():  # type: str, HorusHunt
                 if key in self._hunts[world]['horus'] and hunt.status != self._hunts[world]['horus'][key].status:
                     self._log.info(f"""Hunt status for {hunt.name} on {world} (Instance {hunt.instance}) changed - {self._hunts[world]['horus'][key].status.title()} => {hunt.status.title()}""")
                     self._changed[world][key] = hunt
-                    await self.on_change(world, self._hunts[world]['horus'][key], hunt)
+                    delete_list.append(self.on_change(world, self._hunts[world]['horus'][key], hunt))
+            await asyncio.gather(*delete_list)
 
             # Check and see if hunts have been found on XIVHunt
             # for name, hunt in xivhunt.items():  # type: str, dict

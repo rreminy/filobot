@@ -116,13 +116,13 @@ class HuntManager:
             horus   = await self.horus.load(world)
 
             # Look for updated Horus entries
-            delete_list = list()
+            job_list = list()
             for key, hunt in horus.items():  # type: str, HorusHunt
                 if key in self._hunts[world]['horus'] and hunt.status != self._hunts[world]['horus'][key].status:
                     self._log.info(f"""Hunt status for {hunt.name} on {world} (Instance {hunt.instance}) changed - {self._hunts[world]['horus'][key].status.title()} => {hunt.status.title()}""")
                     self._changed[world][key] = hunt
-                    delete_list.append(self.on_change(world, self._hunts[world]['horus'][key], hunt))
-            await asyncio.gather(*delete_list)
+                    job_list.append(self.on_change(world, self._hunts[world]['horus'][key], hunt))
+            await asyncio.gather(*job_list)
 
             # Check and see if hunts have been found on XIVHunt
             # for name, hunt in xivhunt.items():  # type: str, dict
@@ -149,6 +149,7 @@ class HuntManager:
         self._recheck_cbs.append(callback)
 
     async def check_fates(self):
+        job_list = list()
         for channel in self._notifications:
             for world in self._notifications[channel]:
                 for key in self._notifications[channel][world]:
@@ -161,7 +162,8 @@ class HuntManager:
 
                         if time.time() >= (int(message.created_at.replace(tzinfo=datetime.timezone.utc).timestamp()) + secondsLeft):
                             #  Strikethrough the fate!
-                            await self.on_progress(world, self._fates_info[name]['Name'], None, int(key.rsplit("_")[1]))
+                            job_list.append(self.on_progress(world, self._fates_info[name]['Name'], None, int(key.rsplit("_")[1])))
+        await asyncio.gather(*job_list)
 
     async def set_notifier(self, channel: int, role: discord.Role, attachname: str) -> None:
         """

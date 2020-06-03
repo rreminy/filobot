@@ -157,6 +157,10 @@ class HuntManager:
 
                     if self._notifications[channel][world][key] and name in self._fates_info.keys():
                         message, log = self._notifications[channel][world][key]
+
+                        if not message.embeds[0]:
+                            continue
+
                         embed = message.embeds[0]
                         secondsLeft = (int(embed.footer.text.rsplit(":")[0]) if embed and isinstance(embed.footer.text, str) else 30) * 60
 
@@ -338,6 +342,12 @@ class HuntManager:
         """
         return list(Subscriptions.select().where(Subscriptions.channel_id == channel))
 
+    async def get_subscriptionsmetas(self, channel: int) -> typing.List[Subscriptions]:
+        """
+        Get all subscriptions for the specified channel
+        """
+        return list(SubscriptionsMeta.select().where(SubscriptionsMeta.channel_id == channel))
+
     async def clear_subscriptions(self, channel: int) -> None:
         """
         Clear all subscriptions for the specified channel
@@ -415,6 +425,9 @@ class HuntManager:
 
                         del self._notifications[sub.channel_id][world][_key]
 
+                    if not notification.author.bot:
+                        continue
+
                     # Set embed description
                     embed = notification.embeds[0]
 
@@ -474,21 +487,22 @@ class HuntManager:
                     log.save()
 
                     try:
-                        # Get the original content
-                        content = notification.content
+                        if notification.author.bot:
+                            # Get the original content
+                            content = notification.content
 
-                        # Remove the ping mention
-                        beg = content.find(f"[{new.world}]")
-                        content = content[beg:]
+                            # Remove the ping mention
+                            beg = content.find(f"[{new.world}]")
+                            content = content[beg:]
 
-                        # Set embed description
-                        embed.description = f"~~{content}~~"
+                            # Set embed description
+                            embed.description = f"~~{content}~~"
 
-                        # Add dead timing to message
-                        content = f"~~{content}~~ **Killed** *(after {', '.join(kill_time)})*"
+                            # Add dead timing to message
+                            content = f"~~{content}~~ **Killed** *(after {', '.join(kill_time)})*"
 
-                        # Edit the message
-                        await notification.edit(content=content, embed=embed)
+                            # Edit the message
+                            await notification.edit(content=content, embed=embed)
                     except discord.NotFound:
                         self._log.warning(f"Notification message for hunt {new.name} on world {world} has been deleted")
 

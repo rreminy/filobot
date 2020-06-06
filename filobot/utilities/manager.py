@@ -512,7 +512,7 @@ class HuntManager:
                 await self.on_train(world, new.name, None, True, new.instance)
                 return
 
-            if previous_death:
+            if previous_death and int(int(new.last_death) / 1000) == int(int(new.last_mark) / 1000): # Don't report a train if it's a retroactive mark
                 time_between = (int(new.last_death) / 1000) - previous_death
 
                 if time_between > 40 and time_between < 240:  # More than 40 seconds, less than 4 minutes between deaths?

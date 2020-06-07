@@ -72,6 +72,8 @@ class HuntManager:
         self._changed = {}
         self._found = {}
 
+        self._recent_fates = {}
+
         # Callbacks
         self._recheck_cbs = []
 
@@ -149,6 +151,13 @@ class HuntManager:
         self._recheck_cbs.append(callback)
 
     async def check_fates(self):
+        for world in self._recent_fates:
+            for recent_fate, expired_time in self._recent_fates:
+                time_distance = (int(time.time()) - expired_time)
+                if time_distance >= 60 and time_distance < 180:
+                    if recent_fate in self._hunts[world]['xivhunt']:
+                        self._hunts[world]['xivhunt'].remove(recent_fate)
+
         job_list = list()
         for channel in self._notifications:
             for world in self._notifications[channel]:
@@ -432,7 +441,10 @@ class HuntManager:
         if (not time_left or int(xivhunt['status']) == 100):
             _key = f"{name.strip().lower()}_{instance}"
             if _key in self._hunts[world]['xivhunt']:
-                self._hunts[world]['xivhunt'].remove(_key)
+                if world not in self._recent_fates:
+                    self._recent_fates[world] = {}
+                if _key not in self._recent_fates[world]:
+                    self._recent_fates[world][_key] = int(time.time())
 
     async def on_change(self, world: str, old: HorusHunt, new: HorusHunt):
         """

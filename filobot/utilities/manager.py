@@ -409,10 +409,6 @@ class HuntManager:
                         else:
                             content = f"~~{content}~~ **Expired** (after 30 minutes)"  # Add expired message
 
-                        _key = f"{name.strip().lower()}_{instance}"
-                        if _key in self._hunts[world]['xivhunt']:
-                            self._hunts[world]['xivhunt'].remove(_key)
-
                         del self._notifications[sub.channel_id][world][_key]
 
                     # Set embed description
@@ -430,6 +426,13 @@ class HuntManager:
                     #  await self.log_notification(notification, sub.channel_id, world, fate['Channel'], instance) #  I think this isn't needed and it'll break another thing
             except discord.NotFound:
                 self._log.warning(f"Notification message for FATE {name} on world {world} has been deleted")
+
+        time_left = xivhunt['last_seen'] if xivhunt else 0
+
+        if (not time_left or int(xivhunt['status']) == 100):
+            _key = f"{name.strip().lower()}_{instance}"
+            if _key in self._hunts[world]['xivhunt']:
+                self._hunts[world]['xivhunt'].remove(_key)
 
     async def on_change(self, world: str, old: HorusHunt, new: HorusHunt):
         """
@@ -736,8 +739,9 @@ class HuntManager:
                 continue
 
             await self.log_notification(message, sub.channel_id, world, name, instance)
-
-        self._hunts[world]['xivhunt'].append(_key)
+        
+        if subs or not (name.lower() in self._fates_info.keys()):
+            self._hunts[world]['xivhunt'].append(_key)
 
     async def log_notification(self, message: discord.Message, channel: int, world: str, hunt_name: str, instance : int = 1) -> None:
         """

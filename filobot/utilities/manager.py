@@ -72,6 +72,8 @@ class HuntManager:
         self._changed = {}
         self._found = {}
 
+        self._recent_fates = {}
+
         # Callbacks
         self._recheck_cbs = []
 
@@ -149,6 +151,13 @@ class HuntManager:
         self._recheck_cbs.append(callback)
 
     async def check_fates(self):
+        for world in self._recent_fates:
+            for recent_fate, expired_time in self._recent_fates:
+                time_distance = (int(time.time()) - expired_time)
+                if time_distance >= 60 and time_distance < 180:
+                    if recent_fate in self._hunts[world]['xivhunt']:
+                        self._hunts[world]['xivhunt'].remove(recent_fate)
+
         job_list = list()
         for channel in self._notifications:
             for world in self._notifications[channel]:
@@ -419,10 +428,6 @@ class HuntManager:
                         else:
                             content = f"~~{content}~~ **Expired** (after 30 minutes)"  # Add expired message
 
-                        _key = f"{name.strip().lower()}_{instance}"
-                        if _key in self._hunts[world]['xivhunt']:
-                            self._hunts[world]['xivhunt'].remove(_key)
-
                         del self._notifications[sub.channel_id][world][_key]
 
                     if not notification.author.bot:
@@ -443,6 +448,16 @@ class HuntManager:
                     #  await self.log_notification(notification, sub.channel_id, world, fate['Channel'], instance) #  I think this isn't needed and it'll break another thing
             except discord.NotFound:
                 self._log.warning(f"Notification message for FATE {name} on world {world} has been deleted")
+
+        time_left = xivhunt['last_seen'] if xivhunt else 0
+
+        if (not time_left or int(xivhunt['status']) == 100):
+            _key = f"{name.strip().lower()}_{instance}"
+            if _key in self._hunts[world]['xivhunt']:
+                if world not in self._recent_fates:
+                    self._recent_fates[world] = {}
+                if _key not in self._recent_fates[world]:
+                    self._recent_fates[world][_key] = int(time.time())
 
     async def on_change(self, world: str, old: HorusHunt, new: HorusHunt):
         """
@@ -526,7 +541,7 @@ class HuntManager:
                 await self.on_train(world, new.name, None, True, new.instance)
                 return
 
-            if previous_death:
+            if previous_death and int(int(new.last_death) / 1000) == int(int(new.last_mark) / 1000): # Don't report a train if it's a retroactive mark
                 time_between = (int(new.last_death) / 1000) - previous_death
 
                 if time_between > 40 and time_between < 240:  # More than 40 seconds, less than 4 minutes between deaths?
@@ -750,8 +765,9 @@ class HuntManager:
                 continue
 
             await self.log_notification(message, sub.channel_id, world, name, instance)
-
-        self._hunts[world]['xivhunt'].append(_key)
+        
+        if subs or not (name.lower() in self._fates_info.keys()):
+            self._hunts[world]['xivhunt'].append(_key)
 
     async def log_notification(self, message: discord.Message, channel: int, world: str, hunt_name: str, instance : int = 1) -> None:
         """

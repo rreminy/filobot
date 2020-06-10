@@ -2,6 +2,7 @@
   "196": {
     "ID": 196,
     "Name": "Steel Reign",
+    "NameJa": "オーディン",
     "Image": "https://horus-hunts.net/Content/Marks/original/887.jpg",
     "ZoneID": 4,
     "ZoneName": "Central Shroud",
@@ -18,6 +19,7 @@
   "197": {
     "ID": 197,
     "Name": "Steel Reign",
+    "NameJa": "オーディン",
     "Image": "https://horus-hunts.net/Content/Marks/original/887.jpg",
     "ZoneID": 4,
     "ZoneName": "Central Shroud",
@@ -34,6 +36,7 @@
   "198": {
     "ID": 198,
     "Name": "Steel Reign",
+    "NameJa": "オーディン",
     "Image": "https://horus-hunts.net/Content/Marks/original/887.jpg",
     "ZoneID": 4,
     "ZoneName": "Central Shroud",
@@ -50,6 +53,7 @@
   "199": {
     "ID": 199,
     "Name": "Steel Reign",
+    "NameJa": "オーディン",
     "Image": "https://horus-hunts.net/Content/Marks/original/887.jpg",
     "ZoneID": 4,
     "ZoneName": "Central Shroud",
@@ -66,6 +70,7 @@
   "200": {
     "ID": 200,
     "Name": "Steel Reign",
+    "NameJa": "オーディン",
     "Image": "https://horus-hunts.net/Content/Marks/original/887.jpg",
     "ZoneID": 4,
     "ZoneName": "Central Shroud",
@@ -82,6 +87,7 @@
   "201": {
     "ID": 201,
     "Name": "Steel Reign",
+    "NameJa": "オーディン",
     "Image": "https://horus-hunts.net/Content/Marks/original/887.jpg",
     "ZoneID": 4,
     "ZoneName": "Central Shroud",
@@ -98,6 +104,7 @@
   "202": {
     "ID": 202,
     "Name": "Steel Reign",
+    "NameJa": "オーディン",
     "Image": "https://horus-hunts.net/Content/Marks/original/887.jpg",
     "ZoneID": 4,
     "ZoneName": "Central Shroud",
@@ -114,6 +121,7 @@
   "203": {
     "ID": 203,
     "Name": "Steel Reign",
+    "NameJa": "オーディン",
     "Image": "https://horus-hunts.net/Content/Marks/original/887.jpg",
     "ZoneID": 4,
     "ZoneName": "Central Shroud",
@@ -130,6 +138,7 @@
   "204": {
     "ID": 204,
     "Name": "Steel Reign",
+    "NameJa": "オーディン",
     "Image": "https://horus-hunts.net/Content/Marks/original/887.jpg",
     "ZoneID": 4,
     "ZoneName": "Central Shroud",
@@ -146,6 +155,7 @@
   "205": {
     "ID": 205,
     "Name": "Steel Reign",
+    "NameJa": "オーディン",
     "Image": "https://horus-hunts.net/Content/Marks/original/887.jpg",
     "ZoneID": 4,
     "ZoneName": "Central Shroud",
@@ -162,6 +172,7 @@
   "206": {
     "ID": 206,
     "Name": "Steel Reign",
+    "NameJa": "オーディン",
     "Image": "https://horus-hunts.net/Content/Marks/original/887.jpg",
     "ZoneID": 4,
     "ZoneName": "Central Shroud",
@@ -178,6 +189,7 @@
   "207": {
     "ID": 207,
     "Name": "Steel Reign",
+    "NameJa": "オーディン",
     "Image": "https://horus-hunts.net/Content/Marks/original/887.jpg",
     "ZoneID": 4,
     "ZoneName": "Central Shroud",
@@ -194,6 +206,7 @@
   "505": {
     "ID": 505,
     "Name": "Behold Now Behemoth",
+    "NameJa": "伝説の魔獣「ベヒーモス」",
     "Image": "https://horus-hunts.net/Content/Marks/original/655.jpg",
     "ZoneID": 53,
     "ZoneName": "Coerthas Central Highlands",
@@ -210,6 +223,7 @@
   "506": {
     "ID": 506,
     "Name": "He Taketh It with His Eyes",
+    "NameJa": "手負いの魔獣「ベヒーモス」",
     "Image": "https://horus-hunts.net/Content/Marks/original/655.jpg",
     "ZoneID": 53,
     "ZoneName": "Coerthas Central Highlands",
@@ -226,6 +240,7 @@
   "877": {
     "ID": 877,
     "Name": "Prey Online",
+    "NameJa": "太古の脅威：ノクチルカ撃滅戦",
     "Image": "https://horus-hunts.net/Content/Marks/hunt.jpg",
     "ZoneID": 216,
     "ZoneName": "Azys Lla",
@@ -242,6 +257,7 @@
   "878": {
     "ID": 878,
     "Name": "Prey Online",
+    "NameJa": "太古の脅威：ノクチルカ撃滅戦",
     "Image": "https://horus-hunts.net/Content/Marks/hunt.jpg",
     "ZoneID": 216,
     "ZoneName": "Azys Lla",
@@ -258,6 +274,7 @@
   "879": {
     "ID": 879,
     "Name": "Prey Online",
+    "NameJa": "太古の脅威：ノクチルカ撃滅戦",
     "Image": "https://horus-hunts.net/Content/Marks/hunt.jpg",
     "ZoneID": 216,
     "ZoneName": "Azys Lla",
@@ -274,6 +291,7 @@
   "902": {
     "ID": 902,
     "Name": "Long Live the Coeurl",
+    "NameJa": "雷獣の女王「クァールレギナ」",
     "Image": "https://horus-hunts.net/Content/Marks/hunt.jpg",
     "ZoneID": 212,
     "ZoneName": "The Dravanian Forelands",
@@ -290,6 +308,7 @@
   "903": {
     "ID": 903,
     "Name": "Coeurls Chase Boys",
+    "NameJa": "逆襲の女王「クァールレギナ」",
     "Image": "https://horus-hunts.net/Content/Marks/hunt.jpg",
     "ZoneID": 212,
     "ZoneName": "The Dravanian Forelands",
@@ -306,6 +325,7 @@
   "904": {
     "ID": 904,
     "Name": "Coeurls Chase Boys",
+    "NameJa": "逆襲の女王「クァールレギナ」",
     "Image": "https://horus-hunts.net/Content/Marks/hunt.jpg",
     "ZoneID": 212,
     "ZoneName": "The Dravanian Forelands",
@@ -322,6 +342,7 @@
   "905": {
     "ID": 905,
     "Name": "Coeurls Chase Boys Chase Coeurls",
+    "NameJa": "幻影の女王「クァールレギナ」",
     "Image": "https://horus-hunts.net/Content/Marks/hunt.jpg",
     "ZoneID": 212,
     "ZoneName": "The Dravanian Forelands",
@@ -338,6 +359,7 @@
   "906": {
     "ID": 906,
     "Name": "Coeurls Chase Boys Chase Coeurls",
+    "NameJa": "幻影の女王「クァールレギナ」",
     "Image": "https://horus-hunts.net/Content/Marks/hunt.jpg",
     "ZoneID": 212,
     "ZoneName": "The Dravanian Forelands",
@@ -354,6 +376,7 @@
   "907": {
     "ID": 907,
     "Name": "Coeurls Chase Boys Chase Coeurls",
+    "NameJa": "幻影の女王「クァールレギナ」",
     "Image": "https://horus-hunts.net/Content/Marks/hunt.jpg",
     "ZoneID": 212,
     "ZoneName": "The Dravanian Forelands",
@@ -370,6 +393,7 @@
   "1103": {
     "ID": 1103,
     "Name": "A Horse Outside",
+    "NameJa": "イクシオン",
     "Image": "https://horus-hunts.net/Content/Marks/original/6395.jpg",
     "ZoneID": 369,
     "ZoneName": "The Lochs",
@@ -386,6 +410,7 @@
   "1104": {
     "ID": 1104,
     "Name": "A Horse Outside",
+    "NameJa": "イクシオン",
     "Image": "https://horus-hunts.net/Content/Marks/original/6395.jpg",
     "ZoneID": 369,
     "ZoneName": "The Lochs",
@@ -402,6 +427,7 @@
   "1105": {
     "ID": 1105,
     "Name": "A Horse Outside",
+    "NameJa": "イクシオン",
     "Image": "https://horus-hunts.net/Content/Marks/original/6395.jpg",
     "ZoneID": 369,
     "ZoneName": "The Lochs",
@@ -418,6 +444,7 @@
   "1106": {
     "ID": 1106,
     "Name": "Foxy Lady",
+    "NameJa": "九尾の妖狐「玉藻御前」",
     "Image": "https://horus-hunts.net/Content/Marks/original/6290.jpg",
     "ZoneID": 354,
     "ZoneName": "Yanxia",
@@ -434,6 +461,7 @@
   "1107": {
     "ID": 1107,
     "Name": "Foxy Lady",
+    "NameJa": "九尾の妖狐「玉藻御前」",
     "Image": "https://horus-hunts.net/Content/Marks/original/6290.jpg",
     "ZoneID": 354,
     "ZoneName": "Yanxia",
@@ -450,6 +478,7 @@
   "1108": {
     "ID": 1108,
     "Name": "Foxy Lady",
+    "NameJa": "九尾の妖狐「玉藻御前」",
     "Image": "https://horus-hunts.net/Content/Marks/original/6290.jpg",
     "ZoneID": 354,
     "ZoneName": "Yanxia",
@@ -466,6 +495,7 @@
   "1464": {
     "ID": 1464,
     "Name": "A Finale Most Formidable",
+    "NameJa": "フォーミダブル",
     "Image": "https://horus-hunts.net/Content/Marks/hunt.jpg",
     "ZoneID": 492,
     "ZoneName": "Kholusia",
@@ -482,6 +512,7 @@
   "1431": {
     "ID": 1431,
     "Name": "Nothing Like a Trappin' Life",
+    "NameJa": "アルケオタニア：決戦の下準備",
     "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
     "ZoneID":496,
     "ZoneName":"The Tempest",
@@ -498,6 +529,7 @@
   "1432": {
     "ID": 1432,
     "Name": "The Head, the Tail, the Whole Damned Thing",
+    "NameJa": "アルケオタニア",
     "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
     "ZoneID":496,
     "ZoneName":"The Tempest",

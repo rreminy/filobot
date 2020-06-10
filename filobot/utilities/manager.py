@@ -597,7 +597,7 @@ class HuntManager:
                 if role_mention:
                     content = f"""{role_mention} {content}"""
             else:
-                content = f"""[{world}]コンプリートComplete""" if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS else f"""[{world}] Complete"""
+                content = f"""[{world}]狩ツアコンプリートComplete""" if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS else f"""[{world}] Complete"""
 
             # Attempt to edit an existing message first
             notification = await self.get_notification(sub.channel_id, world, self.SUB_TRAINS, instance, complete)

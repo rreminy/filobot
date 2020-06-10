@@ -67,8 +67,8 @@ class Misc(commands.Cog):
 
         uptime.append(f"""{int(seconds)} seconds""")
 
-        embed = discord.Embed(title="Support Filo on Ko-fi", description="A Discord FFXIV hunting bot by Totomo Omo from Mateus")
-        embed.url = 'https://ko-fi.com/totomo'
+        embed = discord.Embed(title="🐦 Support the Filo project on Github", description="A Discord FFXIV hunting bot by Totomo Omo from Mateus / Makoto#1765 on Discord")
+        embed.url = 'https://github.com/FujiMakoto/filobot'
         embed.colour = 0x2274A5
         embed.set_thumbnail(url='https://i.imgur.com/khJRCmB.jpg')
 

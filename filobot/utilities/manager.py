@@ -22,6 +22,10 @@ from filobot.utilities.worlds import Worlds
 
 class HuntManager:
 
+    JA_DATACENTERS = ('Elemental', 'Gaia', 'Mana')
+    EU_DATACENTERS = ('Light', 'Chaos')
+    NA_DATACENTERS = ('Primal', 'Aether', 'Crystal')
+
     SUB_SHB_A   = 'shadowbringers_a'
     SUB_SHB_S   = 'shadowbringers_s'
     SUB_SB_A    = 'stormblood_a'
@@ -400,15 +404,21 @@ class HuntManager:
                     if (not time_left or int(xivhunt['status']) == 100) and self.COND_DEAD == sub.event:
                         killed  = notification.edited_at.timestamp() if not time_left and notification.edited_at is not None else int(time.time())
                         seconds = killed - log.found
+                        ja_seconds = ""
+                        ja_minutes = ""
+
+                        if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS:
+                            ja_seconds, ja_minutes = "秒", "分"
 
                         kill_time = []
                         if seconds > 120:
-                            kill_time.append(f"""{int(seconds / 60)} minutes""")
+                            kill_time.append(f"""{int(seconds / 60)}{ja_minutes} minutes""")
                             seconds -= int(seconds / 60) * 60
                         elif seconds > 60:
-                            kill_time.append(f"""1 minute""")
+                            分後
+                            kill_time.append(f"""1{ja_minutes} minute""")
                             seconds -= 60
-                        kill_time.append(f"""{int(seconds)} seconds""")
+                        kill_time.append(f"""{int(seconds)}{ja_seconds} seconds""")
 
                         log.killed = killed
                         log.kill_time = seconds
@@ -424,9 +434,15 @@ class HuntManager:
                             if notification.edited_at is not None and (time.time() - notification.edited_at.timestamp()) > 120:
                                 content = f"~~{content}~~ **Killed** *(after {', '.join(kill_time)})*"  # Add dead timing to message
                             else:
-                                content = f"~~{content}~~ **Expired** *(after {', '.join(kill_time)})*"  # Add expired message
+                                if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS:
+                                    content = f"""~~{content}~~ **Expired 期限切れ** *(after {', '.join(kill_time)}後)*"""  # Add expired message
+                                else:
+                                    content = f"~~{content}~~ **Expired** *(after {', '.join(kill_time)})*"  # Add expired message
                         else:
-                            content = f"~~{content}~~ **Expired** (after 30 minutes)"  # Add expired message
+                            if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS:
+                                content = f"~~{content}~~ **Expired 期限切れ** (after 30分後 minutes)"  # Add expired message
+                            else:
+                                content = f"~~{content}~~ **Expired** (after 30 minutes)"  # Add expired message
 
                         del self._notifications[sub.channel_id][world][_key]
 
@@ -568,18 +584,20 @@ class HuntManager:
             role_mention = meta['notifier'] if 'notifier' in meta else None
 
             if not complete:
+                zone_name = f"""{hunt['ZoneName']}{self._zones_info[hunt['ZoneID']]['name_ja']}""" if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS else f"""{hunt['ZoneName']} """
+
                 if xivhunt is not None:
-                    content = f"""[{world}] {hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol}"""
+                    content = f"""[{world}] {zone_name}({xivhunt['coords']}) {instancesymbol}"""
                 else:
                     if self.COND_DEAD == sub.event:  # Announce train updates using only death reports!
-                        content = f"""[{world}] {hunt['ZoneName']} {instancesymbol}"""
+                        content = f"""[{world}] {zone_name} {instancesymbol}"""
                     else:
                         continue
 
                 if role_mention:
                     content = f"""{role_mention} {content}"""
             else:
-                content = f"""[{world}] Complete"""
+                content = f"""[{world}]コンプリートComplete""" if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS else f"""[{world}] Complete"""
 
             # Attempt to edit an existing message first
             notification = await self.get_notification(sub.channel_id, world, self.SUB_TRAINS, instance, complete)
@@ -746,16 +764,42 @@ class HuntManager:
 
             # content = f"""**{world}** {hunt['Rank']} Rank: **{hunt['Name']}** @ {hunt['ZoneName']} ({xivhunt['coords']}) i{instance}"""
             instancesymbol = "①" if instance == 1 else "②" if instance == 2 else "③" if instance == 3 else instance
+
             content = f"""[{world}] {hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol}"""
-            embed.description = content
+
+            if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS:
+                content = f"""[{world}] {hunt['ZoneName']} {self._zones_info[hunt['ZoneID']]['name_ja']} ({xivhunt['coords']}) {instancesymbol}"""
+                ja_description = f"""[{world}] {self._zones_info[hunt['ZoneID']]['name_ja']} ({xivhunt['coords']}) {instancesymbol}"""
+                embed.description = f"""{ja_description}\n{hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol}"""
+            elif Worlds.get_world_datacenter(world) in self.EU_DATACENTERS:
+                fr_description = f"""{self._zones_info[hunt['ZoneID']]['name_fr']} ({xivhunt['coords']}) {instancesymbol}"""
+                de_description = f"""{self._zones_info[hunt['ZoneID']]['name_de']} ({xivhunt['coords']}) {instancesymbol}"""
+                embed.description = f"""{content}\n{fr_description}\n{de_description}"""
+            else:
+                embed.description = content
 
             if name.lower() in self._fates_info.keys(): #  Displaying FATEs a little differently to absorb the information efficiently
-                embed.description = f"""{xivhunt['status']}% {hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol}"""
-
                 time_left = xivhunt['last_seen']
 
-                if time_left > 0:
-                    embed.set_footer(text=f"""{int(time_left / 60):02d}:{int(time_left % 60):02d} remaining""")
+                if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS:
+                    ja_description = f"""{xivhunt['status']}% {self._zones_info[hunt['ZoneID']]['name_ja']} ({xivhunt['coords']}) {instancesymbol}"""
+                    embed.description = f"""{ja_description}\n{hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol}"""
+
+                    if time_left > 0:
+                        embed.set_footer(text=f"""{int(time_left / 60):02d}:{int(time_left % 60):02d}残りremaining""")
+                elif Worlds.get_world_datacenter(world) in self.EU_DATACENTERS:
+                    en_description = f"""{xivhunt['status']}% {hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol}"""
+                    fr_description = f"""{self._zones_info[hunt['ZoneID']]['name_fr']} ({xivhunt['coords']}) {instancesymbol}"""
+                    de_description = f"""{self._zones_info[hunt['ZoneID']]['name_fr']} ({xivhunt['coords']}) {instancesymbol}"""
+                    embed.description = f"""{en_description}\n{fr_description}\n{de_description}"""
+
+                    if time_left > 0:
+                        embed.set_footer(text=f"""{int(time_left / 60):02d}:{int(time_left % 60):02d} remaining / restant""")
+                else:
+                    embed.description = f"""{xivhunt['status']}% {hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol}"""
+
+                    if time_left > 0:
+                        embed.set_footer(text=f"""{int(time_left / 60):02d}:{int(time_left % 60):02d} remaining""")
 
             if role_mention:
                 content = f"""{role_mention} {content}"""

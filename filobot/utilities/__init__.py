@@ -75,7 +75,11 @@ def hunt_simple_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: ty
     for _id, mark in marks_info.items():
         if hunt_name.strip().lower() == mark['Name'].lower():
             embed = discord.Embed()
-            embed.title = f"Rank {mark['Rank']}: {mark['Name']}"
+
+            if xivhunt is not None and xivhunt['world'] and Worlds.get_world_datacenter(xivhunt['world']) in ('Elemental', 'Gaia', 'Mana'):
+                embed.title = f"Rankランク{mark['Rank']}: {mark['Name']}"
+            else:
+                embed.title = f"Rank {mark['Rank']}: {mark['Name']}"
 
             # Default rank-based colors (overwritten if horus status is provided)
             if mark['Rank'] == 'A':
@@ -124,7 +128,11 @@ def fate_simple_embed(fate_name: str, xivhunt: typing.Optional = None) -> discor
                 embed.colour = COLOR_DIED
 
             if xivhunt is not None and xivhunt['world']:
-                embed.title = f"[{xivhunt['world']}] {fate['Name']}"
+                if Worlds.get_world_datacenter(xivhunt['world']) in ('Elemental', 'Gaia', 'Mana'):
+                    embed.title = f"[{xivhunt['world']}] {fate['NameJa']}{fate['Name']}"
+                else:
+                    embed.title = f"[{xivhunt['world']}] {fate['Name']}"
+
             else:
                 embed.title = f"{fate['Name']}"
 

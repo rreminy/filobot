@@ -85,6 +85,11 @@ async def _process_hunt(source, data):
             'world': world,
         }
 
+        # A hack to get the correct zone name
+        zone = hunt_manager.get_zone(data["zoneID"])
+        hunt_manager._marks_info[hunt['Name'].lower()]['ZoneName'] = zone
+        hunt_manager._marks_info[hunt['Name'].lower()]['ZoneID'] = int(data["zoneID"])
+
     except IndexError:
         return
 
@@ -143,18 +148,18 @@ async def discord_listener(source):
         if subs:
             #  Check worlds, but first check behemoth and odin, ixion, etc, then remove those from the list, so there's no clash
             world_name = None
-            worldList = worlds.get_worlds()
-            
+            worldList = worlds.Worlds.get_worlds().copy()
+
             # These are both fates and world names, which complicates this.
             if message.content.lower().find("behe") >= 0:
                 world_name = "Behemoth"
-            
+
             if message.content.lower().find("odin") >= 0:
                 world_name = "Odin"
 
             if message.content.lower().find("ixion") >= 0:
                 world_name = "ixion"
-            
+
             worldList.remove("Behemoth")
             worldList.remove("Odin")
             worldList.remove("Ixion")

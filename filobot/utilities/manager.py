@@ -584,7 +584,7 @@ class HuntManager:
             role_mention = meta['notifier'] if 'notifier' in meta else None
 
             if not complete:
-                zone_name = f"""{hunt['ZoneName']}{self._zones_info[hunt['ZoneID']]['name_ja']}""" if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS else f"""{hunt['ZoneName']} """
+                zone_name = f"""{hunt['ZoneName']}{self._zones_info[str(hunt['ZoneID'])]['name_ja']}""" if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS else f"""{hunt['ZoneName']} """
 
                 if xivhunt is not None:
                     content = f"""[{world}] {zone_name}({xivhunt['coords']}) {instancesymbol}"""
@@ -768,12 +768,12 @@ class HuntManager:
             content = f"""[{world}] {hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol}"""
 
             if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS:
-                content = f"""[{world}] {hunt['ZoneName']} {self._zones_info[hunt['ZoneID']]['name_ja']} ({xivhunt['coords']}) {instancesymbol}"""
-                ja_description = f"""[{world}] {self._zones_info[hunt['ZoneID']]['name_ja']} ({xivhunt['coords']}) {instancesymbol}"""
+                content = f"""[{world}] {hunt['ZoneName']} {self._zones_info[str(hunt['ZoneID'])]['name_ja']} ({xivhunt['coords']}) {instancesymbol}"""
+                ja_description = f"""[{world}] {self._zones_info[str(hunt['ZoneID'])]['name_ja']} ({xivhunt['coords']}) {instancesymbol}"""
                 embed.description = f"""{ja_description}\n{hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol}"""
             elif Worlds.get_world_datacenter(world) in self.EU_DATACENTERS:
-                fr_description = f"""{self._zones_info[hunt['ZoneID']]['name_fr']} ({xivhunt['coords']}) {instancesymbol}"""
-                de_description = f"""{self._zones_info[hunt['ZoneID']]['name_de']} ({xivhunt['coords']}) {instancesymbol}"""
+                fr_description = f"""{self._zones_info[str(hunt['ZoneID'])]['name_fr']} ({xivhunt['coords']}) {instancesymbol}"""
+                de_description = f"""{self._zones_info[str(hunt['ZoneID'])]['name_de']} ({xivhunt['coords']}) {instancesymbol}"""
                 embed.description = f"""{content}\n{fr_description}\n{de_description}"""
             else:
                 embed.description = content
@@ -782,15 +782,15 @@ class HuntManager:
                 time_left = xivhunt['last_seen']
 
                 if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS:
-                    ja_description = f"""{xivhunt['status']}% {self._zones_info[hunt['ZoneID']]['name_ja']} ({xivhunt['coords']}) {instancesymbol}"""
+                    ja_description = f"""{xivhunt['status']}% {self._zones_info[str(hunt['ZoneID'])]['name_ja']} ({xivhunt['coords']}) {instancesymbol}"""
                     embed.description = f"""{ja_description}\n{hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol}"""
 
                     if time_left > 0:
                         embed.set_footer(text=f"""{int(time_left / 60):02d}:{int(time_left % 60):02d}残りremaining""")
                 elif Worlds.get_world_datacenter(world) in self.EU_DATACENTERS:
                     en_description = f"""{xivhunt['status']}% {hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol}"""
-                    fr_description = f"""{self._zones_info[hunt['ZoneID']]['name_fr']} ({xivhunt['coords']}) {instancesymbol}"""
-                    de_description = f"""{self._zones_info[hunt['ZoneID']]['name_fr']} ({xivhunt['coords']}) {instancesymbol}"""
+                    fr_description = f"""{self._zones_info[str(hunt['ZoneID'])]['name_fr']} ({xivhunt['coords']}) {instancesymbol}"""
+                    de_description = f"""{self._zones_info[str(hunt['ZoneID'])]['name_fr']} ({xivhunt['coords']}) {instancesymbol}"""
                     embed.description = f"""{en_description}\n{fr_description}\n{de_description}"""
 
                     if time_left > 0:
@@ -809,7 +809,7 @@ class HuntManager:
                 continue
 
             await self.log_notification(message, sub.channel_id, world, name, instance)
-        
+
         if subs or not (name.lower() in self._fates_info.keys()):
             self._hunts[world]['xivhunt'].append(_key)
 

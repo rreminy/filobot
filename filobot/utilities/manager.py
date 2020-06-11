@@ -790,7 +790,7 @@ class HuntManager:
                 elif Worlds.get_world_datacenter(world) in self.EU_DATACENTERS:
                     en_description = f"""{xivhunt['status']}% {hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol}"""
                     fr_description = f"""{self._zones_info[str(hunt['ZoneID'])]['name_fr']} ({xivhunt['coords']}) {instancesymbol}"""
-                    de_description = f"""{self._zones_info[str(hunt['ZoneID'])]['name_fr']} ({xivhunt['coords']}) {instancesymbol}"""
+                    de_description = f"""{self._zones_info[str(hunt['ZoneID'])]['name_de']} ({xivhunt['coords']}) {instancesymbol}"""
                     embed.description = f"""{en_description}\n{fr_description}\n{de_description}"""
 
                     if time_left > 0:

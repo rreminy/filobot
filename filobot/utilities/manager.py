@@ -382,6 +382,9 @@ class HuntManager:
         """
         FATE progress event handler
         """
+
+        _key = f"{name.strip().lower()}_{instance}"
+        
         fate = self._fates_info[name.lower()]
         subs = Subscriptions.select().where(
                 (Subscriptions.world == world)
@@ -468,7 +471,6 @@ class HuntManager:
         time_left = xivhunt['last_seen'] if xivhunt else 0
 
         if (not time_left or int(xivhunt['status']) == 100):
-            _key = f"{name.strip().lower()}_{instance}"
             if _key in self._hunts[world]['xivhunt']:
                 if world not in self._recent_fates:
                     self._recent_fates[world] = {}

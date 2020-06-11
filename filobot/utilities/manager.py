@@ -416,7 +416,6 @@ class HuntManager:
                             kill_time.append(f"""{int(seconds / 60)}{ja_minutes} minutes""")
                             seconds -= int(seconds / 60) * 60
                         elif seconds > 60:
-                            分後
                             kill_time.append(f"""1{ja_minutes} minute""")
                             seconds -= 60
                         kill_time.append(f"""{int(seconds)}{ja_seconds} seconds""")

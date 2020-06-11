@@ -384,7 +384,7 @@ class HuntManager:
         """
 
         _key = f"{name.strip().lower()}_{instance}"
-        
+
         fate = self._fates_info[name.lower()]
         subs = Subscriptions.select().where(
                 (Subscriptions.world == world)
@@ -432,10 +432,16 @@ class HuntManager:
                         content = content[beg:]
 
                         if time_left:
-                            content = f"~~{content}~~ **Killed** *(after {', '.join(kill_time)})*"  # Add dead timing to message
+                            if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS:
+                                content = f"~~{content}~~ **Killed 殺された** *(after {', '.join(kill_time)}後)*"  # Add dead timing to message
+                            else:
+                                content = f"~~{content}~~ **Killed** *(after {', '.join(kill_time)})*"  # Add dead timing to message
                         elif (xivhunt is not None and int(xivhunt['status']) > 0):
                             if notification.edited_at is not None and (time.time() - notification.edited_at.timestamp()) > 120:
-                                content = f"~~{content}~~ **Killed** *(after {', '.join(kill_time)})*"  # Add dead timing to message
+                                if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS:
+                                    content = f"~~{content}~~ **Killed 殺された** *(after {', '.join(kill_time)}後)*"  # Add dead timing to message
+                                else:
+                                    content = f"~~{content}~~ **Killed** *(after {', '.join(kill_time)})*"  # Add dead timing to message
                             else:
                                 if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS:
                                     content = f"""~~{content}~~ **Expired 期限切れ** *(after {', '.join(kill_time)}後)*"""  # Add expired message
@@ -460,7 +466,12 @@ class HuntManager:
                         embed.description = f"{xivhunt['status']}%{embed.description}"
 
                     if time_left >= 0:
-                        embed.set_footer(text=f"""{int(time_left / 60):02d}:{int(time_left % 60):02d} remaining""")
+                        if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS:
+                            embed.set_footer(text=f"""残り{int(time_left / 60):02d}:{int(time_left % 60):02d} remaining""")
+                        elif Worlds.get_world_datacenter(world) in self.EU_DATACENTERS:
+                            embed.set_footer(text=f"""{int(time_left / 60):02d}:{int(time_left % 60):02d} remaining / restant""")
+                        else:
+                            embed.set_footer(text=f"""{int(time_left / 60):02d}:{int(time_left % 60):02d} remaining""")
 
                     # Edit the message
                     await notification.edit(content=content, embed=embed)

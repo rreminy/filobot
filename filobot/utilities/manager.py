@@ -170,12 +170,13 @@ class HuntManager:
 
                     if self._notifications[channel][world][key] and name in self._fates_info.keys():
                         message, log = self._notifications[channel][world][key]
+                        embed = message.embeds[0]
 
-                        if not message.embeds[0]:
+                        if not embed:
                             continue
 
-                        embed = message.embeds[0]
-                        secondsLeft = (int(embed.footer.text.rsplit(":")[0]) if embed and isinstance(embed.footer.text, str) else 30) * 60
+                        minutesLeft = int(embed.footer.text.rsplit(":")[0].strip("残り")) if isinstance(embed.footer.text, str) else 30
+                        secondsLeft = (minutes * 60) + (int(embed.footer.text.rsplit(":")[1].split(" ")[0]) if isinstance(embed.footer.text, str) else 0)
 
                         if time.time() >= (int(message.created_at.replace(tzinfo=datetime.timezone.utc).timestamp()) + secondsLeft):
                             #  Strikethrough the fate!
@@ -786,7 +787,7 @@ class HuntManager:
                     embed.description = f"""{ja_description}\n{hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol}"""
 
                     if time_left > 0:
-                        embed.set_footer(text=f"""{int(time_left / 60):02d}:{int(time_left % 60):02d}残りremaining""")
+                        embed.set_footer(text=f"""残り{int(time_left / 60):02d}:{int(time_left % 60):02d} remaining""")
                 elif Worlds.get_world_datacenter(world) in self.EU_DATACENTERS:
                     en_description = f"""{xivhunt['status']}% {hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol}"""
                     fr_description = f"""{self._zones_info[str(hunt['ZoneID'])]['name_fr']} ({xivhunt['coords']}) {instancesymbol}"""

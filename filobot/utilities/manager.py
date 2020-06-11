@@ -516,15 +516,20 @@ class HuntManager:
                     notification, log = notification
                     killed  = arrow.get(int(new.last_mark / 1000)).timestamp
                     seconds = killed - log.found
+                    ja_seconds = ""
+                    ja_minutes = ""
+
+                    if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS:
+                        ja_seconds, ja_minutes = "秒", "分"
 
                     kill_time = []
                     if seconds > 120:
-                        kill_time.append(f"""{int(seconds / 60)} minutes""")
+                        kill_time.append(f"""{int(seconds / 60)}{ja_minutes} minutes""")
                         seconds -= int(seconds / 60) * 60
                     elif seconds > 60:
-                        kill_time.append(f"""1 minute""")
+                        kill_time.append(f"""1{ja_minutes} minute""")
                         seconds -= 60
-                    kill_time.append(f"""{int(seconds)} seconds""")
+                    kill_time.append(f"""{int(seconds)}{ja_seconds} seconds""")
 
                     log.killed = killed
                     log.kill_time = seconds
@@ -540,7 +545,7 @@ class HuntManager:
                             content = content[beg:]
 
                             # Set embed description
-                            embed.description = f"~~{content}~~"
+                            embed = f"~~{notification.embeds[0]}~~" if notification.embeds[0] else ""
 
                             # Add dead timing to message
                             content = f"~~{content}~~ **Killed** *(after {', '.join(kill_time)})*"

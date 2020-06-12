@@ -548,7 +548,10 @@ class HuntManager:
                             embed.description = f"~~{notification.embeds[0].description}~~" if notification.embeds[0].description else ""
 
                             # Add dead timing to message
-                            content = f"~~{content}~~ **Killed** *(after {', '.join(kill_time)})*"
+                            if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS:
+                                content = f"~~{content}~~ **Killed 殺された** *(after {', '.join(kill_time)}後)*"
+                            else:
+                                content = f"~~{content}~~ **Killed** *(after {', '.join(kill_time)})*"
 
                             # Edit the message
                             await notification.edit(content=content, embed=embed)
@@ -793,9 +796,9 @@ class HuntManager:
                 ja_description = f"""[{world}] {ja_zone_name} ({xivhunt['coords']}) {instancesymbol}"""
                 embed.description = f"""{ja_description}\n{hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol}"""
             elif Worlds.get_world_datacenter(world) in self.EU_DATACENTERS:
-                fr_description = f"""{fr_zone_name} ({xivhunt['coords']}) {instancesymbol}"""
-                de_description = f"""{de_zone_name} ({xivhunt['coords']}) {instancesymbol}"""
-                embed.description = f"""{content}\n{fr_description}\n{de_description}"""
+                fr_description = f"""\n{fr_zone_name} ({xivhunt['coords']}) {instancesymbol}""" if fr_zone_name != en_zone_name and fr_zone_name != de_zone_name else ""
+                de_description = f"""\n{de_zone_name} ({xivhunt['coords']}) {instancesymbol}""" if de_zone_name != en_zone_name else ""
+                embed.description = f"""{content}{fr_description}{de_description}"""
             else:
                 embed.description = content
 

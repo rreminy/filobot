@@ -176,7 +176,7 @@ class HuntManager:
                             continue
 
                         minutesLeft = int(embed.footer.text.rsplit(":")[0].strip("残り")) if isinstance(embed.footer.text, str) else 30
-                        secondsLeft = (minutes * 60) + (int(embed.footer.text.rsplit(":")[1].split(" ")[0]) if isinstance(embed.footer.text, str) else 0)
+                        secondsLeft = (minutesLeft * 60) + (int(embed.footer.text.rsplit(":")[1].split(" ")[0]) if isinstance(embed.footer.text, str) else 0)
 
                         if time.time() >= (int(message.created_at.replace(tzinfo=datetime.timezone.utc).timestamp()) + secondsLeft):
                             #  Strikethrough the fate!
@@ -545,7 +545,7 @@ class HuntManager:
                             content = content[beg:]
 
                             # Set embed description
-                            embed = f"~~{notification.embeds[0]}~~" if notification.embeds[0] else ""
+                            embed.description = f"~~{notification.embeds[0].description}~~" if notification.embeds[0].description else ""
 
                             # Add dead timing to message
                             content = f"~~{content}~~ **Killed** *(after {', '.join(kill_time)})*"

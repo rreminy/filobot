@@ -785,13 +785,16 @@ class HuntManager:
 
             content = f"""[{world}] {hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol}"""
 
+            en_zone_name, ja_zone_name = hunt['ZoneName'], self._zones_info[str(hunt['ZoneID'])]['name_ja']
+            fr_zone_name, de_zone_name = self._zones_info[str(hunt['ZoneID'])]['name_fr'], self._zones_info[str(hunt['ZoneID'])]['name_de']
+
             if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS:
-                content = f"""[{world}] {hunt['ZoneName']} {self._zones_info[str(hunt['ZoneID'])]['name_ja']} ({xivhunt['coords']}) {instancesymbol}"""
-                ja_description = f"""[{world}] {self._zones_info[str(hunt['ZoneID'])]['name_ja']} ({xivhunt['coords']}) {instancesymbol}"""
+                content = f"""[{world}] {ja_zone_name} {hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol}"""
+                ja_description = f"""[{world}] {ja_zone_name} ({xivhunt['coords']}) {instancesymbol}"""
                 embed.description = f"""{ja_description}\n{hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol}"""
             elif Worlds.get_world_datacenter(world) in self.EU_DATACENTERS:
-                fr_description = f"""{self._zones_info[str(hunt['ZoneID'])]['name_fr']} ({xivhunt['coords']}) {instancesymbol}"""
-                de_description = f"""{self._zones_info[str(hunt['ZoneID'])]['name_de']} ({xivhunt['coords']}) {instancesymbol}"""
+                fr_description = f"""{fr_zone_name} ({xivhunt['coords']}) {instancesymbol}"""
+                de_description = f"""{de_zone_name} ({xivhunt['coords']}) {instancesymbol}"""
                 embed.description = f"""{content}\n{fr_description}\n{de_description}"""
             else:
                 embed.description = content
@@ -800,16 +803,15 @@ class HuntManager:
                 time_left = xivhunt['last_seen']
 
                 if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS:
-                    ja_description = f"""{xivhunt['status']}% {self._zones_info[str(hunt['ZoneID'])]['name_ja']} ({xivhunt['coords']}) {instancesymbol}"""
-                    embed.description = f"""{ja_description}\n{hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol}"""
+                    embed.description = f"""{xivhunt['status']}% {ja_zone_name} {en_zone_name} ({xivhunt['coords']}) {instancesymbol}"""
 
                     if time_left > 0:
                         embed.set_footer(text=f"""残り{int(time_left / 60):02d}:{int(time_left % 60):02d} remaining""")
                 elif Worlds.get_world_datacenter(world) in self.EU_DATACENTERS:
-                    en_description = f"""{xivhunt['status']}% {hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol}"""
-                    fr_description = f"""{self._zones_info[str(hunt['ZoneID'])]['name_fr']} ({xivhunt['coords']}) {instancesymbol}"""
-                    de_description = f"""{self._zones_info[str(hunt['ZoneID'])]['name_de']} ({xivhunt['coords']}) {instancesymbol}"""
-                    embed.description = f"""{en_description}\n{fr_description}\n{de_description}"""
+                    en_description = f"""{xivhunt['status']}% {en_zone_name} ({xivhunt['coords']}) {instancesymbol}"""
+                    fr_description = f"""\n{fr_zone_name} ({xivhunt['coords']}) {instancesymbol}""" if fr_zone_name != en_zone_name and fr_zone_name != de_zone_name else ""
+                    de_description = f"""\n{de_zone_name} ({xivhunt['coords']}) {instancesymbol}""" if de_zone_name != en_zone_name else ""
+                    embed.description = f"""{en_description}{fr_description}{de_description}"""
 
                     if time_left > 0:
                         embed.set_footer(text=f"""{int(time_left / 60):02d}:{int(time_left % 60):02d} remaining / restant""")

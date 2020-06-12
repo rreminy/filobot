@@ -602,7 +602,7 @@ class HuntManager:
             role_mention = meta['notifier'] if 'notifier' in meta else None
 
             if not complete:
-                zone_name = f"""{hunt['ZoneName']}{self._zones_info[str(hunt['ZoneID'])]['name_ja']}""" if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS else f"""{hunt['ZoneName']} """
+                zone_name = f"""{hunt['ZoneName']} {self._zones_info[str(hunt['ZoneID'])]['name_ja']} """ if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS else f"""{hunt['ZoneName']} """
 
                 if xivhunt is not None:
                     content = f"""[{world}] {zone_name}({xivhunt['coords']}) {instancesymbol}"""

@@ -75,7 +75,14 @@ def hunt_simple_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: ty
     for _id, mark in marks_info.items():
         if hunt_name.strip().lower() == mark['Name'].lower():
             embed = discord.Embed()
-            embed.title = f"Rank {mark['Rank']}: {mark['Name']}"
+
+            world = xivhunt['world'] if xivhunt else None
+            world = horus.world if horus else world
+
+            if world and Worlds.get_world_datacenter(world) in ('Elemental', 'Gaia', 'Mana'):
+                embed.title = f"Rankランク{mark['Rank']}: {mark['Name']}"
+            else:
+                embed.title = f"Rank {mark['Rank']}: {mark['Name']}"
 
             # Default rank-based colors (overwritten if horus status is provided)
             if mark['Rank'] == 'A':
@@ -105,9 +112,11 @@ def hunt_simple_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: ty
                     embed.colour = COLOR_MAXED
                 elif horus.status == horus.STATUS_DIED:
                     embed.colour = COLOR_DIED
-                    embed.title += " DEAD"
+                    embed.title += " デッド " if world and Worlds.get_world_datacenter(world) in ('Elemental', 'Gaia', 'Mana') else " "
+                    embed.title += "DEAD"
                 else:
                     embed.colour = COLOR_CLOSED
+                    embed.title += " デッド " if world and Worlds.get_world_datacenter(world) in ('Elemental', 'Gaia', 'Mana') else " "
                     embed.title += " DEAD"
 
             return embed
@@ -124,7 +133,11 @@ def fate_simple_embed(fate_name: str, xivhunt: typing.Optional = None) -> discor
                 embed.colour = COLOR_DIED
 
             if xivhunt is not None and xivhunt['world']:
-                embed.title = f"[{xivhunt['world']}] {fate['Name']}"
+                if Worlds.get_world_datacenter(xivhunt['world']) in ('Elemental', 'Gaia', 'Mana'):
+                    embed.title = f"[{xivhunt['world']}] {fate['NameJa']} {fate['Name']}"
+                else:
+                    embed.title = f"[{xivhunt['world']}] {fate['Name']}"
+
             else:
                 embed.title = f"{fate['Name']}"
 

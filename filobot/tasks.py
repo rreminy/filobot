@@ -85,6 +85,11 @@ async def _process_hunt(source, data):
             'world': world,
         }
 
+        # A hack to get the correct zone name
+        zone = hunt_manager.get_zone(data["zoneID"])
+        hunt_manager._marks_info[hunt['Name'].lower()]['ZoneName'] = zone
+        hunt_manager._marks_info[hunt['Name'].lower()]['ZoneID'] = int(data["zoneID"])
+
     except IndexError:
         return
 
@@ -123,6 +128,7 @@ async def _process_fate(source, data):
         # A hack to get the correct zone name (each fate id is in a unique zone and position, so this should work)
         zone = hunt_manager.get_zone(data["zoneID"])
         hunt_manager._fates_info[fate['Name'].lower()]['ZoneName'] = zone
+        hunt_manager._fates_info[fate['Name'].lower()]['ZoneID'] = int(data["zoneID"])
 
     except IndexError as e:
         log.exception('Exception thrown while reloading hunts') # for testing fates stuff
@@ -135,6 +141,51 @@ async def discord_listener(source):
     await bot.wait_until_ready()
 
     async def on_message(message):
+        #subs = await hunt_manager.get_subscriptions(message.channel.id)
+
+        # This if shouldn't be ported to normal filo. It doesn't consider multiple discords like everything else does.
+        # Prevents Filo reporting things if a user did it correctly already, so as not to undermine them.
+        #if subs:
+        #    #  Check worlds, but first check behemoth and odin, ixion, etc, then remove those from the list, so there's no clash
+        #    world_name = None
+        #    worldList = worlds.Worlds.get_worlds().copy()
+
+        #    # These are both fates and world names, which complicates this.
+        #    if message.content.lower().find("behe") >= 0:
+        #        world_name = "Behemoth"
+
+        #    if message.content.lower().find("odin") >= 0:
+        #        world_name = "Odin"
+
+        #    if message.content.lower().find("ixion") >= 0:
+        #        world_name = "ixion"
+
+        #    worldList.remove("Behemoth")
+        #    worldList.remove("Odin")
+        #    worldList.remove("Ixion")
+
+        #    instance = 1
+
+        #    if message.content.lower().find("i2") or message.content.lower().find("instance 2"):
+        #        instance = 2
+        #    if message.content.lower().find("i3") or message.content.lower().find("instance 3"):
+        #        instance = 3
+
+        #    for world in worldList:
+        #        if message.content.lower().find(world.lower()[0:3]) >= 0:
+        #            world_name = world
+
+        #    if world_name:
+        #        submetas = await hunt_manager.get_subscriptionsmetas(message.channel.id)
+
+        #        for submeta in submetas:
+        #            if submeta.value in message.role_mentions:
+        #                if submeta.attachName == hunt_manager.SUB_TRAINS:
+        #                    await hunt_manager.log_notification(message, message.channel_id, world_name, hunt_manager.SUB_TRAINS, instance)
+        #                if submeta.attachName.lower() in hunt_manager.getmarksinfo().keys() or submeta.attachName.lower() in hunt_manager.getfatesinfo().keys():
+        #                    hunt_manager._hunts[world]['xivhunt'].append(f"{submeta.attachName.strip().lower()}_{instance}")
+        #                    await hunt_manager.log_notification(message, message.channel_id, world_name, submeta.attachName, instance)
+
         if str(message.channel.id) != config.get(source, 'Channel'):
             return
 

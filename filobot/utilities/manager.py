@@ -156,7 +156,7 @@ class HuntManager:
 
     async def check_fates(self):
         for world in self._recent_fates:
-            for recent_fate, expired_time in self._recent_fates.items():
+            for recent_fate, expired_time in self._recent_fates[world].items():
                 time_distance = (int(time.time()) - expired_time)
                 if time_distance >= 60 and time_distance < 180:
                     if recent_fate in self._hunts[world]['xivhunt']:

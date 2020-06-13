@@ -112,11 +112,11 @@ def hunt_simple_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: ty
                     embed.colour = COLOR_MAXED
                 elif horus.status == horus.STATUS_DIED:
                     embed.colour = COLOR_DIED
-                    embed.title += " デッド " if world and Worlds.get_world_datacenter(xivhunt['world']) in ('Elemental', 'Gaia', 'Mana') else " "
+                    embed.title += " デッド " if world and Worlds.get_world_datacenter(world) in ('Elemental', 'Gaia', 'Mana') else " "
                     embed.title += "DEAD"
                 else:
                     embed.colour = COLOR_CLOSED
-                    embed.title += " デッド " if world and Worlds.get_world_datacenter(xivhunt['world']) in ('Elemental', 'Gaia', 'Mana') else " "
+                    embed.title += " デッド " if world and Worlds.get_world_datacenter(world) in ('Elemental', 'Gaia', 'Mana') else " "
                     embed.title += " DEAD"
 
             return embed

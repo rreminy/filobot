@@ -79,7 +79,7 @@ def hunt_simple_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: ty
             world = xivhunt['world'] if xivhunt else None
             world = horus.world if horus else world
 
-            if world and Worlds.get_world_datacenter(xivhunt['world']) in ('Elemental', 'Gaia', 'Mana'):
+            if world and Worlds.get_world_datacenter(world) in ('Elemental', 'Gaia', 'Mana'):
                 embed.title = f"Rankランク{mark['Rank']}: {mark['Name']}"
             else:
                 embed.title = f"Rank {mark['Rank']}: {mark['Name']}"

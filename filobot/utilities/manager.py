@@ -897,7 +897,7 @@ class HuntManager:
         self._subscriptions_meta = list(SubscriptionsMeta.select())
 
     def _load_marks(self):
-        with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'marks_info.json')) as json_file:
+        with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'marks_info.json'), 'r', encoding='utf8') as json_file:
             marks = json.load(json_file)
 
             for _id, mark in marks.items():
@@ -920,7 +920,7 @@ class HuntManager:
                     self._log.info(f"""Not binding hunt {mark['Name']} to a subscription channel""")
 
     def _load_fates(self):
-        with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'fates_info.json')) as json_file:
+        with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'fates_info.json'), 'r', encoding='utf8') as json_file:
             fates = json.load(json_file)
 
             for _id, fate in fates.items():
@@ -930,7 +930,7 @@ class HuntManager:
                 self._fates_info[key]['Channel'] = channel
 
     def _load_zones(self):
-        with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'zones_info.json')) as json_file:
+        with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'zones_info.json'), 'r', encoding='utf8') as json_file:
             self._zones_info = json.load(json_file)
 
     def getmarksinfo(self):

@@ -6,9 +6,9 @@ import discord
 import typing
 from filobot.utilities.worlds import Worlds
 
-with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'marks_info.json')) as json_file:
+with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'marks_info.json'), 'r', encoding='utf8') as json_file:
     marks_info = json.load(json_file)
-with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'fates_info.json')) as json_file:
+with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'fates_info.json'), 'r', encoding='utf8') as json_file:
     fates_info = json.load(json_file)
 
 COLOR_A = 0xFB6107

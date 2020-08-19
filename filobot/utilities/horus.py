@@ -28,10 +28,10 @@ class Horus:
         self._log = logging.getLogger(__name__)
         self._bot = bot
 
-        with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'marks_info.json')) as json_file:
+        with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'marks_info.json'), 'r', encoding='utf-8') as json_file:
             self.marks_info = json.load(json_file)
 
-        with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'fates_info.json')) as json_file:
+        with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'fates_info.json'), 'r', encoding='utf-8') as json_file:
             self.fates_info = json.load(json_file)
 
         self._cached_response = {}

@@ -621,7 +621,7 @@ class HuntManager:
                 content = f"""[{world}]狩ツアコンプリートComplete""" if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS else f"""[{world}] Complete"""
 
             # Attempt to edit an existing message first
-            notification = await self.get_notification(sub.channel_id, world, self.SUB_TRAINS, instance, complete)
+            notification = await self.get_notification(sub.channel_id, world, self.SUB_TRAINS, 1, complete)
 
             if notification:
                 notification, log = notification
@@ -631,13 +631,13 @@ class HuntManager:
                         try:
                             if notification.content != content:
                                 await notification.edit(content=content) #  Edit the message
-                                await self.log_notification(notification, sub.channel_id, world, self.SUB_TRAINS, instance)
+                                await self.log_notification(notification, sub.channel_id, world, self.SUB_TRAINS, 1)
                             continue
                         except discord.NotFound:
                             self._log.warning(f"Train announcement was deleted for {world}.")
                 else:
-                    if not complete and self.SUB_TRAINS in self._notifications[sub.channel_id][world]:
-                        del self._notifications[sub.channel_id][world][self.SUB_TRAINS]
+                    if not complete and f"{self.SUB_TRAINS.lower()}_1" in self._notifications[sub.channel_id][world]:
+                        del self._notifications[sub.channel_id][world][f"{self.SUB_TRAINS.lower()}_1"]
 
             if not complete or self.COND_DEAD == sub.event:
                 # Sending a new message
@@ -646,7 +646,7 @@ class HuntManager:
                 if not message:
                     continue
 
-                await self.log_notification(message, sub.channel_id, world, self.SUB_TRAINS, instance)
+                await self.log_notification(message, sub.channel_id, world, self.SUB_TRAINS, 1)
 
     async def on_find(self, world: str, name: str, xivhunt: dict, instance=1):
         """

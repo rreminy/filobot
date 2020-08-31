@@ -55,6 +55,9 @@ async def _process_data(source, data):
     if config.get(source, 'progress') in data and data[config.get(source, 'id')] in fates_info: # It's a FATE
         logger.debug(f"Processing {data['id']} as a fate")
         await _process_fate(source, data)
+    elif "] S rank " in data:
+        logger.debug(f"Processing {data['id']} as a chaos hunt")
+        await _process_chaoshunt(source, data)
     elif data[config.get(source, 'id')] in marks_info: # It's a hunt
         logger.debug(f"Processing {data['id']} as a hunt")
         await _process_hunt(source, data)
@@ -89,6 +92,42 @@ async def _process_hunt(source, data):
         zone = hunt_manager.get_zone(data["zoneID"])
         hunt_manager._marks_info[hunt['Name'].lower()]['ZoneName'] = zone
         hunt_manager._marks_info[hunt['Name'].lower()]['ZoneID'] = int(data["zoneID"])
+
+    except IndexError:
+        return
+
+    if not alive:
+        # TODO: Deaths
+        return
+
+    return await hunt_manager.on_find(world, hunt['Name'], xivhunt, int(i) or 1)
+
+async def _process_chaoshunt(source, data):
+    try:
+        alive   = True
+        world   = data.split("[")[1].split("]")[0]
+        zone    = data.split("rank ")[1].split(",")[0].strip()
+        hunt    = None
+        for mark in hunt_manager._marks_info.items():
+            if mark['ZoneName'].lower() == zone.lower() and mark['Rank'] == "S":
+                hunt = mark
+                break
+        if not hunt:
+            return
+        x, y    = data.split("(")[1].split(",")[0].strip(), data.split("(")[1].split(",")[1].split(")").strip()
+        i = 1
+        last_seen = int(time.time())
+        xivhunt = {
+            'rank': hunt['Rank'],
+            'i': i, # data['i'], Seeing as this isn't functional anywhere at the moment
+            'status': 'seen' if alive else 'dead',
+            'last_seen': last_seen,
+            'coords': f"{x}, {y}",
+            'world': world,
+        }
+
+        # A hack to get the correct zone name
+        hunt_manager._marks_info[hunt['Name'].lower()]['ZoneName'] = zone
 
     except IndexError:
         return

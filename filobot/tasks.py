@@ -60,7 +60,7 @@ async def _process_data(source, data, message):
         await _process_hunt(source, data)
     elif message.content.find("] S rank ") != -1:
         logger.debug(f"Processing {data['id']} as a chaos hunt")
-        await _process_chaoshunt(source, data)
+        await _process_chaoshunt(source, data, message)
     else: # when all else fails
         logger.warning(f"Unable to determine {data['id']}")
         logger.warning(data)
@@ -102,11 +102,11 @@ async def _process_hunt(source, data):
 
     return await hunt_manager.on_find(world, hunt['Name'], xivhunt, int(i) or 1)
 
-async def _process_chaoshunt(source, data):
+async def _process_chaoshunt(source, data, message):
     try:
         alive   = True
-        world   = data.split("[")[1].split("]")[0]
-        zone    = data.split("rank ")[1].split(",")[0].strip()
+        world   = message.content.split("[")[1].split("]")[0]
+        zone    = message.content.split("rank ")[1].split(",")[0].strip()
         hunt    = None
         for mark in hunt_manager._marks_info.items():
             if mark['ZoneName'].lower() == zone.lower() and mark['Rank'] == "S":
@@ -228,7 +228,11 @@ async def discord_listener(source):
         if str(message.channel.id) != config.get(source, 'Channel'):
             return
 
-        data = json.loads(message.content)
+        try:
+            data = json.loads(message.content)
+        except:
+            data = dict()
+
         await _process_data(source, data, message)
         return
 

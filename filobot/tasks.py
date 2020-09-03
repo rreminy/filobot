@@ -52,18 +52,23 @@ async def update_game():
 async def _process_data(source, data, message):
     marks_info = hunt_manager.horus.marks_info
     fates_info = hunt_manager.horus.fates_info
-    if config.get(source, 'progress') in data and data[config.get(source, 'id')] in fates_info: # It's a FATE
-        logger.debug(f"Processing {data['id']} as a fate")
-        await _process_fate(source, data)
-    elif data[config.get(source, 'id')] in marks_info: # It's a hunt
-        logger.debug(f"Processing {data['id']} as a hunt")
-        await _process_hunt(source, data)
-    elif message.content.find("] S rank ") != -1:
-        logger.debug(f"Processing {data['id']} as a chaos hunt")
-        await _process_chaoshunt(source, data, message)
-    else: # when all else fails
-        logger.warning(f"Unable to determine {data['id']}")
-        logger.warning(data)
+
+    if 'id' in data:
+        if config.get(source, 'progress') in data and data[config.get(source, 'id')] in fates_info: # It's a FATE
+            logger.debug(f"Processing {data['id']} as a fate")
+            await _process_fate(source, data)
+        elif data[config.get(source, 'id')] in marks_info: # It's a hunt
+            logger.debug(f"Processing {data['id']} as a hunt")
+            await _process_hunt(source, data)
+        else: # when all else fails
+            logger.warning(f"Unable to determine {data['id']}")
+            logger.warning(data)
+    else:
+        if message.content.find("] S rank ") != -1:
+            logger.debug(f"Processing message as a chaos hunt")
+            await _process_chaoshunt(source, data, message)
+
+
 
 
 async def _process_hunt(source, data):

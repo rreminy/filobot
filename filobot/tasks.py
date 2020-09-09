@@ -119,7 +119,7 @@ async def _process_chaoshunt(source, data, message):
                 break
         if not hunt:
             return
-        x, y    = data.split("(")[1].split(",")[0].strip(), data.split("(")[1].split(",")[1].split(")").strip()
+        x, y    = message.content.split("(")[1].split(",")[0].strip(), message.content.split("(")[1].split(",")[1].split(")")[0].strip()
         i = 1
         last_seen = int(time.time())
         xivhunt = {

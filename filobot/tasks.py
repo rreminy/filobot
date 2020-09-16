@@ -64,7 +64,7 @@ async def _process_data(source, data, message):
             logger.warning(f"Unable to determine {data['id']}")
             logger.warning(data)
     else:
-        if message.content.find("] S rank ") != -1:
+        if message.webhook_id is not None and message.content.find("] S rank ") != -1:
             logger.debug(f"Processing message as a chaos hunt")
             await _process_chaoshunt(source, data, message)
 

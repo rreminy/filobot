@@ -877,6 +877,14 @@ class HuntManager:
         except:
             raise IndexError(f'No zone with the ID {id} could be found')
 
+    def get_zone_id(self, name: str):
+        try:
+            for zone in self._zones_info.values():
+                if zone['name'].lower() == name.lower():
+                    return zone['id']
+        except:
+            raise IndexError(f'No zone with the name {name} could be found')
+
     async def _send_sub_message(self, message, embed: discord.Embed, sub: Subscriptions) -> typing.Optional[discord.Message]:
         """
         Attempt to send a subscription message

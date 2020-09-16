@@ -64,6 +64,8 @@ async def _process_data(source, data, message):
             logger.warning(f"Unable to determine {data['id']}")
             logger.warning(data)
     else:
+        logger.debug(f"Received {message.content}")
+        logger.debug(message.webhook_id)
         if message.webhook_id is not None and message.content.find("] S rank ") != -1:
             logger.debug(f"Processing message as a chaos hunt")
             await _process_chaoshunt(source, data, message)
@@ -113,7 +115,8 @@ async def _process_chaoshunt(source, data, message):
         world   = message.content.split("[")[1].split("]")[0]
         zone    = message.content.split("rank ")[1].split(",")[0].strip()
         hunt    = None
-        for mark in hunt_manager._marks_info.items():
+        for mark in hunt_manager._marks_info.values():
+            logger.debug(mark)
             if mark['ZoneName'].lower() == zone.lower() and mark['Rank'] == "S":
                 hunt = mark
                 break

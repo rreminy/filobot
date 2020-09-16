@@ -145,11 +145,6 @@ async def _process_chaoshunt(source, data, message):
         # TODO: Deaths
         return
 
-
-    logger.debug(world)
-    logger.debug(hunt['Name'])
-    logger.debug(xivhunt)
-    logger.debug(int(i) or 1)
     return await hunt_manager.on_find(world, hunt['Name'], xivhunt, int(i) or 1)
 
 

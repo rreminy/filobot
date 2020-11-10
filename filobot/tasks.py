@@ -210,7 +210,7 @@ async def start_server(source):
             await _process_data(source, data)
         return web.Response(text='200')
 
-    await asyncio.sleep(20.0) # We don't want to bombard anyone's server (is this handled somewhere I'm not seeing?)
+    await asyncio.sleep(60.0) # We don't want to bombard anyone's server (is this handled somewhere I'm not seeing?)
 
     app = web.Application()
     app.router.add_route('POST', '/{tail:.*}', event)

@@ -545,7 +545,10 @@ class HuntManager:
                             content = content[beg:]
 
                             # Set embed description
-                            embed.description = f"~~{notification.embeds[0].description}~~" if notification.embeds[0].description else ""
+                            try:
+                                embed.description = f"~~{notification.embeds[0].description}~~" if notification.embeds[0].description else ""
+                            except:
+                                pass
 
                             # Add dead timing to message
                             if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS:

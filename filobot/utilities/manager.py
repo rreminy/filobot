@@ -545,7 +545,10 @@ class HuntManager:
                             content = content[beg:]
 
                             # Set embed description
-                            embed.description = f"~~{notification.embeds[0].description}~~" if notification.embeds[0].description else ""
+                            try:
+                                embed.description = f"~~{notification.embeds[0].description}~~" if notification.embeds[0].description else ""
+                            except:
+                                pass
 
                             # Add dead timing to message
                             if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS:
@@ -876,6 +879,14 @@ class HuntManager:
             return self._zones_info[id]['name']
         except:
             raise IndexError(f'No zone with the ID {id} could be found')
+
+    def get_zone_id(self, name: str):
+        try:
+            for zone in self._zones_info.values():
+                if zone['name'].lower() == name.lower():
+                    return zone['id']
+        except:
+            raise IndexError(f'No zone with the name {name} could be found')
 
     async def _send_sub_message(self, message, embed: discord.Embed, sub: Subscriptions) -> typing.Optional[discord.Message]:
         """

@@ -24,7 +24,7 @@ async def update_hunts():
             await hunt_manager.recheck()
         except Exception:
             log.exception('Exception thrown while reloading hunts')
-        await asyncio.sleep(7.0)
+        await asyncio.sleep(15.0)
 
 async def update_fates():
     await bot.wait_until_ready()
@@ -49,18 +49,28 @@ async def update_game():
         await asyncio.sleep(60.0)
 
 
-async def _process_data(source, data):
+async def _process_data(source, data, message):
     marks_info = hunt_manager.horus.marks_info
     fates_info = hunt_manager.horus.fates_info
-    if config.get(source, 'progress') in data and data[config.get(source, 'id')] in fates_info: # It's a FATE
-        logger.debug(f"Processing {data['id']} as a fate")
-        await _process_fate(source, data)
-    elif data[config.get(source, 'id')] in marks_info: # It's a hunt
-        logger.debug(f"Processing {data['id']} as a hunt")
-        await _process_hunt(source, data)
-    else: # when all else fails
-        logger.warning(f"Unable to determine {data['id']}")
-        logger.warning(data)
+
+    if 'id' in data:
+        if config.get(source, 'progress') in data and data[config.get(source, 'id')] in fates_info: # It's a FATE
+            logger.debug(f"Processing {data['id']} as a fate")
+            await _process_fate(source, data)
+        elif data[config.get(source, 'id')] in marks_info: # It's a hunt
+            logger.debug(f"Processing {data['id']} as a hunt")
+            await _process_hunt(source, data)
+        else: # when all else fails
+            logger.warning(f"Unable to determine {data['id']}")
+            logger.warning(data)
+    else:
+        logger.debug(f"Received {message.content}")
+        logger.debug(message.webhook_id)
+        if message.webhook_id is not None and message.content.find("] S rank ") != -1:
+            logger.debug(f"Processing message as a chaos hunt")
+            await _process_chaoshunt(source, data, message)
+
+
 
 
 async def _process_hunt(source, data):
@@ -89,6 +99,44 @@ async def _process_hunt(source, data):
         zone = hunt_manager.get_zone(data["zoneID"])
         hunt_manager._marks_info[hunt['Name'].lower()]['ZoneName'] = zone
         hunt_manager._marks_info[hunt['Name'].lower()]['ZoneID'] = int(data["zoneID"])
+
+    except IndexError:
+        return
+
+    if not alive:
+        # TODO: Deaths
+        return
+
+    return await hunt_manager.on_find(world, hunt['Name'], xivhunt, int(i) or 1)
+
+async def _process_chaoshunt(source, data, message):
+    try:
+        alive   = True
+        world   = message.content.split("[")[1].split("]")[0]
+        zone    = message.content.split("rank ")[1].split(",")[0].strip()
+        hunt    = None
+        for mark in hunt_manager._marks_info.values():
+            logger.debug(mark)
+            if mark['ZoneName'].lower() == zone.lower() and mark['Rank'] == "S":
+                hunt = mark
+                break
+        if not hunt:
+            return
+        x, y    = message.content.split("(")[1].split(",")[0].strip(), message.content.split("(")[1].split(",")[1].split(")")[0].strip()
+        i = 1
+        last_seen = int(time.time())
+        xivhunt = {
+            'rank': hunt['Rank'],
+            'i': i, # data['i'], Seeing as this isn't functional anywhere at the moment
+            'status': 'seen' if alive else 'dead',
+            'last_seen': last_seen,
+            'coords': f"{x}, {y}",
+            'world': world,
+        }
+
+        # A hack to get the correct zone name
+        hunt_manager._marks_info[hunt['Name'].lower()]['ZoneName'] = zone
+        hunt_manager._marks_info[hunt['Name'].lower()]['ZoneID'] = hunt_manager.get_zone_id(zone)
 
     except IndexError:
         return
@@ -192,8 +240,12 @@ async def discord_listener(source):
         if str(message.channel.id) != config.get(source, 'Channel'):
             return
 
-        data = json.loads(message.content)
-        await _process_data(source, data)
+        try:
+            data = json.loads(message.content)
+        except:
+            data = dict()
+
+        await _process_data(source, data, message)
         return
 
     bot.add_listener(on_message)
@@ -210,7 +262,7 @@ async def start_server(source):
             await _process_data(source, data)
         return web.Response(text='200')
 
-    await asyncio.sleep(60.0) # We don't want to bombard anyone's server (is this handled somewhere I'm not seeing?)
+    await asyncio.sleep(20.0) # Delay starting web server
 
     app = web.Application()
     app.router.add_route('POST', '/{tail:.*}', event)

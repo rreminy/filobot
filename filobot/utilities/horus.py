@@ -12,7 +12,7 @@ from filobot.utilities.worlds import Worlds
 
 
 class Horus:
-    CACHE_TTL = 15
+    CACHE_TTL = 60
     ENDPOINT_BASE = 'https://horus-hunts.net/Timers/GetDcTimers/?DC='
 
     def _get_endpoint(self, datacenter: str):

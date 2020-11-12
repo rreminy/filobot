@@ -24,7 +24,7 @@ async def update_hunts():
             await hunt_manager.recheck()
         except Exception:
             log.exception('Exception thrown while reloading hunts')
-        await asyncio.sleep(60.0)
+        await asyncio.sleep(15.0)
 
 async def update_fates():
     await bot.wait_until_ready()
@@ -262,7 +262,7 @@ async def start_server(source):
             await _process_data(source, data)
         return web.Response(text='200')
 
-    await asyncio.sleep(60.0) # We don't want to bombard anyone's server (is this handled somewhere I'm not seeing?)
+    await asyncio.sleep(20.0) # Delay starting web server
 
     app = web.Application()
     app.router.add_route('POST', '/{tail:.*}', event)

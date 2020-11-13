@@ -170,7 +170,10 @@ class HuntManager:
 
                     if self._notifications[channel][world][key] and name in self._fates_info.keys():
                         message, log = self._notifications[channel][world][key]
-                        embed = message.embeds[0]
+                        try:
+                            embed = message.embeds[0]
+                        except:
+                            continue
 
                         if not embed:
                             continue
@@ -702,19 +705,22 @@ class HuntManager:
                     if lastNotificationTime is None:
                         lastNotificationTime = time.time();
 
-                    lastNotificationTime = int(
-                        (
-                            lambda f : f[0][0].created_at.replace(tzinfo=datetime.timezone.utc).timestamp() if f[0] is not None else time.time()
-                        )
-                        (
-                            sorted
+                    try:
+                        lastNotificationTime = int(
                             (
-                                (lambda n : [(self._notifications[c][world][_key] if world in self._notifications[c] and _key in self._notifications[c][world] else None) for c in n])
-                                (self._notifications.keys()),
-                                key=lambda e: e is None
+                                lambda f : f[0][0].created_at.replace(tzinfo=datetime.timezone.utc).timestamp() if f[0] is not None else time.time()
+                            )
+                            (
+                                sorted
+                                (
+                                    (lambda n : [(self._notifications[c][world][_key] if world in self._notifications[c] and _key in self._notifications[c][world] else None) for c in n])
+                                    (self._notifications.keys()),
+                                    key=lambda e: e is None
+                                )
                             )
                         )
-                    )
+                    except:
+                        pass
 
                     lastNotificationName = name
 

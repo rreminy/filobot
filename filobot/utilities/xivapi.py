@@ -3,7 +3,7 @@ import logging
 
 import aiohttp
 import discord
-import xivapi
+# import xivapi
 
 from filobot.utilities.worlds import Worlds
 

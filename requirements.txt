@@ -1,4 +1,3 @@
-xivapi
 aiohttp
 peewee
 discord.py>=1.3.4

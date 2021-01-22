@@ -75,6 +75,7 @@ class HuntManager:
         self._hunts = {}
         self._changed = {}
         self._found = {}
+        self._timers = {}
 
         self._recent_fates = {}
 
@@ -668,18 +669,6 @@ class HuntManager:
 
             if hunt['Rank'] in ('A', 'S'):
 
-                if _key in self._hunts[world]['horus'].keys() and int(time.time()) - (int(self._hunts[world]['horus'][_key].last_death) / 1000) <= 300:
-                    self._log.info(f"A hunt was found that just died! Laggy computer? World: {world} (Instance {instance}) :: {name}, Rank {xivhunt['rank']}")
-                    return  # Trying to report a hunt that already died in the last 5 minutes. Someone's laggy computer?
-
-                self._log.info(f"A hunt has been found on world {world} (Instance {instance}) :: {name}, Rank {xivhunt['rank']}")
-
-                subs = Subscriptions.select().where(
-                        (Subscriptions.world == world)
-                        & (Subscriptions.category == hunt['Channel'])
-                )
-                embed = hunt_simple_embed(name, xivhunt=xivhunt)
-
                 if hunt['Rank'] == 'A' and hunt['ZoneName'] in self.SHB_ZONES and self._hunts[world]['horus'] is not None:
                     self._log.info("Shadowbringers A rank - checking for train...")
                     for key, horusHunt in self._hunts[world]['horus'].items():
@@ -689,6 +678,25 @@ class HuntManager:
                                 await self.on_train(world, name, xivhunt, False, instance)
                                 self._log.info("On train call successful")
                                 break
+
+                if _key in self._hunts[world]['horus'].keys():
+                    if int(time.time()) - (int(self._hunts[world]['horus'][_key].last_death) / 1000) <= 300:
+                        self._log.info(f"A hunt was found that just died! Laggy computer? World: {world} (Instance {instance}) :: {name}, Rank {xivhunt['rank']}")
+                        return  # Trying to report a hunt that already died in the last 5 minutes. Someone's laggy computer?
+                    if (xivhunt is not None):
+                        if f"{world}_{_key}" in self._timers:
+                            if int(time.time()) - (int(self._timers[f"{world}_{_key}"]) / 1000) <= 300:
+                                self._log.info(f"A hunt was found that just found! Laggy computer? World: {world} (Instance {instance}) :: {name}, Rank {xivhunt['rank']}")
+                                return
+                        self._timers[f"{world}_{_key}"] = time.time() * 1000;
+
+                self._log.info(f"A hunt has been found on world {world} (Instance {instance}) :: {name}, Rank {xivhunt['rank']}")
+
+                subs = Subscriptions.select().where(
+                        (Subscriptions.world == world)
+                        & (Subscriptions.category == hunt['Channel'])
+                )
+                embed = hunt_simple_embed(name, xivhunt=xivhunt)
 
                 #  Checks if another hunt from the same world and expansion has been reported since this one.
                 #  If so, report as a new discord message instead of editing.

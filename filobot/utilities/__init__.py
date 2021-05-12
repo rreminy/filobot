@@ -87,7 +87,7 @@ def hunt_simple_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: ty
             # Default rank-based colors (overwritten if horus status is provided)
             if mark['Rank'] == 'A':
                 embed.colour = COLOR_A
-            elif mark['Rank'] == 'S':
+            elif mark['Rank'] == 'S' or mark['Rank'] == 'SS' or mark['Rank'] == 'SS-':
                 embed.colour = COLOR_S
             elif mark['Rank'] == 'B':
                 embed.colour = COLOR_B

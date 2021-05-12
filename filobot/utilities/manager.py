@@ -667,7 +667,7 @@ class HuntManager:
         if name.lower() in self._marks_info.keys():
             hunt = self._marks_info[name.lower()]
 
-            if hunt['Rank'] in ('A', 'S'):
+            if hunt['Rank'] in ('A', 'S', 'SS', 'SS-'):
 
                 if hunt['Rank'] == 'A' and hunt['ZoneName'] in self.SHB_ZONES and self._hunts[world]['horus'] is not None:
                     self._log.info("Shadowbringers A rank - checking for train...")
@@ -792,7 +792,7 @@ class HuntManager:
             if hunt['ZoneName'] in self.SHB_ZONES:
                 attachcategory = "SHB"
             if 'Rank' in hunt and hunt['Rank']:
-                attachcategory = '_'.join((attachcategory, hunt['Rank'])).lower()
+                attachcategory = '_'.join((attachcategory, hunt['Rank'][0:1])).lower()
 
             _meta = SubscriptionsMeta.select().where((SubscriptionsMeta.channel_id == sub.channel_id)
             & ((SubscriptionsMeta.attachName == hunt["Name"].lower()) | (SubscriptionsMeta.attachName == attachcategory) | (SubscriptionsMeta.attachName is None)))
@@ -929,20 +929,21 @@ class HuntManager:
                 key = mark['Name'].lower()
                 self._marks_info[key] = mark
 
-                if mark['ZoneName'] in self.ARR_ZONES and (mark['Rank'] == 'A' or mark['Rank'] == 'S'):
-                    channel = getattr(self, f"""SUB_ARR_{mark['Rank']}""")
+                if mark['ZoneName'] in self.ARR_ZONES and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
+                    channel = getattr(self, f"""SUB_ARR_{mark['Rank'][0:1]}""")
                     self._marks_info[key]['Channel'] = channel
-                elif mark['ZoneName'] in self.HW_ZONES and (mark['Rank'] == 'A' or mark['Rank'] == 'S'):
-                    channel = getattr(self, f"""SUB_HW_{mark['Rank']}""")
+                elif mark['ZoneName'] in self.HW_ZONES and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
+                    channel = getattr(self, f"""SUB_HW_{mark['Rank'][0:1]}""")
                     self._marks_info[key]['Channel'] = channel
-                elif mark['ZoneName'] in self.SB_ZONES and (mark['Rank'] == 'A' or mark['Rank'] == 'S'):
-                    channel = getattr(self, f"""SUB_SB_{mark['Rank']}""")
+                elif mark['ZoneName'] in self.SB_ZONES and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
+                    channel = getattr(self, f"""SUB_SB_{mark['Rank'][0:1]}""")
                     self._marks_info[key]['Channel'] = channel
-                elif mark['ZoneName'] in self.SHB_ZONES and (mark['Rank'] == 'A' or mark['Rank'] == 'S'):
-                    channel = getattr(self, f"""SUB_SHB_{mark['Rank']}""")
+                elif mark['ZoneName'] in self.SHB_ZONES and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
+                    channel = getattr(self, f"""SUB_SHB_{mark['Rank'][0:1]}""")
                     self._marks_info[key]['Channel'] = channel
                 else:
                     self._log.info(f"""Not binding hunt {mark['Name']} to a subscription channel""")
+                    self._log.info(f"{str(mark)} => {mark['ZoneName'] in self.SHB_ZONES}")
 
     def _load_fates(self):
         with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'fates_info.json'), 'r', encoding='utf-8') as json_file:

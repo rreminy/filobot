@@ -71,8 +71,6 @@ async def _process_data(source, data, message):
             await _process_chaoshunt(source, data, message)
 
 
-
-
 async def _process_hunt(source, data):
     try:
         alive   = data[config.get(source, 'lastAlive')] == 'True'
@@ -151,10 +149,7 @@ async def _process_chaoshunt(source, data, message):
 async def _process_fate(source, data):
     try:
         world   = hunt_manager.get_world(int(data[config.get(source, 'wId')]))
-        if int(data["zoneID"]) == 886:
-            fate    = hunt_manager.horus.id_to_fate("1593")
-        else:
-            fate    = hunt_manager.horus.id_to_fate(data[config.get(source, 'id')])
+        fate    = hunt_manager.horus.id_to_fate(data[config.get(source, 'id')])
         _plus   = 22.5 if fate['ZoneName'] in hunt_manager.HW_ZONES else 21.5
         if config.get(source, 'x') == config.get(source, 'y'): # Some JSON structs use an array for X and Y
             data[config.get(source, 'x')] = data[config.get(source, 'x')]['x']

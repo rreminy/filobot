@@ -2455,5 +2455,43 @@
       "MaxSpawnMaint":15000,
       "AudI":null,
       "Early":null
+   },
+   "8915":{
+      "ID":8915,
+      "Name":"Forgiven Rebellion",
+      "Rank":"SS",
+      "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
+      "ZoneID":491,
+      "ZoneName":"Lakeland",
+      "RegionId":10,
+      "RegionName":"Norvrandt",
+      "SpawnTrigger":null,
+      "Tips":null,
+      "CanPredict":false,
+      "MinSpawn":5000,
+      "MinSpawnMaint":5000,
+      "MaxSpawn":15000,
+      "MaxSpawnMaint":15000,
+      "AudI":null,
+      "Early":null
+   },
+   "8916":{
+      "ID":8916,
+      "Name":"Forgiven Gossip",
+      "Rank":"SS-",
+      "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
+      "ZoneID":491,
+      "ZoneName":"Lakeland",
+      "RegionId":10,
+      "RegionName":"Norvrandt",
+      "SpawnTrigger":null,
+      "Tips":null,
+      "CanPredict":false,
+      "MinSpawn":5000,
+      "MinSpawnMaint":5000,
+      "MaxSpawn":15000,
+      "MaxSpawnMaint":15000,
+      "AudI":null,
+      "Early":null
    }
 }

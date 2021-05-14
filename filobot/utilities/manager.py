@@ -76,6 +76,7 @@ class HuntManager:
         self._changed = {}
         self._found = {}
         self._timers = {}
+        self._fate_timers = {}
 
         self._recent_fates = {}
 
@@ -763,6 +764,12 @@ class HuntManager:
                 self._log.debug(f"FATE {name} on instance {instance} already logged, updating progress.")
                 await self.on_progress(world, name, xivhunt, instance)
                 return
+
+            if f"{world}_{_key}" in self._fate_timers:
+                if int(time.time()) - (int(self._fate_timers[f"{world}_{_key}"]) / 1000) <= 3600:
+                    self._log.info(f"A fate was found that just found! Laggy computer? World: {world} (Instance {instance}) :: {name}")
+                    return
+            self._fate_timers[f"{world}_{_key}"] = time.time() * 1000;
 
             hunt = self._fates_info[name.lower()]
             self._log.info(f"A FATE has been found on world {world} (Instance {instance}) :: {name}")

@@ -2456,13 +2456,13 @@
       "AudI":null,
       "Early":null
    },
-   "8915":{
-      "ID":8915,
-      "Name":"Forgiven Rebellion",
+   "18915":{
+      "ID":18915,
+      "Name":"Forgotten Rebellion",
       "Rank":"SS",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID":491,
-      "ZoneName":"Lakeland",
+      "ZoneName":"Lakelands",
       "RegionId":10,
       "RegionName":"Norvrandt",
       "SpawnTrigger":null,
@@ -2478,7 +2478,7 @@
    "8916":{
       "ID":8916,
       "Name":"Forgiven Gossip",
-      "Rank":"SS-",
+      "Rank":"SS Minion",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID":491,
       "ZoneName":"Lakeland",

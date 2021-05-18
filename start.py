@@ -1,6 +1,6 @@
 import asyncio
 from filobot.filobot import config, bot
-from filobot.tasks import update_game, update_hunts, update_fates, update_worlds, start_server, discord_listener, track_stats
+from filobot.tasks import update_game, update_hunts, update_fates, update_worlds, start_server, discord_listener, track_stats, feed_listener
 import filobot.utilities.worlds as worlds
 
 # Initialize datacenters and worlds data
@@ -10,8 +10,8 @@ asyncio.run(worlds.init())
 bot.loop.create_task(update_hunts())
 bot.loop.create_task(update_fates())
 bot.loop.create_task(update_game())
-bot.loop.create_task(track_stats())
 bot.loop.create_task(update_worlds())
+#bot.loop.create_task(track_stats())
 
 if config.get('WebhookServer1', 'Enabled') == 'TRUE':
     bot.loop.create_task(start_server('WebhookServer1'))
@@ -30,6 +30,15 @@ if config.get('WebhookDiscord2', 'Enabled') == 'TRUE':
 
 if config.get('WebhookDiscord3', 'Enabled') == 'TRUE':
     bot.loop.create_task(discord_listener('WebhookDiscord3'))
+
+if config.get('FeedListener1', 'Enabled') == 'TRUE':
+    bot.loop.create_task(feed_listener('FeedListener1'))
+
+if config.get('FeedListener2', 'Enabled') == 'TRUE':
+    bot.loop.create_task(feed_listener('FeedListener2'))
+
+if config.get('FeedListener3', 'Enabled') == 'TRUE':
+    bot.loop.create_task(feed_listener('FeedListener3'))
 
 # Start the bot
 bot.run(config.get('Bot', 'Token'))

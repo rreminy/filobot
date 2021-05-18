@@ -5,6 +5,7 @@ import time
 
 import discord
 from aiohttp import web
+import aiohttp
 
 from filobot.filobot import config, bot, GAMES, hunt_manager, log
 from filobot.models import Player
@@ -37,6 +38,26 @@ async def update_fates():
         await asyncio.sleep(60.0)
 
 # noinspection PyBroadException
+async def feed_listener(source):
+    address = config.get(source, "address")
+    async with aiohttp.ClientSession() as session:
+        while not bot.is_closed():
+            await asyncio.sleep(15.0);
+            try:
+                log.info(f"Connecting to {address}")
+                async with session.ws_connect(address) as ws:
+                    async for msg in ws:
+                        try:
+                            data = json.loads(msg.data)
+                            await _process_data(source, data, None)
+                        except:
+                            pass
+            except Exception:
+                log.exception(f"Exception occurred in feed listener associated with {address}")
+                pass # TODO: Logging
+
+
+# noinspection PyBroadException
 async def update_game():
     await bot.wait_until_ready()
 
@@ -54,21 +75,23 @@ async def _process_data(source, data, message):
     fates_info = hunt_manager.horus.fates_info
 
     if 'id' in data:
-        if config.get(source, 'progress') in data and data[config.get(source, 'id')] in fates_info: # It's a FATE
-            logger.debug(f"Processing {data['id']} as a fate")
+        if config.get(source, 'progress') in data and data['id'] in fates_info: # It's a FATE
+            #logger.debug(f"Processing {data['id']} as a fate")
             await _process_fate(source, data)
-        elif data[config.get(source, 'id')] in marks_info: # It's a hunt
-            logger.debug(f"Processing {data['id']} as a hunt")
+        elif data['id'] in marks_info: # It's a hunt
+            #logger.debug(f"Processing {data['id']} as a hunt")
             await _process_hunt(source, data)
         else: # when all else fails
-            logger.warning(f"Unable to determine {data['id']}")
-            logger.warning(data)
-    else:
+            logger.warning(f"Unable to determine {data}")
+            pass
+    elif message is not None:
         logger.debug(f"Received {message.content}")
         logger.debug(message.webhook_id)
         if message.webhook_id is not None and message.content.find("] S rank ") != -1:
             logger.debug(f"Processing message as a chaos hunt")
             await _process_chaoshunt(source, data, message)
+    else:
+        pass
 
 
 async def _process_hunt(source, data):
@@ -98,7 +121,8 @@ async def _process_hunt(source, data):
         hunt_manager._marks_info[hunt['Name'].lower()]['ZoneName'] = zone
         hunt_manager._marks_info[hunt['Name'].lower()]['ZoneID'] = int(data["zoneID"])
 
-    except IndexError:
+    except:
+        log.exception('Exception thrown') # for testing fates stuff
         return
 
     if not alive:
@@ -136,7 +160,8 @@ async def _process_chaoshunt(source, data, message):
         hunt_manager._marks_info[hunt['Name'].lower()]['ZoneName'] = zone
         hunt_manager._marks_info[hunt['Name'].lower()]['ZoneID'] = hunt_manager.get_zone_id(zone)
 
-    except IndexError:
+    except:
+        log.exception('Exception thrown') # for testing fates stuff
         return
 
     if not alive:
@@ -146,6 +171,7 @@ async def _process_chaoshunt(source, data, message):
     return await hunt_manager.on_find(world, hunt['Name'], xivhunt, int(i) or 1)
 
 
+fate_progress = dict()
 async def _process_fate(source, data):
     try:
         world   = hunt_manager.get_world(int(data[config.get(source, 'wId')]))
@@ -171,13 +197,21 @@ async def _process_fate(source, data):
             'world': world,
         }
 
+        # Rate limit updates
+        key = f"{world}_{fate}_{i}";
+        xivhunt["status"] = str(int(int(data['progress']) / 5) * 5)
+        if int(xivhunt["status"]) != 0 and int(xivhunt["status"]) != 100 and key in fate_progress:
+            if fate_progress[key] == xivhunt["status"]:
+                return
+        fate_progress[key] = xivhunt["status"]
+
         # A hack to get the correct zone name (each fate id is in a unique zone and position, so this should work)
         zone = hunt_manager.get_zone(data["zoneID"])
         hunt_manager._fates_info[fate['Name'].lower()]['ZoneName'] = zone
         hunt_manager._fates_info[fate['Name'].lower()]['ZoneID'] = int(data["zoneID"])
 
-    except IndexError as e:
-        log.exception('Exception thrown while reloading hunts') # for testing fates stuff
+    except:
+        log.exception('Exception thrown') # for testing fates stuff
         return
 
     return await hunt_manager.on_find(world, fate['Name'], xivhunt, int(i) or 1)
@@ -249,15 +283,13 @@ async def discord_listener(source):
 
 async def start_server(source):
     async def event(request):
-        data = await request.post()
+        data = json.loads(await request.post())
         if isinstance(data, list): # It's an array of JSON data... process one-by-one
             for x in data:
                 await _process_data(source, x)
         else:
             await _process_data(source, data)
         return web.Response(text='200')
-
-    await asyncio.sleep(20.0) # Delay starting web server
 
     app = web.Application()
     app.router.add_route('POST', '/{tail:.*}', event)

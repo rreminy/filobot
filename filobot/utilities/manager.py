@@ -183,7 +183,9 @@ class HuntManager:
                         minutesLeft = int(embed.footer.text.rsplit(":")[0].strip("残り")) if isinstance(embed.footer.text, str) else 30
                         secondsLeft = (minutesLeft * 60) + (int(embed.footer.text.rsplit(":")[1].split(" ")[0]) if isinstance(embed.footer.text, str) else 0)
 
-                        if time.time() >= (int(message.created_at.replace(tzinfo=datetime.timezone.utc).timestamp()) + secondsLeft):
+                        message_time = message.edited_at if message.edited_at is not None else message.created_at
+
+                        if time.time() >= (int(message_time.replace(tzinfo=datetime.timezone.utc).timestamp()) + secondsLeft):
                             #  Strikethrough the fate!
                             job_list.append(self.on_progress(world, self._fates_info[name]['Name'], None, int(key.rsplit("_")[1])))
         await asyncio.gather(*job_list)
@@ -454,9 +456,9 @@ class HuntManager:
                                     content = f"~~{content}~~ **Expired** *(after {', '.join(kill_time)})*"  # Add expired message
                         else:
                             if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS:
-                                content = f"~~{content}~~ **Expired 期限切れ** (after 30分後 minutes)"  # Add expired message
+                                content = f"~~{content}~~ **Expired 期限切れ**"#" (after 30分後 minutes)"  # Add expired message
                             else:
-                                content = f"~~{content}~~ **Expired** (after 30 minutes)"  # Add expired message
+                                content = f"~~{content}~~ **Expired**"#" (after 30 minutes)"  # Add expired message
 
                         del self._notifications[sub.channel_id][world][_key]
 
@@ -682,12 +684,12 @@ class HuntManager:
 
                 if _key in self._hunts[world]['horus'].keys():
                     if int(time.time()) - (int(self._hunts[world]['horus'][_key].last_death) / 1000) <= 3600:
-                        self._log.info(f"A hunt was found that just died! Laggy computer? World: {world} (Instance {instance}) :: {name}, Rank {xivhunt['rank']}")
+                        #self._log.info(f"A hunt was found that just died! Laggy computer? World: {world} (Instance {instance}) :: {name}, Rank {xivhunt['rank']}")
                         return  # Trying to report a hunt that already died in the last 5 minutes. Someone's laggy computer?
                     if (xivhunt is not None):
                         if f"{world}_{_key}" in self._timers:
                             if int(time.time()) - (int(self._timers[f"{world}_{_key}"]) / 1000) <= 3600:
-                                self._log.info(f"A hunt was found that just found! Laggy computer? World: {world} (Instance {instance}) :: {name}, Rank {xivhunt['rank']}")
+                                #self._log.info(f"A hunt was found that just found! Laggy computer? World: {world} (Instance {instance}) :: {name}, Rank {xivhunt['rank']}")
                                 return
                         self._timers[f"{world}_{_key}"] = time.time() * 1000;
 

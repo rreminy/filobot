@@ -119,6 +119,9 @@ def hunt_simple_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: ty
                     embed.title += " デッド " if world and Worlds.get_world_datacenter(world) in ('Elemental', 'Gaia', 'Mana') else " "
                     embed.title += " DEAD"
 
+            if xivhunt is not None:
+                embed.set_image(url=f"https://api.ffxivsonar.com/render/map?zoneid={xivhunt['zone_id']}&flagx={xivhunt['x']}&flagy={xivhunt['y']}");
+
             return embed
 
 
@@ -140,6 +143,9 @@ def fate_simple_embed(fate_name: str, xivhunt: typing.Optional = None) -> discor
 
             else:
                 embed.title = f"{fate['Name']}"
+
+            if xivhunt is not None:
+                embed.set_image(url=f"https://api.ffxivsonar.com/render/map?zoneid={xivhunt['zone_id']}&flagx={xivhunt['x']}&flagy={xivhunt['y']}&fate=true");
 
             return embed
 

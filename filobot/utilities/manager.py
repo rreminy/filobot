@@ -18,6 +18,7 @@ from filobot.utilities.horus import HorusHunt
 from .horus import Horus
 from .xivhunt import XivHunt
 from filobot.utilities.worlds import Worlds
+from filobot.utilities.time_utils import RemainingTime
 
 
 class HuntManager:
@@ -180,12 +181,10 @@ class HuntManager:
                         if not embed:
                             continue
 
-                        minutesLeft = int(embed.footer.text.rsplit(":")[0].strip("残り")) if isinstance(embed.footer.text, str) else 30
-                        secondsLeft = (minutesLeft * 60) + (int(embed.footer.text.rsplit(":")[1].split(" ")[0]) if isinstance(embed.footer.text, str) else 0)
-
+                        seconds_left = RemainingTime.from_simple_time(embed.footer.text if isinstance(embed.footer.text, str) else "30:00").to_seconds()
                         message_time = message.edited_at if message.edited_at is not None else message.created_at
 
-                        if time.time() >= (int(message_time.replace(tzinfo=datetime.timezone.utc).timestamp()) + secondsLeft):
+                        if int(time.time()) >= int(message_time.replace(tzinfo=datetime.timezone.utc).timestamp()) + seconds_left:
                             #  Strikethrough the fate!
                             job_list.append(self.on_progress(world, self._fates_info[name]['Name'], None, int(key.rsplit("_")[1])))
         await asyncio.gather(*job_list)
@@ -385,6 +384,13 @@ class HuntManager:
 
         return (a_count, s_count)
 
+    def get_killed_text(self, seconds, is_jp):
+        return f"""**Killed {"殺された" if is_jp else ""}** *(after {RemainingTime(seconds).to_verbose()}{"後" if is_jp else ""})*"""
+
+    def get_expired_text(self, seconds, is_jp):
+        return f"""**Expired {"期限切れ" if is_jp else ""}** *(after {RemainingTime(seconds).to_verbose()}{"後" if is_jp else ""})*"""
+
+
     async def on_progress(self, world: str, name: str, xivhunt: dict, instance=1):
         """
         FATE progress event handler
@@ -398,6 +404,8 @@ class HuntManager:
                 & (Subscriptions.category == fate['Channel'])
         )
         embed = fate_simple_embed(name, xivhunt)
+
+        info = self._fates_info[name.lower()]
 
         for sub in subs:  # type: Subscriptions
             try:
@@ -413,7 +421,7 @@ class HuntManager:
                     time_left = xivhunt['last_seen'] if xivhunt else 0
 
                     if (not time_left or int(xivhunt['status']) == 100) and self.COND_DEAD == sub.event:
-                        killed  = notification.edited_at.timestamp() if not time_left and notification.edited_at is not None else int(time.time())
+                        killed  = notification.edited_at.replace(tzinfo=datetime.timezone.utc).timestamp() if not time_left and notification.edited_at is not None else int(time.time())
                         seconds = killed - log.found
                         ja_seconds = ""
                         ja_minutes = ""
@@ -421,14 +429,7 @@ class HuntManager:
                         if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS:
                             ja_seconds, ja_minutes = "秒", "分"
 
-                        kill_time = []
-                        if seconds > 120:
-                            kill_time.append(f"""{int(seconds / 60)}{ja_minutes} minutes""")
-                            seconds -= int(seconds / 60) * 60
-                        elif seconds > 60:
-                            kill_time.append(f"""1{ja_minutes} minute""")
-                            seconds -= 60
-                        kill_time.append(f"""{int(seconds)}{ja_seconds} seconds""")
+                        kill_time = RemainingTime(seconds)
 
                         log.killed = killed
                         log.kill_time = seconds
@@ -438,27 +439,17 @@ class HuntManager:
                         beg = content.find(f"[{world}]")
                         content = content[beg:]
 
+                        is_jp = Worlds.get_world_datacenter(world) in self.JA_DATACENTERS
+
                         if time_left:
-                            if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS:
-                                content = f"~~{content}~~ **Killed 殺された** *(after {', '.join(kill_time)}後)*"  # Add dead timing to message
-                            else:
-                                content = f"~~{content}~~ **Killed** *(after {', '.join(kill_time)})*"  # Add dead timing to message
+                            content = f"~~{content}~~ {self.get_killed_text(seconds, is_jp)}"
                         elif (xivhunt is not None and int(xivhunt['status']) > 0):
                             if notification.edited_at is not None and (time.time() - notification.edited_at.timestamp()) > 120:
-                                if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS:
-                                    content = f"~~{content}~~ **Killed 殺された** *(after {', '.join(kill_time)}後)*"  # Add dead timing to message
-                                else:
-                                    content = f"~~{content}~~ **Killed** *(after {', '.join(kill_time)})*"  # Add dead timing to message
+                                content = f"~~{content}~~ {self.get_killed_text(seconds, is_jp)}"
                             else:
-                                if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS:
-                                    content = f"""~~{content}~~ **Expired 期限切れ** *(after {', '.join(kill_time)}後)*"""  # Add expired message
-                                else:
-                                    content = f"~~{content}~~ **Expired** *(after {', '.join(kill_time)})*"  # Add expired message
+                                content = f"~~{content}~~ {self.get_expired_text(seconds, is_jp)}"
                         else:
-                            if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS:
-                                content = f"~~{content}~~ **Expired 期限切れ**"#" (after 30分後 minutes)"  # Add expired message
-                            else:
-                                content = f"~~{content}~~ **Expired**"#" (after 30 minutes)"  # Add expired message
+                            content = f"~~{content}~~ {self.get_expired_text(seconds, is_jp)}"
 
                         del self._notifications[sub.channel_id][world][_key]
 
@@ -471,14 +462,21 @@ class HuntManager:
                     if xivhunt:
                         embed.description = embed.description[embed.description.find("%") + 1:]
                         embed.description = f"{xivhunt['status']}%{embed.description}"
+                    if content[0] == "~":
+                        embed.set_image(url=discord.Embed.Empty)
 
                     if time_left >= 0:
+                        remaining_str = RemainingTime(time_left).to_simple()
+                        duration_str = ""
+                        if (info['Duration'] > 0):
+                            duration_str = f" / {RemainingTime(info['Duration']).to_simple()}"
+
                         if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS:
-                            embed.set_footer(text=f"""残り{int(time_left / 60):02d}:{int(time_left % 60):02d} remaining""")
+                            embed.set_footer(text=f"""残り{remaining_str}{duration_str} remaining""")
                         elif Worlds.get_world_datacenter(world) in self.EU_DATACENTERS:
-                            embed.set_footer(text=f"""{int(time_left / 60):02d}:{int(time_left % 60):02d} remaining / restant""")
+                            embed.set_footer(text=f"""{remaining_str}{duration_str} remaining / restant""")
                         else:
-                            embed.set_footer(text=f"""{int(time_left / 60):02d}:{int(time_left % 60):02d} remaining""")
+                            embed.set_footer(text=f"""{remaining_str}{duration_str} remaining""")
 
                     # Edit the message
                     await notification.edit(content=content, embed=embed)
@@ -529,15 +527,6 @@ class HuntManager:
                     if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS:
                         ja_seconds, ja_minutes = "秒", "分"
 
-                    kill_time = []
-                    if seconds > 120:
-                        kill_time.append(f"""{int(seconds / 60)}{ja_minutes} minutes""")
-                        seconds -= int(seconds / 60) * 60
-                    elif seconds > 60:
-                        kill_time.append(f"""1{ja_minutes} minute""")
-                        seconds -= 60
-                    kill_time.append(f"""{int(seconds)}{ja_seconds} seconds""")
-
                     log.killed = killed
                     log.kill_time = seconds
                     log.save()
@@ -554,19 +543,19 @@ class HuntManager:
                             # Set embed description
                             try:
                                 embed.description = f"~~{notification.embeds[0].description}~~" if notification.embeds[0].description else ""
+                                embed.set_image(url=discord.Embed.Empty)
                             except:
                                 pass
 
                             # Add dead timing to message
-                            if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS:
-                                content = f"~~{content}~~ **Killed 殺された** *(after {', '.join(kill_time)}後)*"
-                            else:
-                                content = f"~~{content}~~ **Killed** *(after {', '.join(kill_time)})*"
+                            content = f"~~{content}~~ {self.get_killed_text(seconds, Worlds.get_world_datacenter(world) in self.JA_DATACENTERS)}"
 
                             # Edit the message
                             await notification.edit(content=content, embed=embed)
                     except discord.NotFound:
                         self._log.warning(f"Notification message for hunt {new.name} on world {world} has been deleted")
+                    except:
+                        self._log.exception("Exception thrown");
 
             _key = f"{new.name.strip().lower()}_{new.instance}"
             if _key in self._hunts[world]['xivhunt']:
@@ -599,7 +588,6 @@ class HuntManager:
         """
         Train event handler
         """
-
         hunt = self._marks_info[name.lower()]
 
         subs = Subscriptions.select().where(
@@ -645,6 +633,8 @@ class HuntManager:
                             continue
                         except discord.NotFound:
                             self._log.warning(f"Train announcement was deleted for {world}.")
+                        except:
+                            self._log.exception("Exception thrown")
                 else:
                     if not complete and f"{self.SUB_TRAINS.lower()}_1" in self._notifications[sub.channel_id][world]:
                         del self._notifications[sub.channel_id][world][f"{self.SUB_TRAINS.lower()}_1"]
@@ -670,16 +660,16 @@ class HuntManager:
         if name.lower() in self._marks_info.keys():
             hunt = self._marks_info[name.lower()]
 
-            if hunt['Rank'] in ('A', 'S', 'SS', 'SS-'):
+            if hunt['Rank'] in ('A', 'S', 'SS', 'SS Minion'):
 
                 if hunt['Rank'] == 'A' and hunt['ZoneName'] in self.SHB_ZONES and self._hunts[world]['horus'] is not None:
-                    self._log.info("Shadowbringers A rank - checking for train...")
+                    #self._log.info("Shadowbringers A rank - checking for train...")
                     for key, horusHunt in self._hunts[world]['horus'].items():
                         if horusHunt.rank == 'A' and horusHunt.zone in self.SHB_ZONES:
                             if horusHunt.status == horusHunt.STATUS_DIED and int(time.time()) - (int(horusHunt.last_death) / 1000) <= 120:
-                                self._log.info("Train detected")
+                                #self._log.info("Train detected")
                                 await self.on_train(world, name, xivhunt, False, instance)
-                                self._log.info("On train call successful")
+                                #self._log.info("On train call successful")
                                 break
 
                 if _key in self._hunts[world]['horus'].keys():
@@ -731,7 +721,7 @@ class HuntManager:
                             )
                         )
                     except:
-                        pass
+                        self._log.exception("Exception thrown")
 
                     lastNotificationName = name
 
@@ -830,12 +820,19 @@ class HuntManager:
 
             if name.lower() in self._fates_info.keys(): #  Displaying FATEs a little differently to absorb the information efficiently
                 time_left = xivhunt['last_seen']
+                remaining_str = RemainingTime(time_left).to_simple()
+
+                fate = self._fates_info[name.lower()]
+                duration_str = ""
+                if (fate['Duration'] > 0):
+                    duration_str = f" / {RemainingTime(fate['Duration']).to_simple()}"
+
 
                 if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS:
                     embed.description = f"""{xivhunt['status']}% {ja_zone_name} {en_zone_name} ({xivhunt['coords']}) {instancesymbol}"""
 
                     if time_left > 0:
-                        embed.set_footer(text=f"""残り{int(time_left / 60):02d}:{int(time_left % 60):02d} remaining""")
+                        embed.set_footer(text=f"""残り{remaining_str}{duration_str} remaining""")
                 elif Worlds.get_world_datacenter(world) in self.EU_DATACENTERS:
                     en_description = f"""{xivhunt['status']}% {en_zone_name} ({xivhunt['coords']}) {instancesymbol}"""
                     fr_description = f"""\n{fr_zone_name} ({xivhunt['coords']}) {instancesymbol}""" if fr_zone_name != en_zone_name and fr_zone_name != de_zone_name else ""
@@ -843,12 +840,12 @@ class HuntManager:
                     embed.description = f"""{en_description}{fr_description}{de_description}"""
 
                     if time_left > 0:
-                        embed.set_footer(text=f"""{int(time_left / 60):02d}:{int(time_left % 60):02d} remaining / restant""")
+                        embed.set_footer(text=f"""{remaining_str}{duration_str} remaining / restant""")
                 else:
                     embed.description = f"""{xivhunt['status']}% {hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol}"""
 
                     if time_left > 0:
-                        embed.set_footer(text=f"""{int(time_left / 60):02d}:{int(time_left % 60):02d} remaining""")
+                        embed.set_footer(text=f"""{remaining_str}{duration_str} remaining""")
 
             if role_mention:
                 content = f"""{role_mention} {content}"""

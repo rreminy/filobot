@@ -74,31 +74,36 @@ async def _process_data(source, data, message):
     marks_info = hunt_manager.horus.marks_info
     fates_info = hunt_manager.horus.fates_info
 
-    if 'id' in data:
-        if config.get(source, 'progress') in data and data['id'] in fates_info: # It's a FATE
-            #logger.debug(f"Processing {data['id']} as a fate")
-            await _process_fate(source, data)
-        elif data['id'] in marks_info: # It's a hunt
-            #logger.debug(f"Processing {data['id']} as a hunt")
-            await _process_hunt(source, data)
-        else: # when all else fails
-            logger.warning(f"Unable to determine {data}")
+    try:
+        if 'id' in data:
+            if 'progress' in data and data['id'] in fates_info: # It's a FATE
+                #logger.debug(f"Processing {data['id']} as a fate")
+                await _process_fate(source, data)
+            elif data['id'] in marks_info: # It's a hunt
+                #logger.debug(f"Processing {data['id']} as a hunt")
+                await _process_hunt(source, data)
+            else: # when all else fails
+                # logger.warning(f"Unable to determine {data}")
+                pass
+        elif message is not None:
+            logger.debug(f"Received {message.content}")
+            logger.debug(message.webhook_id)
+            if message.webhook_id is not None and message.content.find("] S rank ") != -1:
+                logger.debug(f"Processing message as a chaos hunt")
+                await _process_chaoshunt(source, data, message)
+        else:
             pass
-    elif message is not None:
-        logger.debug(f"Received {message.content}")
-        logger.debug(message.webhook_id)
-        if message.webhook_id is not None and message.content.find("] S rank ") != -1:
-            logger.debug(f"Processing message as a chaos hunt")
-            await _process_chaoshunt(source, data, message)
-    else:
-        pass
+
+    except:
+        log.exception('Exception thrown') # for testing fates stuff
+        return
 
 
 async def _process_hunt(source, data):
     try:
-        alive   = data[config.get(source, 'lastAlive')] == 'True'
-        world   = hunt_manager.get_world(int(data[config.get(source, 'wId')]))
-        hunt    = hunt_manager.horus.id_to_hunt(data[config.get(source, 'id')])
+        alive   = data['lastAlive'] == 'True'
+        world   = hunt_manager.get_world(int(data['wId']))
+        hunt    = hunt_manager.horus.id_to_hunt(data['id'])
         _plus   = 22.5 if hunt['ZoneName'] in hunt_manager.HW_ZONES else 21.5
         if config.get(source, 'x') == config.get(source, 'y'): # Some JSON structs use an array for X and Y
             data[config.get(source, 'x')] = data[config.get(source, 'x')]['x']
@@ -114,6 +119,9 @@ async def _process_hunt(source, data):
             'last_seen': last_seen,
             'coords': f"{x}, {y}",
             'world': world,
+            'x': x,
+            'y': y,
+            'zone_id': int(data["zoneID"]),
         }
 
         # A hack to get the correct zone name
@@ -121,15 +129,16 @@ async def _process_hunt(source, data):
         hunt_manager._marks_info[hunt['Name'].lower()]['ZoneName'] = zone
         hunt_manager._marks_info[hunt['Name'].lower()]['ZoneID'] = int(data["zoneID"])
 
+        if not alive:
+            # TODO: Deaths
+            return
+
+        return await hunt_manager.on_find(world, hunt['Name'], xivhunt, int(i) or 1)
+
     except:
         log.exception('Exception thrown') # for testing fates stuff
         return
 
-    if not alive:
-        # TODO: Deaths
-        return
-
-    return await hunt_manager.on_find(world, hunt['Name'], xivhunt, int(i) or 1)
 
 async def _process_chaoshunt(source, data, message):
     try:
@@ -154,21 +163,26 @@ async def _process_chaoshunt(source, data, message):
             'last_seen': last_seen,
             'coords': f"{x}, {y}",
             'world': world,
+            'x': x,
+            'y': y,
+            #'zone_id': int(data["zoneID"]), # chaoshunt doesn't have a zone_id but its determined below
         }
 
         # A hack to get the correct zone name
         hunt_manager._marks_info[hunt['Name'].lower()]['ZoneName'] = zone
         hunt_manager._marks_info[hunt['Name'].lower()]['ZoneID'] = hunt_manager.get_zone_id(zone)
+        xivhunt["zone_id"] = hunt_manager._marks_info[hunt['Name'].lower()]['ZoneID']
+
+        if not alive:
+            # TODO: Deaths
+            return
+
+        return await hunt_manager.on_find(world, hunt['Name'], xivhunt, int(i) or 1)
 
     except:
         log.exception('Exception thrown') # for testing fates stuff
         return
 
-    if not alive:
-        # TODO: Deaths
-        return
-
-    return await hunt_manager.on_find(world, hunt['Name'], xivhunt, int(i) or 1)
 
 
 fate_progress = dict()
@@ -195,6 +209,9 @@ async def _process_fate(source, data):
             'last_seen': time_left, # hack by osc, reusing / repurposing the variable because its not being used anywhere else
             'coords': f"{x}, {y}",
             'world': world,
+            'x': x,
+            'y': y,
+            'zone_id': int(data["zoneID"]),
         }
 
         # Rate limit updates
@@ -209,6 +226,10 @@ async def _process_fate(source, data):
         zone = hunt_manager.get_zone(data["zoneID"])
         hunt_manager._fates_info[fate['Name'].lower()]['ZoneName'] = zone
         hunt_manager._fates_info[fate['Name'].lower()]['ZoneID'] = int(data["zoneID"])
+
+        # Add missing duration to the fate information
+        if (not 'Duration' in hunt_manager._fates_info[fate['Name'].lower()]) or duration > hunt_manager._fates_info[fate['Name'].lower()]['Duration']:
+            hunt_manager._fates_info[fate['Name'].lower()]['Duration'] = duration
 
     except:
         log.exception('Exception thrown') # for testing fates stuff

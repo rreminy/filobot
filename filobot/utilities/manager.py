@@ -87,6 +87,9 @@ class HuntManager:
         # Logged notifications for editing later
         self._notifications = {}
 
+        # Minions tracker
+        self.minions = dict()
+
     def get(self, world: str, hunt_name: str, instance=1) -> HorusHunt:
         """
         Get data on the requested hunt
@@ -775,6 +778,12 @@ class HuntManager:
         else:
             self._log.debug(f"""Ignoring notifications for {name}""")
             return
+
+        # Avoid double relaying minions
+        if xivhunt['rank'] == "SS Minion":
+            minion_key = f"{data['wId']}_{data['id']}"
+            if time.time() - self.minions[minion_key] < 3600: return
+            self.minions[minion_key] = time.time()
 
         for sub in subs:  # type: Subscriptions
             if self.COND_FIND != sub.event:

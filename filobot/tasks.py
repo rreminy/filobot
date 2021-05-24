@@ -98,7 +98,6 @@ async def _process_data(source, data, message):
         log.exception('Exception thrown') # for testing fates stuff
         return
 
-
 async def _process_hunt(source, data):
     try:
         alive   = data['lastAlive'] == 'True'

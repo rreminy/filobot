@@ -781,7 +781,7 @@ class HuntManager:
 
         # Avoid double relaying minions
         if xivhunt['rank'] == "SS Minion":
-            minion_key = f"{data['wId']}_{data['id']}"
+            minion_key = f"{world}_{name}"
             if time.time() - self.minions[minion_key] < 3600: return
             self.minions[minion_key] = time.time()
 

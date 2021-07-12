@@ -2,6 +2,8 @@ import asyncio
 import random
 import datetime
 import time
+import sys
+import os
 
 import discord
 from aiohttp import web
@@ -348,3 +350,24 @@ async def track_stats():
         await verified_stats.edit(name=f"Verified members: {player_count}")
 
         await asyncio.sleep(1800.0)
+
+async def auto_restart():
+    WEEK = 60 * 60 * 24 * 7
+    DAY = 60 * 60 * 24 * 1
+
+    current = time.time() % WEEK
+    remaining = WEEK - current
+
+    if remaining < DAY:
+        remaining = DAY
+
+    await asyncio.sleep(remaining)
+
+    guild = bot.get_guild(477720463292891137) # Centurio Hunts
+
+    if guild is not None:
+        channel = guild.get_channel(755324637742891059) #massive-bot-spam
+        if channel is not None:
+            await channel.send("Forcing restart")
+
+    os._exit(1) # Why do I have to do this... sys.exit would had been better x.x

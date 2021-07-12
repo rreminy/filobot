@@ -1,6 +1,6 @@
 import asyncio
 from filobot.filobot import config, bot
-from filobot.tasks import update_game, update_hunts, update_fates, update_worlds, start_server, discord_listener, track_stats, feed_listener
+from filobot.tasks import update_game, update_hunts, update_fates, update_worlds, start_server, discord_listener, track_stats, feed_listener, auto_restart
 import filobot.utilities.worlds as worlds
 
 # Initialize datacenters and worlds data
@@ -11,6 +11,7 @@ bot.loop.create_task(update_hunts())
 bot.loop.create_task(update_fates())
 bot.loop.create_task(update_game())
 bot.loop.create_task(update_worlds())
+bot.loop.create_task(auto_restart())
 #bot.loop.create_task(track_stats())
 
 if config.get('WebhookServer1', 'Enabled') == 'TRUE':

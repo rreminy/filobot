@@ -366,8 +366,8 @@ async def auto_restart():
     guild = bot.get_guild(477720463292891137) # Centurio Hunts
 
     if guild is not None:
-        channel = guild.get_channel(755324637742891059) #massive-bot-spam
+        channel = guild.get_channel(597451395771138048) #mod-bot
         if channel is not None:
-            await channel.send("Forcing restart")
+            await channel.send("All filo bots restarting, duplicate relays may happen during this period.")
 
     os._exit(1) # Why do I have to do this... sys.exit would had been better x.x

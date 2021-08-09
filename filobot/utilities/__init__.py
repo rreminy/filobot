@@ -64,6 +64,15 @@ MAPS = {
     'Deidar': 'https://i.imgtc.com/dM4sjSQ.png'                     # B
 }
 
+SS_MINIONS_MAPS = {
+    813: "https://cdn.discordapp.com/attachments/717852161479802885/873212267322282024/lakeland.jpg",
+    814: "https://cdn.discordapp.com/attachments/717852161479802885/873212267313909800/kholusia.jpg",
+    815: "https://cdn.discordapp.com/attachments/717852161479802885/873212267259363348/ahmaraeng.jpg",
+    816: "https://cdn.discordapp.com/attachments/717852161479802885/873212267771068446/ilmheg.jpg",
+    817: "https://cdn.discordapp.com/attachments/717852161479802885/873212267242594324/raktika.jpg",
+    818: "https://cdn.discordapp.com/attachments/717852161479802885/873212267368448010/tempest.jpg",
+}
+
 SB_HUNTS   = ['erle', 'orcus', 'aqrabuamelu', 'vochstein', 'luminare', 'mahisha', 'funa yurei', 'oni yumemi',
               'angada', 'gajasura', 'girimekhala', 'sum']
 SB_ALIASES = [('aqra', 'aqrabuamelu'), ('voch', 'vochstein'), ('lumi', 'luminare'), ('mahi', 'mahisha'),
@@ -87,7 +96,7 @@ def hunt_simple_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: ty
             # Default rank-based colors (overwritten if horus status is provided)
             if mark['Rank'] == 'A':
                 embed.colour = COLOR_A
-            elif mark['Rank'] == 'S' or mark['Rank'] == 'SS' or mark['Rank'] == 'SS-':
+            elif mark['Rank'] == 'S' or mark['Rank'] == 'SS' or mark['Rank'] == 'SS Minion':
                 embed.colour = COLOR_S
             elif mark['Rank'] == 'B':
                 embed.colour = COLOR_B
@@ -120,7 +129,10 @@ def hunt_simple_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: ty
                     embed.title += " DEAD"
 
             if xivhunt is not None:
-                embed.set_image(url=f"https://api.ffxivsonar.com/render/map?zoneid={xivhunt['zone_id']}&flagx={xivhunt['x']}&flagy={xivhunt['y']}");
+                if mark['Rank'] == 'SS Minion' and 'zone_id' in xivhunt and xivhunt['zone_id'] in SS_MINIONS_MAPS:
+                    embed.set_image(url=SS_MINIONS_MAPS[xivhunt['zone_id']])
+                else:
+                    embed.set_image(url=f"https://api.ffxivsonar.com/render/map?zoneid={xivhunt['zone_id']}&flagx={xivhunt['x']}&flagy={xivhunt['y']}")
 
             return embed
 

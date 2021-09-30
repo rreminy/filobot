@@ -55,7 +55,9 @@ class Horus:
     async def load(self, world: str):
         response = self._cached_response
         if world not in response.keys():
-            raise LookupError(f"""World {world} does not exist""")
+            #raise LookupError(f"""World {world} does not exist""")
+            return None
+            
         timers = response[world]['timers']
 
         hunts = {}

@@ -126,6 +126,8 @@ class HuntManager:
 
             # xivhunt = await self.xivhunt.load(world)
             horus   = await self.horus.load(world)
+            if horus is None:
+                continue
 
             # Look for updated Horus entries
             job_list = list()

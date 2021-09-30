@@ -681,12 +681,13 @@ class HuntManager:
                     if int(time.time()) - (int(self._hunts[world]['horus'][_key].last_death) / 1000) <= 3600:
                         #self._log.info(f"A hunt was found that just died! Laggy computer? World: {world} (Instance {instance}) :: {name}, Rank {xivhunt['rank']}")
                         return  # Trying to report a hunt that already died in the last 5 minutes. Someone's laggy computer?
-                    if (xivhunt is not None):
-                        if f"{world}_{_key}" in self._timers:
-                            if int(time.time()) - (int(self._timers[f"{world}_{_key}"]) / 1000) <= 3600:
-                                #self._log.info(f"A hunt was found that just found! Laggy computer? World: {world} (Instance {instance}) :: {name}, Rank {xivhunt['rank']}")
-                                return
-                        self._timers[f"{world}_{_key}"] = time.time() * 1000;
+
+                if (xivhunt is not None):
+                    if f"{world}_{_key}" in self._timers:
+                        if int(time.time()) - (int(self._timers[f"{world}_{_key}"]) / 1000) <= 3600:
+                            #self._log.info(f"A hunt was found that just found! Laggy computer? World: {world} (Instance {instance}) :: {name}, Rank {xivhunt['rank']}")
+                            return
+                    self._timers[f"{world}_{_key}"] = time.time() * 1000;
 
                 self._log.info(f"A hunt has been found on world {world} (Instance {instance}) :: {name}, Rank {xivhunt['rank']}")
 

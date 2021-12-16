@@ -26,7 +26,10 @@ class HuntManager:
     JA_DATACENTERS = ('Elemental', 'Gaia', 'Mana')
     EU_DATACENTERS = ('Light', 'Chaos')
     NA_DATACENTERS = ('Primal', 'Aether', 'Crystal')
+    OC_DATACENTERS = ('Materia')
 
+    SUB_EW_A    = 'endwalker_a'
+    SUB_EW_S    = 'endwalker_s'
     SUB_SHB_A   = 'shadowbringers_a'
     SUB_SHB_S   = 'shadowbringers_s'
     SUB_SB_A    = 'stormblood_a'
@@ -36,9 +39,9 @@ class HuntManager:
     SUB_ARR_A   = 'a_realm_reborn_a'
     SUB_ARR_S   = 'a_realm_reborn_s'
     SUB_FATE    = 'rare_fates'
-    SUB_TRAINS   = 'trains'
+    SUB_TRAINS  = 'trains'
 
-    HUNT_SUBSCRIPTIONS = ('shb_a', 'shb_s', 'sb_a', 'sb_s', 'hw_a', 'hw_s', 'arr_a', 'arr_s')
+    HUNT_SUBSCRIPTIONS = ('ew_a', 'ew_s', 'shb_a', 'shb_s', 'sb_a', 'sb_s', 'hw_a', 'hw_s', 'arr_a', 'arr_s')
 
     ARR_ZONES = ('Central Shroud', 'East Shroud', 'South Shroud', 'North Shroud', 'Western Thanalan',
                  'Central Thanalan', 'Eastern Thanalan', 'Southern Thanalan', 'Northern Thanalan', 'Middle La Noscea',
@@ -50,6 +53,8 @@ class HuntManager:
     SB_ZONES = ('The Ruby Sea', 'Yanxia', 'The Azim Steppe', 'The Fringes', 'The Peaks', 'The Lochs')
 
     SHB_ZONES = ('Il Mheg', "The Rak'tika Greatwood", 'The Tempest', 'Amh Araeng', 'Lakeland', 'Kholusia')
+
+    EW_ZONES = ('Labyrinthos', "Thavnair", 'Garlemald', 'Mare Lamentorum', 'Elpis', 'Ultima Thule')
 
     COND_DEAD = 'deaths'
     COND_OPEN = 'openings'
@@ -802,6 +807,8 @@ class HuntManager:
                 attachcategory = "SB"
             if hunt['ZoneName'] in self.SHB_ZONES:
                 attachcategory = "SHB"
+            if hunt['ZoneName'] in self.EW_ZONES:
+                attachcategory = "EW"
             if 'Rank' in hunt and hunt['Rank']:
                 attachcategory = '_'.join((attachcategory, hunt['Rank'][0:1])).lower()
 
@@ -958,6 +965,9 @@ class HuntManager:
                     self._marks_info[key]['Channel'] = channel
                 elif mark['ZoneName'] in self.SHB_ZONES and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
                     channel = getattr(self, f"""SUB_SHB_{mark['Rank'][0:1]}""")
+                    self._marks_info[key]['Channel'] = channel
+                elif mark['ZoneName'] in self.EW_ZONES and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
+                    channel = getattr(self, f"""SUB_EW_{mark['Rank'][0:1]}""")
                     self._marks_info[key]['Channel'] = channel
                 else:
                     self._log.info(f"""Not binding hunt {mark['Name']} to a subscription channel""")

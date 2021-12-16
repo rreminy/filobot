@@ -222,8 +222,8 @@ def process_datacenters():
         id = int(field[0])
         name = field[1][1:-1]
         # user_type = field[2] # Unused
-        datacenter_id = int(field[3])
-        public = True if field[4][0] == 'T' else False
+        datacenter_id = int(field[5])
+        public = True if field[6][0] == 'T' else False
 
         # If invalid or not public continue
         if (not public) or (datacenter_id == 0):

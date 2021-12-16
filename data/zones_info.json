@@ -10753,5 +10753,95 @@
     "name_fr": "Clinique pédiatrique de l'Académie médicale de Frondale",
     "name_ja": "フロンデール薬学院小児病棟",
     "expac": "ShB"
+  },
+  "956": {
+    "id": 956,
+    "mapId": 335,
+    "scale": 1,
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "name": "Labyrinthos",
+    "name_de": "Labyrinthos",
+    "name_en": "Labyrinthos",
+    "name_fr": "Labyrinthos",
+    "name_ja": "Labyrinthos",
+    "expac": "EW"
+  },
+  "957": {
+    "id": 957,
+    "mapId": 335,
+    "scale": 1,
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "name": "Thavnair",
+    "name_de": "Thavnair",
+    "name_en": "Thavnair",
+    "name_fr": "Thavnair",
+    "name_ja": "Thavnair",
+    "expac": "EW"
+  },
+  "958": {
+    "id": 958,
+    "mapId": 335,
+    "scale": 1,
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "name": "Garlemald",
+    "name_de": "Garlemald",
+    "name_en": "Garlemald",
+    "name_fr": "Garlemald",
+    "name_ja": "Garlemald",
+    "expac": "EW"
+  },
+  "959": {
+    "id": 959,
+    "mapId": 335,
+    "scale": 1,
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "name": "Mare Lamentorum",
+    "name_de": "Mare Lamentorum",
+    "name_en": "Mare Lamentorum",
+    "name_fr": "Mare Lamentorum",
+    "name_ja": "Mare Lamentorum",
+    "expac": "EW"
+  },
+  "960": {
+    "id": 960,
+    "mapId": 335,
+    "scale": 1,
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "name": "Ultima Thule",
+    "name_de": "Ultima Thule",
+    "name_en": "Ultima Thule",
+    "name_fr": "Ultima Thule",
+    "name_ja": "Ultima Thule",
+    "expac": "EW"
+  },
+  "961": {
+    "id": 961,
+    "mapId": 335,
+    "scale": 1,
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "name": "Elpis",
+    "name_de": "Elpis",
+    "name_en": "Elpis",
+    "name_fr": "Elpis",
+    "name_ja": "Elpis",
+    "expac": "EW"
   }
 }

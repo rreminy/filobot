@@ -167,7 +167,7 @@ class Hunts(commands.Cog):
     async def sub(self, ctx: commands.context.Context, world: str, category: str, *, conditions: typing.Optional[str] = 'FINDS, DEATHS'):
         """
         Subscribe the channel to hunt and fate events
-        Allowed categories: SHB_A, SHB_S, SB_A, SB_S, HW_A, HW_S, ARR_A, ARR_S, FATE, TRAINS
+        Allowed categories: EW_A, EW_S, SHB_A, SHB_S, SB_A, SB_S, HW_A, HW_S, ARR_A, ARR_S, FATE, TRAINS
         Allowed conditions: FINDS, DEATHS, OPENINGS
         """
         await self.hunt_manager.subscribe(ctx.channel.id, world, category, conditions)
@@ -177,8 +177,8 @@ class Hunts(commands.Cog):
     async def sub_all(self, ctx: commands.context.Context, datacenter: str, category: str, *, conditions: typing.Optional[str] = 'FINDS, DEATHS'):
         """
         Subscribe the channel to hunt and fate events on ALL of a datacenters worlds
-        Allowed datacenters: Elemental, Gaia, Mana, Aether, Primal, Crystal, Chaos, Light
-        Allowed categories: SHB_A, SHB_S, SB_A, SB_S, HW_A, HW_S, ARR_A, ARR_S, FATE, TRAINS
+        Allowed datacenters: Elemental, Gaia, Mana, Aether, Primal, Crystal, Chaos, Light, Materia
+        Allowed categories: EW_A, EW_S, SHB_A, SHB_S, SB_A, SB_S, HW_A, HW_S, ARR_A, ARR_S, FATE, TRAINS
         Allowed conditions: FINDS, DEATHS, OPENINGS
         """
         await self.hunt_manager.subscribe_all(datacenter, ctx.channel.id, category, conditions)
@@ -188,7 +188,7 @@ class Hunts(commands.Cog):
     async def unsub(self, ctx: commands.context.Context, world: str, category: str):
         """
         Unsubscribe the channel from hunt and fate events
-        Allowed categories: SHB_A, SHB_S, SB_A, SB_S, HW_A, HW_S, ARR_A, ARR_S, FATE, TRAINS
+        Allowed categories: EW_A, EW_S, SHB_A, SHB_S, SB_A, SB_S, HW_A, HW_S, ARR_A, ARR_S, FATE, TRAINS
         """
         await self.hunt_manager.unsubscribe(ctx.channel.id, world, category)
 

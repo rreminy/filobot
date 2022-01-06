@@ -2528,7 +2528,7 @@
    },
    "10617":{
       "ID":10617,
-      "Name":"Lousy Hunt",
+      "Name":"Burfurlur the Canny",
       "Rank":"S",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID": 956,
@@ -2551,16 +2551,16 @@
       "ZoneName":"Thavnair"
    },
    "10625":{
-      "ID":10623,
-      "Name":"Storsie",
+      "ID":10625,
+      "Name":"Yilan",
       "Rank":"A",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID": 957,
       "ZoneName":"Thavnair"
    },
    "10626":{
-      "ID":10624,
-      "Name":"Hulder",
+      "ID":10626,
+      "Name":"Sugriva",
       "Rank":"A",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID": 957,
@@ -2568,7 +2568,7 @@
    },
    "10618":{
       "ID":10618,
-      "Name":"Lousy Hunt",
+      "Name":"Sphatika",
       "Rank":"S",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID": 957,

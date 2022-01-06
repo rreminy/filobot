@@ -111,8 +111,10 @@ class HuntManager:
             return "hw"
         elif zone_id < 494:
             return "sb"
-        else:
+        elif zone_id < 956:
             return "shb"
+        else:
+            return "ew"
 
     async def recheck(self):
         """
@@ -248,7 +250,7 @@ class HuntManager:
             sub = getattr(self, f"""SUB_{subscription.upper()}""")
         except AttributeError:
             await self.bot.get_channel(channel).send(
-                "Invalid subscription provided, valid subscriptions are: shb_a, shb_s, sb_a, sb_s, hw_a, hw_s, arr_a, arr_s, fate, trains"
+                "Invalid subscription provided, valid subscriptions are: ew_a, ew_s, shb_a, shb_s, sb_a, sb_s, hw_a, hw_s, arr_a, arr_s, fate, trains"
             )
             return
 
@@ -295,7 +297,7 @@ class HuntManager:
             sub = getattr(self, f"""SUB_{subscription.upper()}""")
         except AttributeError:
             await self.bot.get_channel(channel).send(
-                "Invalid subscription provided, valid subscriptions are: shb_a, shb_s, sb_a, sb_s, hw_a, hw_s, arr_a, arr_s, fate, trains"
+                "Invalid subscription provided, valid subscriptions are: ew_a, ew_s, shb_a, shb_s, sb_a, sb_s, hw_a, hw_s, arr_a, arr_s, fate, trains"
             )
             return
 
@@ -353,7 +355,7 @@ class HuntManager:
             sub = getattr(self, f"""SUB_{subscription.upper()}""")
         except AttributeError:
             await self.bot.get_channel(channel).send(
-                "Invalid subscription provided, valid subscriptions are: shb_a, shb_s, sb_a, sb_s, hw_a, hw_s, arr_a, arr_s, fate, trains"
+                "Invalid subscription provided, valid subscriptions are: ew_a, ew_s, shb_a, shb_s, sb_a, sb_s, hw_a, hw_s, arr_a, arr_s, fate, trains"
             )
             return
 
@@ -572,11 +574,11 @@ class HuntManager:
                 self._hunts[world]['xivhunt'].remove(_key)
 
         # Check if all A ranks are dead yet so we can end the train
-        if hunt['Rank'] == 'A' and hunt['ZoneName'] in self.SHB_ZONES and self._hunts[world]['horus'] is not None and new.status == new.STATUS_DIED:
+        if hunt['Rank'] == 'A' and hunt['ZoneName'] in self.EW_ZONES and self._hunts[world]['horus'] is not None and new.status == new.STATUS_DIED:
             hunts_living, previous_death = False, 0
 
             for key, horusHunt in self._hunts[world]['horus'].items():
-                if horusHunt.rank == 'A' and horusHunt.zone in self.SHB_ZONES and horusHunt.name != new.name:
+                if horusHunt.rank == 'A' and horusHunt.zone in self.EW_ZONES and horusHunt.name != new.name:
                     if horusHunt.status != horusHunt.STATUS_DIED:
                         hunts_living = True
                     if horusHunt.status == horusHunt.STATUS_DIED and int(horusHunt.last_death) / 1000 > previous_death:
@@ -672,10 +674,10 @@ class HuntManager:
 
             if hunt['Rank'] in ('A', 'S', 'SS', 'SS Minion'):
 
-                if hunt['Rank'] == 'A' and hunt['ZoneName'] in self.SHB_ZONES and self._hunts[world]['horus'] is not None:
-                    #self._log.info("Shadowbringers A rank - checking for train...")
+                if hunt['Rank'] == 'A' and hunt['ZoneName'] in self.EW_ZONES and self._hunts[world]['horus'] is not None:
+                    #self._log.info("Endwalker A rank - checking for train...")
                     for key, horusHunt in self._hunts[world]['horus'].items():
-                        if horusHunt.rank == 'A' and horusHunt.zone in self.SHB_ZONES:
+                        if horusHunt.rank == 'A' and horusHunt.zone in self.EW_ZONES:
                             if horusHunt.status == horusHunt.STATUS_DIED and int(time.time()) - (int(horusHunt.last_death) / 1000) <= 120:
                                 #self._log.info("Train detected")
                                 await self.on_train(world, name, xivhunt, False, instance)
@@ -971,7 +973,7 @@ class HuntManager:
                     self._marks_info[key]['Channel'] = channel
                 else:
                     self._log.info(f"""Not binding hunt {mark['Name']} to a subscription channel""")
-                    self._log.info(f"{str(mark)} => {mark['ZoneName'] in self.SHB_ZONES}")
+                    self._log.info(f"{str(mark)} => {mark['ZoneName'] in self.EW_ZONES}")
 
     def _load_fates(self):
         with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'fates_info.json'), 'r', encoding='utf-8') as json_file:

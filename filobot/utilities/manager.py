@@ -448,8 +448,8 @@ class HuntManager:
                         log.save()
 
                         # Remove the ping mention
-                        beg = content.find(f"[{world}]")
-                        content = content[beg:]
+                        #beg = content.find(f"[{world}]")
+                        #content = content[beg:]
 
                         is_jp = Worlds.get_world_datacenter(world) in self.JA_DATACENTERS
 
@@ -549,8 +549,8 @@ class HuntManager:
                             content = notification.content
 
                             # Remove the ping mention
-                            beg = content.find(f"[{new.world}]")
-                            content = content[beg:]
+                            #beg = content.find(f"[{new.world}]")
+                            #content = content[beg:]
 
                             # Set embed description
                             try:

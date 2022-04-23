@@ -510,11 +510,15 @@ class HuntManager:
         Hunt status change event handler
         """
         hunt = self._marks_info[old.name.lower()]
-        subs = Subscriptions.select().where(
-                (Subscriptions.world == world)
-                & (Subscriptions.category == hunt['Channel'])
-        )
-        embed = hunt_simple_embed(new.name, new)
+        try:
+            subs = Subscriptions.select().where(
+                    (Subscriptions.world == world)
+                    & (Subscriptions.category == hunt['Channel'])
+            )
+            embed = hunt_simple_embed(new.name, new)
+        except:
+            self._log.warning(f"""{hunt['Name']}""")
+            raise
 
         for sub in subs:  # type: Subscriptions
             if new.status == new.STATUS_OPENED and self.COND_OPEN == sub.event:

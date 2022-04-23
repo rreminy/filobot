@@ -12,8 +12,8 @@ from filobot.utilities.worlds import Worlds
 
 
 class Horus:
-    CACHE_TTL = 60
-    ENDPOINT_BASE = 'https://horus-hunts.net/Timers/GetDcTimers/?DC='
+    CACHE_TTL = 10
+    ENDPOINT_BASE = 'https://api.ffxivsonar.com/horus/'
 
     def _get_endpoint(self, datacenter: str):
         return f"{self.ENDPOINT_BASE}{datacenter}"
@@ -21,7 +21,8 @@ class Horus:
     def _get_endpoints(self):
         ret = []
         for datacenter in Worlds.get_datacenters():
-            ret.append(self._get_endpoint(datacenter))
+            if datacenter is not None and len(datacenter) > 0:
+                ret.append(self._get_endpoint(datacenter))
         return ret
 
     def __init__(self, bot: discord.ext.commands.Bot):
@@ -57,7 +58,7 @@ class Horus:
         if world not in response.keys():
             #raise LookupError(f"""World {world} does not exist""")
             return None
-            
+
         timers = response[world]['timers']
 
         hunts = {}
@@ -101,15 +102,18 @@ class HorusHunt:
     STATUS_DIED   = 'dead'
 
     def __init__(self, hunt_data, timer_data, instance=1):
+        if instance == 0:
+            instance = 1
+
         # Hunt data
         self.name = hunt_data['Name']
         self.instance = instance  # 0 = Not an instanced zone, 1-3 = instance number
         self.rank = hunt_data['Rank']
-        self.image = hunt_data['Image']
+        self.image = hunt_data['Image'] if "Image" in hunt_data else ""
         self.zone = hunt_data['ZoneName']
-        self.region = hunt_data['RegionName']
-        self.spawn_trigger = hunt_data['SpawnTrigger']
-        self.tips = hunt_data['Tips']
+        self.region = hunt_data['RegionName'] if "RegionName" in hunt_data else ""
+        self.spawn_trigger = hunt_data['SpawnTrigger'] if "SpawnTrigger" in hunt_data else ""
+        self.tips = hunt_data['Tips'] if "Tips" in hunt_data else ""
 
         # Timer data
         self.world = timer_data['world']

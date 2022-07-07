@@ -23,7 +23,7 @@ from filobot.utilities.time_utils import RemainingTime
 
 class HuntManager:
 
-    JA_DATACENTERS = ('Elemental', 'Gaia', 'Mana')
+    JA_DATACENTERS = ('Elemental', 'Gaia', 'Mana', 'Meteor')
     EU_DATACENTERS = ('Light', 'Chaos')
     NA_DATACENTERS = ('Primal', 'Aether', 'Crystal')
     OC_DATACENTERS = ('Materia')
@@ -397,10 +397,10 @@ class HuntManager:
         return (a_count, s_count)
 
     def get_killed_text(self, seconds, is_jp):
-        return f"""**Killed {"殺された" if is_jp else ""}** *(after {RemainingTime(seconds).to_verbose()}{"後" if is_jp else ""})*"""
+        return f"""**Killed {"殺された" if is_jp else ""}**""" #  *(after {RemainingTime(seconds).to_verbose()}{"後" if is_jp else ""})*
 
     def get_expired_text(self, seconds, is_jp):
-        return f"""**Expired {"期限切れ" if is_jp else ""}** *(after {RemainingTime(seconds).to_verbose()}{"後" if is_jp else ""})*"""
+        return f"""**Expired {"期限切れ" if is_jp else ""}**""" #  *(after {RemainingTime(seconds).to_verbose()}{"後" if is_jp else ""})*
 
 
     async def on_progress(self, world: str, name: str, xivhunt: dict, instance=1):
@@ -510,11 +510,15 @@ class HuntManager:
         Hunt status change event handler
         """
         hunt = self._marks_info[old.name.lower()]
-        subs = Subscriptions.select().where(
-                (Subscriptions.world == world)
-                & (Subscriptions.category == hunt['Channel'])
-        )
-        embed = hunt_simple_embed(new.name, new)
+        try:
+            subs = Subscriptions.select().where(
+                    (Subscriptions.world == world)
+                    & (Subscriptions.category == hunt['Channel'])
+            )
+            embed = hunt_simple_embed(new.name, new)
+        except:
+            self._log.warning(f"""{hunt['Name']}""")
+            raise
 
         for sub in subs:  # type: Subscriptions
             if new.status == new.STATUS_OPENED and self.COND_OPEN == sub.event:

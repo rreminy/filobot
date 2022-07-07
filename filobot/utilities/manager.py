@@ -397,10 +397,10 @@ class HuntManager:
         return (a_count, s_count)
 
     def get_killed_text(self, seconds, is_jp):
-        return f"""**Killed {"殺された" if is_jp else ""}** *(after {RemainingTime(seconds).to_verbose()}{"後" if is_jp else ""})*"""
+        return f"""**Killed {"殺された" if is_jp else ""}**""" #  *(after {RemainingTime(seconds).to_verbose()}{"後" if is_jp else ""})*
 
     def get_expired_text(self, seconds, is_jp):
-        return f"""**Expired {"期限切れ" if is_jp else ""}** *(after {RemainingTime(seconds).to_verbose()}{"後" if is_jp else ""})*"""
+        return f"""**Expired {"期限切れ" if is_jp else ""}**""" #  *(after {RemainingTime(seconds).to_verbose()}{"後" if is_jp else ""})*
 
 
     async def on_progress(self, world: str, name: str, xivhunt: dict, instance=1):

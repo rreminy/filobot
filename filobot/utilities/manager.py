@@ -535,7 +535,7 @@ class HuntManager:
                 notification = await self.get_notification(sub.channel_id, world, new.name, new.instance)
                 if notification:
                     notification, log = notification
-                    killed  = arrow.get(int(new.last_mark / 1000)).timestamp
+                    killed  = arrow.get(int(new.last_mark / 1000)).timestamp()
                     seconds = killed - log.found
                     ja_seconds = ""
                     ja_minutes = ""
@@ -894,7 +894,7 @@ class HuntManager:
         if world not in self._notifications[channel]:
             self._notifications[channel][world] = {}
 
-        log = KillLog.create(hunt_name=hunt_name.lower(), world=world, found=arrow.utcnow().timestamp)
+        log = KillLog.create(hunt_name=hunt_name.lower(), world=world, found=arrow.utcnow().timestamp())
         self._notifications[channel][world][key] = (message, log)
         self._log.debug("Notification message logged: " + repr(message))
 

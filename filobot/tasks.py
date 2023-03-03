@@ -189,6 +189,9 @@ async def _process_chaoshunt(source, data, message):
 fate_progress = dict()
 async def _process_fate(source, data):
     try:
+        if (int(data['state']) == 255):
+            return
+
         world   = hunt_manager.get_world(int(data[config.get(source, 'wId')]))
         fate    = hunt_manager.horus.id_to_fate(data[config.get(source, 'id')])
         _plus   = 22.5 if fate['ZoneName'] in hunt_manager.HW_ZONES else 21.5
@@ -352,14 +355,14 @@ async def track_stats():
         await asyncio.sleep(1800.0)
 
 async def auto_restart():
-    WEEK = 60 * 60 * 24 * 7
-    DAY = 60 * 60 * 24 * 1
+    RESTART_PERIOD = 60 * 60 * 24 * 3
+    MINIMUM_THRESHOLD = 60 * 60 * 6
 
-    current = time.time() % WEEK
-    remaining = WEEK - current
+    current = time.time() % RESTART_PERIOD
+    remaining = RESTART_PERIOD - current
 
-    if remaining < DAY:
-        remaining = DAY
+    if remaining < MINIMUM_THRESHOLD:
+        remaining = MINIMUM_THRESHOLD
 
     await asyncio.sleep(remaining)
 
@@ -368,6 +371,9 @@ async def auto_restart():
     if guild is not None:
         channel = guild.get_channel(597451395771138048) #mod-bot
         if channel is not None:
-            await channel.send("All filo bots restarting, duplicate relays may happen during this period.")
+            try:
+                await channel.send("All filo bots restarting, duplicate relays may happen during this period.")
+            except:
+                pass
 
     os._exit(1) # Why do I have to do this... sys.exit would had been better x.x

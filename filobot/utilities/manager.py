@@ -465,8 +465,8 @@ class HuntManager:
 
                         del self._notifications[sub.channel_id][world][_key]
 
-                    if not notification.author.bot:
-                        continue
+                    # if not notification.author.bot:
+                    #     continue
 
                     # Set embed description
                     embed = notification.embeds[0]
@@ -475,7 +475,7 @@ class HuntManager:
                         embed.description = embed.description[embed.description.find("%") + 1:]
                         embed.description = f"{xivhunt['status']}%{embed.description}"
                     if content[0] == "~":
-                        embed.set_image(url=discord.Embed.Empty)
+                        embed.set_image(url=None)
 
                     if time_left >= 0:
                         remaining_str = RemainingTime(time_left).to_simple()

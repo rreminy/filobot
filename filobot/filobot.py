@@ -33,7 +33,9 @@ log.addHandler(ch)
 
 db.create_tables([Subscriptions, SubscriptionsMeta, ScoutingSessions, ScoutingHunts, Player, GuildSettings, KillLog, Blacklist])
 
-bot = commands.Bot(command_prefix='g.')
+intents = discord.Intents.default()
+
+bot = commands.Bot(command_prefix='g.', intents=intents)
 hunt_manager = HuntManager(bot)
 bot.add_cog(Hunts(bot, hunt_manager))
 # bot.add_cog(Scouting(bot, hunt_manager))

@@ -1,6 +1,6 @@
 aiohttp
 peewee
-discord.py>=1.3.4
+discord.py>=2.0.0
 arrow
 PyYAML
 gitpython

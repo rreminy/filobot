@@ -34,6 +34,7 @@ log.addHandler(ch)
 db.create_tables([Subscriptions, SubscriptionsMeta, ScoutingSessions, ScoutingHunts, Player, GuildSettings, KillLog, Blacklist])
 
 intents = discord.Intents.default()
+intents.message_content = True
 
 bot = commands.Bot(command_prefix='g.', intents=intents)
 hunt_manager = HuntManager(bot)

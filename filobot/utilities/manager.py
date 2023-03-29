@@ -521,8 +521,9 @@ class HuntManager:
             )
             embed = hunt_simple_embed(new.name, new)
         except:
-            self._log.warning(f"""{hunt['Name']}""")
-            raise
+            # self._log.warning(f"""{hunt['Name']}""")
+            # raise
+            return
 
         for sub in subs:  # type: Subscriptions
             if new.status == new.STATUS_OPENED and self.COND_OPEN == sub.event:

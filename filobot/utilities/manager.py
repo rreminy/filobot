@@ -430,9 +430,9 @@ class HuntManager:
                     # Get the original content
                     content = notification.content
 
-                    time_left = xivhunt['last_seen'] if xivhunt else 0
+                    time_left = xivhunt['last_seen'] if xivhunt else -1
 
-                    if (not time_left or int(xivhunt['status']) == 100) and self.COND_DEAD == sub.event:
+                    if (time_left == 0 or int(xivhunt['status']) == 100) and self.COND_DEAD == sub.event:
                         killed  = notification.edited_at.replace(tzinfo=datetime.timezone.utc).timestamp() if not time_left and notification.edited_at is not None else int(time.time())
                         seconds = killed - log.found
                         ja_seconds = ""
@@ -453,14 +453,17 @@ class HuntManager:
 
                         is_jp = Worlds.get_world_datacenter(world) in self.JA_DATACENTERS
 
-                        if time_left:
+                        if time_left > 0:
                             content = f"~~{content}~~ {self.get_killed_text(seconds, is_jp)}"
                         elif (xivhunt is not None and int(xivhunt['status']) > 0):
                             if notification.edited_at is not None and (time.time() - notification.edited_at.timestamp()) > 120:
+                                self._log.debug(f"FATE {name} on world {world} instance {instance} killed\n{repr(xivhunt)}")
                                 content = f"~~{content}~~ {self.get_killed_text(seconds, is_jp)}"
                             else:
+                                self._log.debug(f"FATE {name} on world {world} instance {instance} expired [1]\n{repr(xivhunt)}")
                                 content = f"~~{content}~~ {self.get_expired_text(seconds, is_jp)}"
                         else:
+                            self._log.debug(f"FATE {name} on world {world} instance {instance} expired [2]\n{repr(xivhunt)}")
                             content = f"~~{content}~~ {self.get_expired_text(seconds, is_jp)}"
 
                         del self._notifications[sub.channel_id][world][_key]
@@ -472,6 +475,7 @@ class HuntManager:
                     embed = notification.embeds[0]
 
                     if xivhunt:
+                        self._log.debug(f"FATE {name} on world {world} instance {instance} data\n{repr(xivhunt)}")
                         embed.description = embed.description[embed.description.find("%") + 1:]
                         embed.description = f"{xivhunt['status']}%{embed.description}"
                     if content[0] == "~":
@@ -770,13 +774,13 @@ class HuntManager:
 
         elif name.lower() in self._fates_info.keys():
             if _key in self._hunts[world]['xivhunt']:
-                self._log.debug(f"FATE {name} on instance {instance} already logged, updating progress.")
+                self._log.debug(f"FATE {name} on {world} instance {instance} already logged, updating progress.")
                 await self.on_progress(world, name, xivhunt, instance)
                 return
 
             if f"{world}_{_key}" in self._fate_timers:
                 if int(time.time()) - (int(self._fate_timers[f"{world}_{_key}"]) / 1000) <= 3600:
-                    self._log.info(f"A fate was found that just found! Laggy computer? World: {world} (Instance {instance}) :: {name}")
+                    self._log.info(f"A FATE was found that just found! Laggy computer? World: {world} (Instance {instance}) :: {name}")
                     return
             self._fate_timers[f"{world}_{_key}"] = time.time() * 1000;
 
@@ -917,6 +921,7 @@ class HuntManager:
         try:
             return Worlds.get_world_by_id(id)
         except:
+            return None
             raise IndexError(f'No world with the ID {id} could be found')
 
     def get_zone(self, id: int):

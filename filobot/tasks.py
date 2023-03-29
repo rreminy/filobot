@@ -104,6 +104,8 @@ async def _process_hunt(source, data):
     try:
         alive   = data['lastAlive'] == 'True'
         world   = hunt_manager.get_world(int(data['wId']))
+        if world is None:
+            return
         hunt    = hunt_manager.horus.id_to_hunt(data['id'])
         _plus   = 22.5 if hunt['ZoneName'] in hunt_manager.HW_ZONES else 21.5
         if config.get(source, 'x') == config.get(source, 'y'): # Some JSON structs use an array for X and Y
@@ -193,6 +195,8 @@ async def _process_fate(source, data):
             return
 
         world   = hunt_manager.get_world(int(data[config.get(source, 'wId')]))
+        if world is None:
+            return
         fate    = hunt_manager.horus.id_to_fate(data[config.get(source, 'id')])
         _plus   = 22.5 if fate['ZoneName'] in hunt_manager.HW_ZONES else 21.5
         if config.get(source, 'x') == config.get(source, 'y'): # Some JSON structs use an array for X and Y

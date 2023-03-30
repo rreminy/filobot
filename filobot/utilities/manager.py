@@ -170,9 +170,11 @@ class HuntManager:
         self._recheck_cbs.append(callback)
 
     async def check_fates(self):
+        self._log.debug(f"""Checking FATES""")
         for world in self._recent_fates:
             for recent_fate, expired_time in self._recent_fates[world].items():
                 time_distance = (int(time.time()) - expired_time)
+                # self._log.debug(f"""recent_fate: {repr(recent_fate)}\nexpired_time: {repr(expired_time)}\ntime_distance: {repr(time_distance)}""")
                 if time_distance >= 60 and time_distance < 180:
                     if recent_fate in self._hunts[world]['xivhunt']:
                         self._hunts[world]['xivhunt'].remove(recent_fate)
@@ -185,6 +187,7 @@ class HuntManager:
 
                     if self._notifications[channel][world][key] and name in self._fates_info.keys():
                         message, log = self._notifications[channel][world][key]
+                        message = await message.fetch()
                         try:
                             embed = message.embeds[0]
                         except:
@@ -196,8 +199,11 @@ class HuntManager:
                         seconds_left = RemainingTime.from_simple_time(embed.footer.text if isinstance(embed.footer.text, str) else "30:00").to_seconds()
                         message_time = message.edited_at if message.edited_at is not None else message.created_at
 
-                        if int(time.time()) >= int(message_time.replace(tzinfo=datetime.timezone.utc).timestamp()) + seconds_left:
+                        self._log.info(f"""edited_at: {repr(message.edited_at)}\ncreated_at: {repr(message.created_at)}""")
+
+                        if int(time.time()) >= int(message_time.timestamp()) + seconds_left:
                             #  Strikethrough the fate!
+                            # self._log.info(f"""Expiring? Fate: {self._fates_info[name]['Name']} ({world})\n{time.time()} >= {int(message_time.replace(tzinfo=datetime.timezone.utc).timestamp())} + {seconds_left} ({int(message_time.replace(tzinfo=datetime.timezone.utc).timestamp()) + seconds_left})""")
                             job_list.append(self.on_progress(world, self._fates_info[name]['Name'], None, int(key.rsplit("_")[1])))
         await asyncio.gather(*job_list)
 
@@ -426,13 +432,14 @@ class HuntManager:
 
                 if notification:
                     notification, log = notification
+                    notification = await notification.fetch()
 
                     # Get the original content
                     content = notification.content
 
-                    time_left = xivhunt['last_seen'] if xivhunt else -1
+                    time_left = xivhunt['last_seen'] if xivhunt else 0
 
-                    if (time_left == 0 or int(xivhunt['status']) == 100) and self.COND_DEAD == sub.event:
+                    if (not time_left or int(xivhunt['status']) == 100) and self.COND_DEAD == sub.event:
                         killed  = notification.edited_at.replace(tzinfo=datetime.timezone.utc).timestamp() if not time_left and notification.edited_at is not None else int(time.time())
                         seconds = killed - log.found
                         ja_seconds = ""
@@ -453,11 +460,12 @@ class HuntManager:
 
                         is_jp = Worlds.get_world_datacenter(world) in self.JA_DATACENTERS
 
-                        if time_left > 0:
+                        if time_left:
+                            self._log.debug(f"FATE {name} on world {world} instance {instance} killed [1]\n{repr(xivhunt)}")
                             content = f"~~{content}~~ {self.get_killed_text(seconds, is_jp)}"
                         elif (xivhunt is not None and int(xivhunt['status']) > 0):
                             if notification.edited_at is not None and (time.time() - notification.edited_at.timestamp()) > 120:
-                                self._log.debug(f"FATE {name} on world {world} instance {instance} killed\n{repr(xivhunt)}")
+                                self._log.debug(f"FATE {name} on world {world} instance {instance} killed [2]\n{repr(xivhunt)}")
                                 content = f"~~{content}~~ {self.get_killed_text(seconds, is_jp)}"
                             else:
                                 self._log.debug(f"FATE {name} on world {world} instance {instance} expired [1]\n{repr(xivhunt)}")
@@ -514,6 +522,8 @@ class HuntManager:
         Hunt status change event handler
         """
         hunt = self._marks_info[old.name.lower()]
+        if 'Channel' not in hunt:
+            return
         try:
             subs = Subscriptions.select().where(
                     (Subscriptions.world == world)
@@ -770,7 +780,7 @@ class HuntManager:
                                 if _key in self._notifications[n_channel][world]:
                                     del self._notifications[n_channel][world][_key]
             else:
-                self._log.debug(f"""Ignoring notifications for {hunt['Rank']} rank hunts""")
+                # self._log.debug(f"""Ignoring notifications for {hunt['Rank']} rank hunts""")
                 return
 
         elif name.lower() in self._fates_info.keys():

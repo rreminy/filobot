@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import traceback
 from configparser import ConfigParser
@@ -38,12 +39,12 @@ intents.message_content = True
 
 bot = commands.Bot(command_prefix='g.', intents=intents)
 hunt_manager = HuntManager(bot)
-bot.add_cog(Hunts(bot, hunt_manager))
-# bot.add_cog(Scouting(bot, hunt_manager))
-bot.add_cog(FFXIV(bot, config.get('Bot', 'XivApiKey')))
-bot.add_cog(Admin(bot))
-bot.add_cog(Misc(bot, hunt_manager))
-bot.add_cog(Settings(bot))
+asyncio.run(bot.add_cog(Hunts(bot, hunt_manager)))
+# asyncio.run(bot.add_cog(Scouting(bot, hunt_manager)))
+asyncio.run(bot.add_cog(FFXIV(bot, config.get('Bot', 'XivApiKey'))))
+asyncio.run(bot.add_cog(Admin(bot)))
+asyncio.run(bot.add_cog(Misc(bot, hunt_manager)))
+asyncio.run(bot.add_cog(Settings(bot)))
 
 GAMES = ("with moogles", "in Totomo Omo's estate", "in the Izakaya Pub",
          "pranks on Joel Cleveland'", "with the hunt tracker", "Diabolos", "with hunts",

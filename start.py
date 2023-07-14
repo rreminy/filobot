@@ -1,5 +1,5 @@
 import asyncio
-from filobot.filobot import config, bot
+from filobot.filobot import config, bot, hunt_manager
 from filobot.tasks import update_game, update_hunts, update_fates, update_worlds, start_server, discord_listener, track_stats, feed_listener, auto_restart
 import filobot.utilities.worlds as worlds
 

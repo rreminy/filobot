@@ -65,12 +65,19 @@ MAPS = {
 }
 
 SS_MINIONS_MAPS = {
-    813: "https://cdn.discordapp.com/attachments/717852161479802885/873212267322282024/lakeland.jpg",
-    814: "https://cdn.discordapp.com/attachments/717852161479802885/873212267313909800/kholusia.jpg",
-    815: "https://cdn.discordapp.com/attachments/717852161479802885/873212267259363348/ahmaraeng.jpg",
-    816: "https://cdn.discordapp.com/attachments/717852161479802885/873212267771068446/ilmheg.jpg",
-    817: "https://cdn.discordapp.com/attachments/717852161479802885/873212267242594324/raktika.jpg",
-    818: "https://cdn.discordapp.com/attachments/717852161479802885/873212267368448010/tempest.jpg",
+    813: "https://assets.ffxivsonar.com/ssminions/813.jpg",
+    814: "https://assets.ffxivsonar.com/ssminions/814.jpg",
+    815: "https://assets.ffxivsonar.com/ssminions/815.jpg",
+    816: "https://assets.ffxivsonar.com/ssminions/816.jpg",
+    817: "https://assets.ffxivsonar.com/ssminions/817.jpg",
+    818: "https://assets.ffxivsonar.com/ssminions/818.jpg",
+
+    956: "https://assets.ffxivsonar.com/ssminions/956.jpg",
+    957: "https://assets.ffxivsonar.com/ssminions/957.jpg",
+    958: "https://assets.ffxivsonar.com/ssminions/958.jpg",
+    959: "https://assets.ffxivsonar.com/ssminions/959.jpg",
+    960: "https://assets.ffxivsonar.com/ssminions/960.jpg",
+    961: "https://assets.ffxivsonar.com/ssminions/961.jpg",
 }
 
 SB_HUNTS   = ['erle', 'orcus', 'aqrabuamelu', 'vochstein', 'luminare', 'mahisha', 'funa yurei', 'oni yumemi',

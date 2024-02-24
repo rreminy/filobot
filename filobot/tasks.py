@@ -189,6 +189,7 @@ async def _process_chaoshunt(source, data, message):
 
 
 fate_progress = dict()
+fate_start = dict()
 async def _process_fate(source, data):
     try:
         if (int(data['state']) == 255):
@@ -222,13 +223,22 @@ async def _process_fate(source, data):
             'zone_id': int(data["zoneID"]),
         }
 
-        # Rate limit updates
+        # Fate key
         key = f"{world}_{fate}_{i}";
-        xivhunt["status"] = str(int(int(data['progress']) / 20) * 20)
-        if int(xivhunt["status"]) != 0 and int(xivhunt["status"]) != 100 and key in fate_progress:
-            if fate_progress[key] == xivhunt["status"]:
+
+        # Variables
+        startTimeEpoch = int(data['startTimeEpoch'])
+        progress = int(int(data['progress']) / 20) * 20
+        xivhunt["status"] = str(progress)
+
+        # Rate limit updates
+        if key in fate_start and fate_start[key] == startTimeEpoch: # Similar to hunt's Actor IDs, startTimeEpoch can be used similarly
+            if key in fate_progress and fate_progress[key] == progress:
                 return
-        fate_progress[key] = xivhunt["status"]
+
+        # Update rate limiting check values
+        fate_start[key] = startTimeEpoch
+        fate_progress[key] = progress
 
         # A hack to get the correct zone name (each fate id is in a unique zone and position, so this should work)
         zone = hunt_manager.get_zone(data["zoneID"])

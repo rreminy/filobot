@@ -224,7 +224,7 @@ async def _process_fate(source, data):
 
         # Rate limit updates
         key = f"{world}_{fate}_{i}";
-        xivhunt["status"] = str(int(int(data['progress']) / 5) * 5)
+        xivhunt["status"] = str(int(int(data['progress']) / 20) * 20)
         if int(xivhunt["status"]) != 0 and int(xivhunt["status"]) != 100 and key in fate_progress:
             if fate_progress[key] == xivhunt["status"]:
                 return

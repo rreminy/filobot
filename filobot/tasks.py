@@ -224,11 +224,17 @@ async def _process_fate(source, data):
         }
 
         # Fate key
-        key = f"{world}_{fate}_{i}";
+        key = f"{world}_{fate}_{i}"
+        fate_info = hunt_manager._fates_info[fate['Name'].lower()]
+
+        # Update interval
+        progressUpdateInterval = 5
+        if "ProgressUpdateInterval" in fate_info:
+            progressUpdateInterval = fate_info["ProgressUpdateInterval"]
 
         # Variables
         startTimeEpoch = int(data['startTimeEpoch'])
-        progress = int(int(data['progress']) / 20) * 20
+        progress = int(int(data['progress']) / progressUpdateInterval) * progressUpdateInterval
         xivhunt["status"] = str(progress)
 
         # Rate limit updates
@@ -242,11 +248,11 @@ async def _process_fate(source, data):
 
         # A hack to get the correct zone name (each fate id is in a unique zone and position, so this should work)
         zone = hunt_manager.get_zone(data["zoneID"])
-        hunt_manager._fates_info[fate['Name'].lower()]['ZoneName'] = zone
-        hunt_manager._fates_info[fate['Name'].lower()]['ZoneID'] = int(data["zoneID"])
+        fate_info['ZoneName'] = zone
+        fate_info['ZoneID'] = int(data["zoneID"])
 
         # Add missing duration to the fate information
-        if (not 'Duration' in hunt_manager._fates_info[fate['Name'].lower()]) or duration > hunt_manager._fates_info[fate['Name'].lower()]['Duration']:
+        if (not 'Duration' in fate_info) or duration > hunt_manager._fates_info[fate['Name'].lower()]['Duration']:
             hunt_manager._fates_info[fate['Name'].lower()]['Duration'] = duration
 
     except:

@@ -592,6 +592,7 @@
     "MinSpawn": 129600000,
     "MinSpawnMaint": 77760000,
     "MaxSpawn": 129600000,
-    "MaxSpawnMaint": 77760000
+    "MaxSpawnMaint": 77760000,
+    "ProgressUpdateInterval": 20
   }
 }

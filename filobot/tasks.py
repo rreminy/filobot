@@ -51,6 +51,7 @@ async def feed_listener(source):
             sessions = []
 
             for dataCenter in dataCenters:
+                log.info(f"Connecting to bear for {dataCenter}")
                 session = socketio.AsyncClient()
                 await session.connect(address, namespaces='/HuntUpdate', socketio_path='/socket', retry=True)
                 await session.emit('Change Room Request', dataCenter, namespace='/HuntUpdate')

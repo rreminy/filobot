@@ -8,10 +8,12 @@ import os
 import discord
 from aiohttp import web
 import aiohttp
+import socketio
 
 from filobot.filobot import config, bot, GAMES, hunt_manager, log
 from filobot.models import Player
 import filobot.utilities.worlds as worlds
+from filobot.utilities.horus import HorusHunt
 
 import json
 
@@ -42,22 +44,79 @@ async def update_fates():
 # noinspection PyBroadException
 async def feed_listener(source):
     address = config.get(source, "address")
-    async with aiohttp.ClientSession() as session:
-        while not bot.is_closed():
-            await asyncio.sleep(15.0);
-            try:
-                log.info(f"Connecting to {address}")
-                async with session.ws_connect(address) as ws:
-                    async for msg in ws:
-                        try:
-                            data = json.loads(msg.data)
-                            await _process_data(source, data, None)
-                        except:
-                            pass
-            except Exception:
-                log.exception(f"Exception occurred in feed listener associated with {address}")
-                pass # TODO: Logging
 
+    if 'bear' in address:
+        try:
+            dataCenters = list(hunt_manager.JA_DATACENTERS) + list(hunt_manager.EU_DATACENTERS) + list(hunt_manager.NA_DATACENTERS) + list(hunt_manager.OC_DATACENTERS)
+            sessions = []
+
+            for dataCenter in dataCenters:
+                session = socketio.AsyncClient()
+                await session.connect(address, namespaces='/HuntUpdate', socketio_path='/socket', retry=True)
+                await session.emit('Change Room Request', dataCenter, namespace='/HuntUpdate')
+                session.on('*', handler=bear_handler, namespace='/HuntUpdate')
+                sessions.append(session)
+
+            while not bot.is_closed():
+                await asyncio.sleep(15.0) # Nothing to do anymore! But we can stall indefinitely until shutdown so we can disconnect properly
+
+            for session in sessions:
+                session.disconnect()
+        except Exception:
+                log.exception(f"Exception occurred in feed listener associated with {address}")
+                pass
+    else:
+        async with aiohttp.ClientSession() as session:
+            while not bot.is_closed():
+                await asyncio.sleep(15.0)
+                try:
+                    log.info(f"Connecting to {address}")
+                    async with session.ws_connect(address) as ws:
+                        async for msg in ws:
+                            try:
+                                data = json.loads(msg.data)
+                                await _process_data(source, data, None)
+                            except:
+                                pass
+                except Exception:
+                    log.exception(f"Exception occurred in feed listener associated with {address}")
+                    pass # TODO: Logging
+
+# noinspection PyBroadException
+async def bear_handler(self, data):
+    try:
+        if data is not None and type(data) == dict and len(data) > 1:
+            if 'huntName' in data and data['huntName'].lower() in hunt_manager.getmarksinfo() and 'lastDeathTime' in data and 'expectMinTime' in data:
+                lastAlive = False if int(data['lastDeathTime']) > int(data['expectMinTime']) else True
+
+                if lastAlive:
+                    horusHunt = await hunt_manager.horus.update_bear(data)
+
+                    if horusHunt is not None:
+                        await hunt_manager.recheck_trackers('FeedListener2', data['huntName'], horusHunt, 0)
+            if 'fateName' in data and 'completed' in data:
+                progress = 100 if data['completed'] else 0
+
+                if progress == 100 and data['fateId'] in hunt_manager.horus.fates_info:
+                    fateStruct = {
+                        'progress': 100,
+                        'duration': 0,
+                        'startTimeEpoch': 0,
+                        'world': data['worldName'],
+                        'id': data['fateId'],
+                        'state': 1,
+                        'x': 1,
+                        'y': 1,
+                        'i': 1,
+                        'lastReported': data['lastDeath'].replace('T', ' ').split('.')[0],
+                        'zoneID': str(hunt_manager.get_zone_id(hunt_manager.horus.fates_info[data['fateId']]['ZoneName'])),
+                    }
+
+                    await _process_data('FeedListener2', fateStruct, None)
+    except:
+        log.exception(data)
+        log.exception("Exception occurred in feed listener associated with bear while processing last message")
+        pass
 
 # noinspection PyBroadException
 async def update_game():
@@ -186,8 +245,6 @@ async def _process_chaoshunt(source, data, message):
         log.exception('Exception thrown') # for testing fates stuff
         return
 
-
-
 fate_progress = dict()
 fate_start = dict()
 async def _process_fate(source, data):
@@ -195,7 +252,7 @@ async def _process_fate(source, data):
         if (int(data['state']) == 255):
             return
 
-        world   = hunt_manager.get_world(int(data[config.get(source, 'wId')]))
+        world   = data['world'] if 'world' in data and data['world'] is not None else hunt_manager.get_world(int(data[config.get(source, 'wId')]))
         if world is None:
             return
         fate    = hunt_manager.horus.id_to_fate(data[config.get(source, 'id')])
@@ -203,7 +260,7 @@ async def _process_fate(source, data):
         if config.get(source, 'x') == config.get(source, 'y'): # Some JSON structs use an array for X and Y
             data[config.get(source, 'x')] = data[config.get(source, 'x')]['x']
             data[config.get(source, 'y')] = data[config.get(source, 'y')]['y']
-        x, y    = round((float(data[config.get(source, 'x')]) * 0.02 + _plus)*10)/10, round((float(data[config.get(source, 'y')]) * 0.02 + _plus)*10)/10
+        x, y    = (data['x'], data['y']) if 'world' in data and data['world'] is not None else (round((float(data[config.get(source, 'x')]) * 0.02 + _plus)*10)/10, round((float(data[config.get(source, 'y')]) * 0.02 + _plus)*10)/10)
         i = data[config.get(source, 'i')] if config.get(source, 'i') in data else 0
         lastreported = data[config.get(source, 'lastReported')]
         last_seen = datetime.datetime.fromisoformat(lastreported).replace(tzinfo=datetime.timezone.utc).timestamp()
@@ -235,6 +292,8 @@ async def _process_fate(source, data):
         # Variables
         startTimeEpoch = int(data['startTimeEpoch'])
         progress = int(int(data['progress']) / progressUpdateInterval) * progressUpdateInterval
+        if (progress > 90 and source == "FeedListener1"):
+            return 
         xivhunt["status"] = str(progress)
 
         # Rate limit updates
@@ -243,7 +302,8 @@ async def _process_fate(source, data):
                 return
 
         # Update rate limiting check values
-        fate_start[key] = startTimeEpoch
+        if startTimeEpoch > 0:
+                fate_start[key] = startTimeEpoch
         fate_progress[key] = progress
 
         # A hack to get the correct zone name (each fate id is in a unique zone and position, so this should work)

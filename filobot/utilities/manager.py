@@ -25,7 +25,7 @@ class HuntManager:
 
     JA_DATACENTERS = ('Elemental', 'Gaia', 'Mana', 'Meteor')
     EU_DATACENTERS = ('Light', 'Chaos')
-    NA_DATACENTERS = ('Primal', 'Aether', 'Crystal')
+    NA_DATACENTERS = ('Primal', 'Aether', 'Crystal', 'Dynamis')
     OC_DATACENTERS = ('Materia')
 
     SUB_EW_A    = 'endwalker_a'
@@ -158,6 +158,28 @@ class HuntManager:
             self._hunts[world]['horus'] = horus
             await self.on_recheck(world, horus)
 
+    async def recheck_trackers(self, source: str, name: str, hunt: HorusHunt, instance: int):
+        """
+        Acknowledge hunt data from Beartracker
+        Calls on_change and on_find events respectively
+        """
+        world = hunt.world
+
+        if world not in self._hunts:
+            self._hunts[world] = {'horus': {}, 'xivhunt': []}
+
+        self._changed[world] = {}
+        self._found[world] = {}
+
+        key = f"{name.strip().lower()}_{instance}"
+
+        job_list = list()
+        if key in self._hunts[world]['horus'] and hunt.status != self._hunts[world]['horus'][key].status and hunt.open_date > self._hunts[world]['horus'][key].open_date:
+            self._log.info(f"""Hunt status for {name} on {world} (Instance {hunt.instance}) changed - {self._hunts[world]['horus'][key].status.title()} => {hunt.status.title()}""")
+            self._changed[world][key] = hunt
+            job_list.append(self.on_change(world, self._hunts[world]['horus'][key], hunt))
+        await asyncio.gather(*job_list)
+
     async def on_recheck(self, world: str, horus: HorusHunt):
         for callback in self._recheck_cbs:
             await callback(world, horus)
@@ -180,9 +202,9 @@ class HuntManager:
                         self._hunts[world]['xivhunt'].remove(recent_fate)
 
         job_list = list()
-        for channel in self._notifications:
-            for world in self._notifications[channel]:
-                for key in self._notifications[channel][world]:
+        for channel in list(self._notifications.keys()):
+            for world in list(self._notifications[channel].keys()):
+                for key in list(self._notifications[channel][world].keys()):
                     name = key.rsplit("_")[0]
 
                     if self._notifications[channel][world][key] and name in self._fates_info.keys():
@@ -600,16 +622,16 @@ class HuntManager:
                 if horusHunt.rank == 'A' and horusHunt.zone in self.EW_ZONES and horusHunt.name != new.name:
                     if horusHunt.status != horusHunt.STATUS_DIED:
                         hunts_living = True
-                    if horusHunt.status == horusHunt.STATUS_DIED and int(horusHunt.last_death) / 1000 > previous_death:
-                        previous_death = int(horusHunt.last_death) / 1000
+                    if horusHunt.status == horusHunt.STATUS_DIED and int(horusHunt.last_alive) / 1000 > previous_death:
+                        previous_death = int(horusHunt.last_alive) / 1000
 
-            if not hunts_living and int(time.time()) - (int(new.last_death) / 1000) < 60:  # If last death report is retroactive, don't send a random "Complete" message
+            if not hunts_living and int(time.time()) - (int(new.last_alive) / 1000) < 60:  # If last death report is retroactive, don't send a random "Complete" message
                 # All A ranks are dead, alter the train message
                 await self.on_train(world, new.name, None, True, new.instance)
                 return
 
-            if previous_death and int(int(new.last_death) / 1000) == int(int(new.last_mark) / 1000): # Don't report a train if it's a retroactive mark
-                time_between = (int(new.last_death) / 1000) - previous_death
+            if previous_death and int(int(new.last_alive) / 1000) == int(int(new.last_mark) / 1000): # Don't report a train if it's a retroactive mark
+                time_between = (int(new.last_alive) / 1000) - previous_death
 
                 if time_between > 40 and time_between < 240:  # More than 40 seconds, less than 4 minutes between deaths?
                     await self.on_train(world, new.name, None, False, new.instance)  # It's a train then
@@ -697,14 +719,14 @@ class HuntManager:
                     #self._log.info("Endwalker A rank - checking for train...")
                     for key, horusHunt in self._hunts[world]['horus'].items():
                         if horusHunt.rank == 'A' and horusHunt.zone in self.EW_ZONES:
-                            if horusHunt.status == horusHunt.STATUS_DIED and int(time.time()) - (int(horusHunt.last_death) / 1000) <= 120:
+                            if horusHunt.status == horusHunt.STATUS_DIED and int(time.time()) - (int(horusHunt.last_alive) / 1000) <= 120:
                                 #self._log.info("Train detected")
                                 await self.on_train(world, name, xivhunt, False, instance)
                                 #self._log.info("On train call successful")
                                 break
 
                 if _key in self._hunts[world]['horus'].keys():
-                    if int(time.time()) - (int(self._hunts[world]['horus'][_key].last_death) / 1000) <= 3600:
+                    if int(time.time()) - (int(self._hunts[world]['horus'][_key].last_alive) / 1000) <= 3600:
                         #self._log.info(f"A hunt was found that just died! Laggy computer? World: {world} (Instance {instance}) :: {name}, Rank {xivhunt['rank']}")
                         return  # Trying to report a hunt that already died in the last 5 minutes. Someone's laggy computer?
 

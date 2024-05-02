@@ -38,6 +38,52 @@ class Horus:
         self._cached_response = {}
         self._cached_time = 0
 
+        self._bear = {}
+
+    async def update_bear(self, data: dict):
+        world = data['worldName']
+
+        if not world in self._bear:
+            if world in self._cached_response:
+                self._bear = self._cached_response
+            else:
+                return None
+
+        instance = 0 if 'instance' not in data else data['instance']
+        _key = data['huntName'].strip().lower() + f"_{instance}"
+
+        if _key not in self._bear[world]['timers']:
+            for key in self._bear[world]['timers']:
+                if self.id_to_hunt(self._bear[world]['timers'][key]['Id'])['Name'] == data['huntName'] and self._bear[world]['timers'][key]['ins'] == instance:
+                    self._bear[world]['timers'][_key] = self._bear[world]['timers'][key]
+                    break
+            if _key not in self._bear[world]['timers']:
+                print('Issue fixing key issue')
+                return None
+
+        Id = self._bear[world]['timers'][_key]['Id']
+
+        timer = {
+            'Id': self._bear[world]['timers'][_key]['Id'],
+            'world': world,
+            'minRespawn': self._bear[world]['timers'][_key]['minRespawn'],
+            'maxRespawn': self._bear[world]['timers'][_key]['maxRespawn'],
+            'lastDeath': "True",
+            'openDate': data['expectMinTime'],
+            'maxDate': data['expectMaxTime'],
+            'lastAlive': data['lastDeathTime'],
+            'lastTryUnix': self._bear[world]['timers'][_key]['lastTryUnix'],
+            'lastTryUser': self._bear[world]['timers'][_key]['lastTryUser'],
+            'lastMark': data['lastDeathTime'],
+            'ins': instance
+        }
+
+        hunt_data = self.id_to_hunt(self._bear[world]['timers'][_key]['Id'])
+
+        self._bear[world]['timers'][_key] = timer
+
+        return HorusHunt(hunt_data, timer, timer['ins'])
+
     async def update_horus(self):
         if time.time() <= self._cached_time + self.CACHE_TTL:
             self._log.debug("Horus data already up to date")
@@ -64,7 +110,10 @@ class Horus:
         hunts = {}
         for key, timer in timers.items():
             hunt_data = self.id_to_hunt(timer['Id'])
-            hunts[hunt_data['Name'].strip().lower() + f"_{timer['ins']}"] = HorusHunt(hunt_data, timer, timer['ins'])
+            _key = hunt_data['Name'].strip().lower() + f"_{timer['ins']}"
+            if world in self._bear and _key in self._bear[world]['timers'] and (self._bear[world]['timers'][_key]['openDate'] > self._bear[world]['timers'][_key]['lastAlive']) and (self._bear[world]['timers'][_key]['lastAlive'] > timer['openDate']):
+                timer = self._bear[world]['timers'][key]
+            hunts[_key] = HorusHunt(hunt_data, timer, timer['ins'])
 
         return hunts
 

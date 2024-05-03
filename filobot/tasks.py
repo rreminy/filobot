@@ -143,8 +143,8 @@ async def _process_data(source, data, message):
                 #logger.debug(f"Processing {data['id']} as a fate")
                 await _process_fate(source, data)
             elif data['id'] in marks_info: # It's a hunt
-                if chaosHunt and marks_info[data['id']]['Rank'] == "S":
-                    huntInstance[marks_info[data['id']]['Name']] = data[config.get(source, 'i')] if config.get(source, 'i') in data else 0
+                if chaosHunts and marks_info[data['id']]['Rank'] == "S":
+                    huntInstance[hunt_manager.get_world(int(data['wId'])) + '_' + marks_info[data['id']]['Name']] = data[config.get(source, 'i')] if config.get(source, 'i') in data else 0
                     return
                 #logger.debug(f"Processing {data['id']} as a hunt")
                 await _process_hunt(source, data)
@@ -223,7 +223,7 @@ async def _process_chaoshunt(source, data, message):
         if not hunt:
             return
         x, y    = message.content.split("(")[1].split(",")[0].strip(), message.content.split("(")[1].split(",")[1].split(")")[0].strip()
-        i = huntInstance[hunt['Name']] if hunt['Name'] in huntInstance else 1
+        i = huntInstance[world + '_' + hunt['Name']] if (world + '_' + hunt['Name']) in huntInstance else 1
         last_seen = int(time.time())
         xivhunt = {
             'rank': hunt['Rank'],

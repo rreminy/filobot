@@ -14,7 +14,8 @@
     "MinSpawn": 129600000,
     "MinSpawnMaint": 77760000,
     "MaxSpawn": 129600000,
-    "MaxSpawnMaint": 77760000
+    "MaxSpawnMaint": 77760000,
+    "BlueMageSpells": ""
   },
   "197": {
     "ID": 197,
@@ -31,7 +32,8 @@
     "MinSpawn": 129600000,
     "MinSpawnMaint": 77760000,
     "MaxSpawn": 129600000,
-    "MaxSpawnMaint": 77760000
+    "MaxSpawnMaint": 77760000,
+    "BlueMageSpells": ""
   },
   "198": {
     "ID": 198,
@@ -48,7 +50,8 @@
     "MinSpawn": 129600000,
     "MinSpawnMaint": 77760000,
     "MaxSpawn": 129600000,
-    "MaxSpawnMaint": 77760000
+    "MaxSpawnMaint": 77760000,
+    "BlueMageSpells": ""
   },
   "199": {
     "ID": 199,
@@ -65,7 +68,8 @@
     "MinSpawn": 129600000,
     "MinSpawnMaint": 77760000,
     "MaxSpawn": 129600000,
-    "MaxSpawnMaint": 77760000
+    "MaxSpawnMaint": 77760000,
+    "BlueMageSpells": ""
   },
   "200": {
     "ID": 200,
@@ -82,7 +86,8 @@
     "MinSpawn": 129600000,
     "MinSpawnMaint": 77760000,
     "MaxSpawn": 129600000,
-    "MaxSpawnMaint": 77760000
+    "MaxSpawnMaint": 77760000,
+    "BlueMageSpells": ""
   },
   "201": {
     "ID": 201,
@@ -99,7 +104,8 @@
     "MinSpawn": 129600000,
     "MinSpawnMaint": 77760000,
     "MaxSpawn": 129600000,
-    "MaxSpawnMaint": 77760000
+    "MaxSpawnMaint": 77760000,
+    "BlueMageSpells": ""
   },
   "202": {
     "ID": 202,
@@ -116,7 +122,8 @@
     "MinSpawn": 129600000,
     "MinSpawnMaint": 77760000,
     "MaxSpawn": 129600000,
-    "MaxSpawnMaint": 77760000
+    "MaxSpawnMaint": 77760000,
+    "BlueMageSpells": ""
   },
   "203": {
     "ID": 203,
@@ -133,7 +140,8 @@
     "MinSpawn": 129600000,
     "MinSpawnMaint": 77760000,
     "MaxSpawn": 129600000,
-    "MaxSpawnMaint": 77760000
+    "MaxSpawnMaint": 77760000,
+    "BlueMageSpells": ""
   },
   "204": {
     "ID": 204,
@@ -150,7 +158,8 @@
     "MinSpawn": 129600000,
     "MinSpawnMaint": 77760000,
     "MaxSpawn": 129600000,
-    "MaxSpawnMaint": 77760000
+    "MaxSpawnMaint": 77760000,
+    "BlueMageSpells": ""
   },
   "205": {
     "ID": 205,
@@ -167,7 +176,8 @@
     "MinSpawn": 129600000,
     "MinSpawnMaint": 77760000,
     "MaxSpawn": 129600000,
-    "MaxSpawnMaint": 77760000
+    "MaxSpawnMaint": 77760000,
+    "BlueMageSpells": ""
   },
   "206": {
     "ID": 206,
@@ -184,7 +194,8 @@
     "MinSpawn": 129600000,
     "MinSpawnMaint": 77760000,
     "MaxSpawn": 129600000,
-    "MaxSpawnMaint": 77760000
+    "MaxSpawnMaint": 77760000,
+    "BlueMageSpells": ""
   },
   "207": {
     "ID": 207,
@@ -201,7 +212,8 @@
     "MinSpawn": 129600000,
     "MinSpawnMaint": 77760000,
     "MaxSpawn": 129600000,
-    "MaxSpawnMaint": 77760000
+    "MaxSpawnMaint": 77760000,
+    "BlueMageSpells": ""
   },
   "505": {
     "ID": 505,
@@ -218,7 +230,8 @@
     "MinSpawn": 129600000,
     "MinSpawnMaint": 77760000,
     "MaxSpawn": 129600000,
-    "MaxSpawnMaint": 77760000
+    "MaxSpawnMaint": 77760000,
+    "BlueMageSpells": ""
   },
   "506": {
     "ID": 506,
@@ -235,7 +248,8 @@
     "MinSpawn": 129600000,
     "MinSpawnMaint": 77760000,
     "MaxSpawn": 129600000,
-    "MaxSpawnMaint": 77760000
+    "MaxSpawnMaint": 77760000,
+    "BlueMageSpells": ""
   },
   "877": {
     "ID": 877,
@@ -252,7 +266,8 @@
     "MinSpawn": 129600000,
     "MinSpawnMaint": 77760000,
     "MaxSpawn": 129600000,
-    "MaxSpawnMaint": 77760000
+    "MaxSpawnMaint": 77760000,
+    "BlueMageSpells": ""
   },
   "878": {
     "ID": 878,
@@ -269,7 +284,8 @@
     "MinSpawn": 129600000,
     "MinSpawnMaint": 77760000,
     "MaxSpawn": 129600000,
-    "MaxSpawnMaint": 77760000
+    "MaxSpawnMaint": 77760000,
+    "BlueMageSpells": ""
   },
   "879": {
     "ID": 879,
@@ -286,7 +302,8 @@
     "MinSpawn": 129600000,
     "MinSpawnMaint": 77760000,
     "MaxSpawn": 129600000,
-    "MaxSpawnMaint": 77760000
+    "MaxSpawnMaint": 77760000,
+    "BlueMageSpells": ""
   },
   "902": {
     "ID": 902,
@@ -303,7 +320,8 @@
     "MinSpawn": 129600000,
     "MinSpawnMaint": 77760000,
     "MaxSpawn": 129600000,
-    "MaxSpawnMaint": 77760000
+    "MaxSpawnMaint": 77760000,
+    "BlueMageSpells": ""
   },
   "903": {
     "ID": 903,
@@ -320,7 +338,8 @@
     "MinSpawn": 129600000,
     "MinSpawnMaint": 77760000,
     "MaxSpawn": 129600000,
-    "MaxSpawnMaint": 77760000
+    "MaxSpawnMaint": 77760000,
+    "BlueMageSpells": ""
   },
   "904": {
     "ID": 904,
@@ -337,7 +356,8 @@
     "MinSpawn": 129600000,
     "MinSpawnMaint": 77760000,
     "MaxSpawn": 129600000,
-    "MaxSpawnMaint": 77760000
+    "MaxSpawnMaint": 77760000,
+    "BlueMageSpells": ""
   },
   "905": {
     "ID": 905,
@@ -354,7 +374,8 @@
     "MinSpawn": 129600000,
     "MinSpawnMaint": 77760000,
     "MaxSpawn": 129600000,
-    "MaxSpawnMaint": 77760000
+    "MaxSpawnMaint": 77760000,
+    "BlueMageSpells": "Doom"
   },
   "906": {
     "ID": 906,
@@ -371,7 +392,8 @@
     "MinSpawn": 129600000,
     "MinSpawnMaint": 77760000,
     "MaxSpawn": 129600000,
-    "MaxSpawnMaint": 77760000
+    "MaxSpawnMaint": 77760000,
+    "BlueMageSpells": "Doom"
   },
   "907": {
     "ID": 907,
@@ -388,7 +410,8 @@
     "MinSpawn": 129600000,
     "MinSpawnMaint": 77760000,
     "MaxSpawn": 129600000,
-    "MaxSpawnMaint": 77760000
+    "MaxSpawnMaint": 77760000,
+    "BlueMageSpells": "Doom"
   },
   "1103": {
     "ID": 1103,
@@ -405,7 +428,8 @@
     "MinSpawn": 302400000,
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 129600000,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": ""
   },
   "1104": {
     "ID": 1104,
@@ -422,7 +446,8 @@
     "MinSpawn": 302400000,
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 129600000,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": ""
   },
   "1105": {
     "ID": 1105,
@@ -439,7 +464,8 @@
     "MinSpawn": 302400000,
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 129600000,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": ""
   },
   "1106": {
     "ID": 1106,
@@ -456,7 +482,8 @@
     "MinSpawn": 302400000,
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 129600000,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": ""
   },
   "1107": {
     "ID": 1107,
@@ -473,7 +500,8 @@
     "MinSpawn": 302400000,
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 129600000,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": ""
   },
   "1108": {
     "ID": 1108,
@@ -490,7 +518,8 @@
     "MinSpawn": 302400000,
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 129600000,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": ""
   },
   "1464": {
     "ID": 1464,
@@ -507,7 +536,8 @@
     "MinSpawn": 129600000,
     "MinSpawnMaint": 77760000,
     "MaxSpawn": 129600000,
-    "MaxSpawnMaint": 77760000
+    "MaxSpawnMaint": 77760000,
+    "BlueMageSpells": ""
   },
   "1431": {
     "ID": 1431,
@@ -524,7 +554,8 @@
     "MinSpawn": 129600000,
     "MinSpawnMaint": 77760000,
     "MaxSpawn": 129600000,
-    "MaxSpawnMaint": 77760000
+    "MaxSpawnMaint": 77760000,
+    "BlueMageSpells": ""
   },
   "1432": {
     "ID": 1432,
@@ -541,7 +572,8 @@
     "MinSpawn": 129600000,
     "MinSpawnMaint": 77760000,
     "MaxSpawn": 129600000,
-    "MaxSpawnMaint": 77760000
+    "MaxSpawnMaint": 77760000,
+    "BlueMageSpells": ""
   },
   "1763": {
     "ID": 1763,
@@ -558,7 +590,8 @@
     "MinSpawn": 129600000,
     "MinSpawnMaint": 77760000,
     "MaxSpawn": 129600000,
-    "MaxSpawnMaint": 77760000
+    "MaxSpawnMaint": 77760000,
+    "BlueMageSpells": ""
   },
   "1855": {
     "ID": 1855,
@@ -575,7 +608,8 @@
     "MinSpawn": 129600000,
     "MinSpawnMaint": 77760000,
     "MaxSpawn": 129600000,
-    "MaxSpawnMaint": 77760000
+    "MaxSpawnMaint": 77760000,
+    "BlueMageSpells": ""
   },
   "1712": {
     "ID": 1712,
@@ -593,6 +627,7 @@
     "MinSpawnMaint": 77760000,
     "MaxSpawn": 129600000,
     "MaxSpawnMaint": 77760000,
-    "ProgressUpdateInterval": 20
+    "ProgressUpdateInterval": 20,
+    "BlueMageSpells": ""
   }
 }

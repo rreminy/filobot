@@ -20,7 +20,6 @@ import json
 import logging
 logger = logging.getLogger(__name__)
 
-
 async def update_hunts():
     await bot.wait_until_ready()
 
@@ -91,7 +90,7 @@ async def bear_handler(self, data):
                 lastAlive = False if int(data['lastDeathTime']) > int(data['expectMinTime']) else True
 
                 if lastAlive:
-                    horusHunt = await hunt_manager.horus.update_bear(data)
+                    horusHunt = await hunt_manager.horus.update_bear(data, hunt_manager.getmarksinfo()[data['huntName'].lower()])
 
                     if horusHunt is not None:
                         await hunt_manager.recheck_trackers('FeedListener2', data['huntName'], horusHunt, 0)
@@ -136,6 +135,8 @@ chaosHunts = False
 async def _process_data(source, data, message):
     marks_info = hunt_manager.horus.marks_info
     fates_info = hunt_manager.horus.fates_info
+    global huntInstance
+    global chaosHunts
 
     try:
         if 'id' in data:

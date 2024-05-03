@@ -40,47 +40,31 @@ class Horus:
 
         self._bear = {}
 
-    async def update_bear(self, data: dict):
+    async def update_bear(self, data, hunt_data):
         world = data['worldName']
 
         if not world in self._bear:
-            if world in self._cached_response:
-                self._bear = self._cached_response
-            else:
-                return None
+            self._bear[world] = {}
 
         instance = 0 if 'instance' not in data else data['instance']
         _key = data['huntName'].strip().lower() + f"_{instance}"
 
-        if _key not in self._bear[world]['timers']:
-            for key in self._bear[world]['timers']:
-                if self.id_to_hunt(self._bear[world]['timers'][key]['Id'])['Name'] == data['huntName'] and self._bear[world]['timers'][key]['ins'] == instance:
-                    self._bear[world]['timers'][_key] = self._bear[world]['timers'][key]
-                    break
-            if _key not in self._bear[world]['timers']:
-                print('Issue fixing key issue')
-                return None
-
-        Id = self._bear[world]['timers'][_key]['Id']
-
         timer = {
-            'Id': self._bear[world]['timers'][_key]['Id'],
+            'Id': hunt_data['ID'],
             'world': world,
-            'minRespawn': self._bear[world]['timers'][_key]['minRespawn'],
-            'maxRespawn': self._bear[world]['timers'][_key]['maxRespawn'],
-            'lastDeath': "True",
-            'openDate': data['expectMinTime'],
-            'maxDate': data['expectMaxTime'],
-            'lastAlive': data['lastDeathTime'],
-            'lastTryUnix': self._bear[world]['timers'][_key]['lastTryUnix'],
-            'lastTryUser': self._bear[world]['timers'][_key]['lastTryUser'],
-            'lastMark': data['lastDeathTime'],
+            'minRespawn': float(hunt_data['MinSpawn']),
+            'maxRespawn': float(hunt_data['MaxSpawn']),
+            'lastDeath': True,
+            'openDate': float(data['expectMinTime']),
+            'maxDate': float(data['expectMaxTime']),
+            'lastAlive': float(data['lastDeathTime']),
+            'lastTryUnix': float(0.0),
+            'lastTryUser': "Compatibility",
+            'lastMark': float(data['lastDeathTime']),
             'ins': instance
         }
 
-        hunt_data = self.id_to_hunt(self._bear[world]['timers'][_key]['Id'])
-
-        self._bear[world]['timers'][_key] = timer
+        self._bear[world][_key] = timer
 
         return HorusHunt(hunt_data, timer, timer['ins'])
 
@@ -111,8 +95,8 @@ class Horus:
         for key, timer in timers.items():
             hunt_data = self.id_to_hunt(timer['Id'])
             _key = hunt_data['Name'].strip().lower() + f"_{timer['ins']}"
-            if world in self._bear and _key in self._bear[world]['timers'] and (self._bear[world]['timers'][_key]['openDate'] > self._bear[world]['timers'][_key]['lastAlive']) and (self._bear[world]['timers'][_key]['lastAlive'] > timer['openDate']):
-                timer = self._bear[world]['timers'][key]
+            if world in self._bear and _key in self._bear[world] and (self._bear[world][_key]['openDate'] > self._bear[world][_key]['lastAlive']) and (self._bear[world][_key]['lastAlive'] > timer['openDate']):
+                timer = self._bear[world][_key]
             hunts[_key] = HorusHunt(hunt_data, timer, timer['ins'])
 
         return hunts

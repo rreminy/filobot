@@ -14,7 +14,8 @@
     "MinSpawn": 0,
     "MinSpawnMaint": 0,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 0
+    "MaxSpawnMaint": 0,
+    "BlueMageSpells": ""
   },
   "2920": {
     "ID": 2920,
@@ -31,7 +32,8 @@
     "MinSpawn": 0,
     "MinSpawnMaint": 0,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 0
+    "MaxSpawnMaint": 0,
+    "BlueMageSpells": ""
   },
   "2921": {
     "ID": 2921,
@@ -48,7 +50,8 @@
     "MinSpawn": 0,
     "MinSpawnMaint": 0,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 0
+    "MaxSpawnMaint": 0,
+    "BlueMageSpells": ""
   },
   "2922": {
     "ID": 2922,
@@ -65,7 +68,8 @@
     "MinSpawn": 0,
     "MinSpawnMaint": 0,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 0
+    "MaxSpawnMaint": 0,
+    "BlueMageSpells": ""
   },
   "2923": {
     "ID": 2923,
@@ -82,7 +86,8 @@
     "MinSpawn": 0,
     "MinSpawnMaint": 0,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 0
+    "MaxSpawnMaint": 0,
+    "BlueMageSpells": ""
   },
   "2924": {
     "ID": 2924,
@@ -99,7 +104,8 @@
     "MinSpawn": 0,
     "MinSpawnMaint": 0,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 0
+    "MaxSpawnMaint": 0,
+    "BlueMageSpells": ""
   },
   "2925": {
     "ID": 2925,
@@ -116,7 +122,8 @@
     "MinSpawn": 0,
     "MinSpawnMaint": 0,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 0
+    "MaxSpawnMaint": 0,
+    "BlueMageSpells": ""
   },
   "2926": {
     "ID": 2926,
@@ -133,7 +140,8 @@
     "MinSpawn": 0,
     "MinSpawnMaint": 0,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 0
+    "MaxSpawnMaint": 0,
+    "BlueMageSpells": ""
   },
   "2927": {
     "ID": 2927,
@@ -150,7 +158,8 @@
     "MinSpawn": 0,
     "MinSpawnMaint": 0,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 0
+    "MaxSpawnMaint": 0,
+    "BlueMageSpells": "Loom"
   },
   "2928": {
     "ID": 2928,
@@ -167,7 +176,8 @@
     "MinSpawn": 0,
     "MinSpawnMaint": 0,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 0
+    "MaxSpawnMaint": 0,
+    "BlueMageSpells": ""
   },
   "2929": {
     "ID": 2929,
@@ -184,7 +194,8 @@
     "MinSpawn": 0,
     "MinSpawnMaint": 0,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 0
+    "MaxSpawnMaint": 0,
+    "BlueMageSpells": ""
   },
   "2930": {
     "ID": 2930,
@@ -201,7 +212,8 @@
     "MinSpawn": 0,
     "MinSpawnMaint": 0,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 0
+    "MaxSpawnMaint": 0,
+    "BlueMageSpells": ""
   },
   "2931": {
     "ID": 2931,
@@ -218,7 +230,8 @@
     "MinSpawn": 0,
     "MinSpawnMaint": 0,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 0
+    "MaxSpawnMaint": 0,
+    "BlueMageSpells": ""
   },
   "2932": {
     "ID": 2932,
@@ -235,7 +248,8 @@
     "MinSpawn": 0,
     "MinSpawnMaint": 0,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 0
+    "MaxSpawnMaint": 0,
+    "BlueMageSpells": ""
   },
   "2933": {
     "ID": 2933,
@@ -252,7 +266,8 @@
     "MinSpawn": 0,
     "MinSpawnMaint": 0,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 0
+    "MaxSpawnMaint": 0,
+    "BlueMageSpells": ""
   },
   "2934": {
     "ID": 2934,
@@ -269,7 +284,8 @@
     "MinSpawn": 0,
     "MinSpawnMaint": 0,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 0
+    "MaxSpawnMaint": 0,
+    "BlueMageSpells": ""
   },
   "2935": {
     "ID": 2935,
@@ -286,7 +302,8 @@
     "MinSpawn": 0,
     "MinSpawnMaint": 0,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 0
+    "MaxSpawnMaint": 0,
+    "BlueMageSpells": ""
   },
   "2936": {
     "ID": 2936,
@@ -303,7 +320,8 @@
     "MinSpawn": 12600000,
     "MinSpawnMaint": 7560000,
     "MaxSpawn": 16200000,
-    "MaxSpawnMaint": 9720000
+    "MaxSpawnMaint": 9720000,
+    "BlueMageSpells": ""
   },
   "2937": {
     "ID": 2937,
@@ -320,7 +338,8 @@
     "MinSpawn": 10800000,
     "MinSpawnMaint": 6480000,
     "MaxSpawn": 14400000,
-    "MaxSpawnMaint": 8640000
+    "MaxSpawnMaint": 8640000,
+    "BlueMageSpells": ""
   },
   "2938": {
     "ID": 2938,
@@ -337,7 +356,8 @@
     "MinSpawn": 12600000,
     "MinSpawnMaint": 7560000,
     "MaxSpawn": 16200000,
-    "MaxSpawnMaint": 9720000
+    "MaxSpawnMaint": 9720000,
+    "BlueMageSpells": ""
   },
   "2939": {
     "ID": 2939,
@@ -354,7 +374,8 @@
     "MinSpawn": 13500000,
     "MinSpawnMaint": 8100000,
     "MaxSpawn": 17100000,
-    "MaxSpawnMaint": 10260000
+    "MaxSpawnMaint": 10260000,
+    "BlueMageSpells": ""
   },
   "2940": {
     "ID": 2940,
@@ -371,7 +392,8 @@
     "MinSpawn": 12600000,
     "MinSpawnMaint": 7560000,
     "MaxSpawn": 16200000,
-    "MaxSpawnMaint": 9720000
+    "MaxSpawnMaint": 9720000,
+    "BlueMageSpells": ""
   },
   "2941": {
     "ID": 2941,
@@ -388,7 +410,8 @@
     "MinSpawn": 14400000,
     "MinSpawnMaint": 8640000,
     "MaxSpawn": 18000000,
-    "MaxSpawnMaint": 10800000
+    "MaxSpawnMaint": 10800000,
+    "BlueMageSpells": ""
   },
   "2942": {
     "ID": 2942,
@@ -405,7 +428,8 @@
     "MinSpawn": 10800000,
     "MinSpawnMaint": 6480000,
     "MaxSpawn": 14400000,
-    "MaxSpawnMaint": 8640000
+    "MaxSpawnMaint": 8640000,
+    "BlueMageSpells": ""
   },
   "2943": {
     "ID": 2943,
@@ -422,7 +446,8 @@
     "MinSpawn": 12600000,
     "MinSpawnMaint": 7560000,
     "MaxSpawn": 16200000,
-    "MaxSpawnMaint": 9720000
+    "MaxSpawnMaint": 9720000,
+    "BlueMageSpells": ""
   },
   "2944": {
     "ID": 2944,
@@ -439,7 +464,8 @@
     "MinSpawn": 14400000,
     "MinSpawnMaint": 8640000,
     "MaxSpawn": 18000000,
-    "MaxSpawnMaint": 10800000
+    "MaxSpawnMaint": 10800000,
+    "BlueMageSpells": ""
   },
   "2945": {
     "ID": 2945,
@@ -456,7 +482,8 @@
     "MinSpawn": 12600000,
     "MinSpawnMaint": 7560000,
     "MaxSpawn": 16200000,
-    "MaxSpawnMaint": 9720000
+    "MaxSpawnMaint": 9720000,
+    "BlueMageSpells": ""
   },
   "2946": {
     "ID": 2946,
@@ -473,7 +500,8 @@
     "MinSpawn": 12600000,
     "MinSpawnMaint": 7560000,
     "MaxSpawn": 16200000,
-    "MaxSpawnMaint": 9720000
+    "MaxSpawnMaint": 9720000,
+    "BlueMageSpells": ""
   },
   "2947": {
     "ID": 2947,
@@ -490,7 +518,8 @@
     "MinSpawn": 12600000,
     "MinSpawnMaint": 7560000,
     "MaxSpawn": 16200000,
-    "MaxSpawnMaint": 9720000
+    "MaxSpawnMaint": 9720000,
+    "BlueMageSpells": ""
   },
   "2948": {
     "ID": 2948,
@@ -507,7 +536,8 @@
     "MinSpawn": 12600000,
     "MinSpawnMaint": 7560000,
     "MaxSpawn": 16200000,
-    "MaxSpawnMaint": 9720000
+    "MaxSpawnMaint": 9720000,
+    "BlueMageSpells": ""
   },
   "2949": {
     "ID": 2949,
@@ -524,7 +554,8 @@
     "MinSpawn": 14400000,
     "MinSpawnMaint": 8640000,
     "MaxSpawn": 18000000,
-    "MaxSpawnMaint": 10800000
+    "MaxSpawnMaint": 10800000,
+    "BlueMageSpells": "Sharpened Knife"
   },
   "2950": {
     "ID": 2950,
@@ -541,7 +572,8 @@
     "MinSpawn": 12600000,
     "MinSpawnMaint": 7560000,
     "MaxSpawn": 16200000,
-    "MaxSpawnMaint": 9720000
+    "MaxSpawnMaint": 9720000,
+    "BlueMageSpells": "Sonic Boom, Flying Frenzy"
   },
   "2951": {
     "ID": 2951,
@@ -558,7 +590,8 @@
     "MinSpawn": 10800000,
     "MinSpawnMaint": 6480000,
     "MaxSpawn": 14400000,
-    "MaxSpawnMaint": 8640000
+    "MaxSpawnMaint": 8640000,
+    "BlueMageSpells": ""
   },
   "2952": {
     "ID": 2952,
@@ -575,7 +608,8 @@
     "MinSpawn": 12600000,
     "MinSpawnMaint": 7560000,
     "MaxSpawn": 16200000,
-    "MaxSpawnMaint": 9720000
+    "MaxSpawnMaint": 9720000,
+    "BlueMageSpells": "Peculiar Light"
   },
   "2953": {
     "ID": 2953,
@@ -592,7 +626,8 @@
     "MinSpawn": 151200000,
     "MinSpawnMaint": 90000000,
     "MaxSpawn": 172800000,
-    "MaxSpawnMaint": 104400000
+    "MaxSpawnMaint": 104400000,
+    "BlueMageSpells": ""
   },
   "2954": {
     "ID": 2954,
@@ -609,7 +644,8 @@
     "MinSpawn": 241200000,
     "MinSpawnMaint": 144000000,
     "MaxSpawn": 277200000,
-    "MaxSpawnMaint": 169200000
+    "MaxSpawnMaint": 169200000,
+    "BlueMageSpells": "Acorn Bomb"
   },
   "2955": {
     "ID": 2955,
@@ -626,7 +662,8 @@
     "MinSpawn": 180000000,
     "MinSpawnMaint": 108000000,
     "MaxSpawn": 183600000,
-    "MaxSpawnMaint": 111600000
+    "MaxSpawnMaint": 111600000,
+    "BlueMageSpells": "Mind Blast"
   },
   "2956": {
     "ID": 2956,
@@ -643,7 +680,8 @@
     "MinSpawn": 205200000,
     "MinSpawnMaint": 122400000,
     "MaxSpawn": 234000000,
-    "MaxSpawnMaint": 140400000
+    "MaxSpawnMaint": 140400000,
+    "BlueMageSpells": ""
   },
   "2957": {
     "ID": 2957,
@@ -660,7 +698,8 @@
     "MinSpawn": 205200000,
     "MinSpawnMaint": 122400000,
     "MaxSpawn": 234000000,
-    "MaxSpawnMaint": 140400000
+    "MaxSpawnMaint": 140400000,
+    "BlueMageSpells": "Eerie Soundwave"
   },
   "2958": {
     "ID": 2958,
@@ -677,7 +716,8 @@
     "MinSpawn": 241200000,
     "MinSpawnMaint": 144000000,
     "MaxSpawn": 277200000,
-    "MaxSpawnMaint": 169200000
+    "MaxSpawnMaint": 169200000,
+    "BlueMageSpells": "Glower"
   },
   "2959": {
     "ID": 2959,
@@ -694,7 +734,8 @@
     "MinSpawn": 241200000,
     "MinSpawnMaint": 144000000,
     "MaxSpawn": 277200000,
-    "MaxSpawnMaint": 169200000
+    "MaxSpawnMaint": 169200000,
+    "BlueMageSpells": ""
   },
   "2960": {
     "ID": 2960,
@@ -711,7 +752,8 @@
     "MinSpawn": 158400000,
     "MinSpawnMaint": 95040000,
     "MaxSpawn": 194400000,
-    "MaxSpawnMaint": 116640000
+    "MaxSpawnMaint": 116640000,
+    "BlueMageSpells": "Plaincracker"
   },
   "2961": {
     "ID": 2961,
@@ -728,7 +770,8 @@
     "MinSpawn": 205200000,
     "MinSpawnMaint": 122400000,
     "MaxSpawn": 226800000,
-    "MaxSpawnMaint": 136800000
+    "MaxSpawnMaint": 136800000,
+    "BlueMageSpells": ""
   },
   "2962": {
     "ID": 2962,
@@ -745,7 +788,8 @@
     "MinSpawn": 234000000,
     "MinSpawnMaint": 140400000,
     "MaxSpawn": 270000000,
-    "MaxSpawnMaint": 162000000
+    "MaxSpawnMaint": 162000000,
+    "BlueMageSpells": ""
   },
   "2963": {
     "ID": 2963,
@@ -762,7 +806,8 @@
     "MinSpawn": 180000000,
     "MinSpawnMaint": 108000000,
     "MaxSpawn": 183600000,
-    "MaxSpawnMaint": 111600000
+    "MaxSpawnMaint": 111600000,
+    "BlueMageSpells": "Sticky Tongue"
   },
   "2964": {
     "ID": 2964,
@@ -779,7 +824,8 @@
     "MinSpawn": 151200000,
     "MinSpawnMaint": 90000000,
     "MaxSpawn": 172800000,
-    "MaxSpawnMaint": 104400000
+    "MaxSpawnMaint": 104400000,
+    "BlueMageSpells": ""
   },
   "2965": {
     "ID": 2965,
@@ -796,7 +842,8 @@
     "MinSpawn": 234000000,
     "MinSpawnMaint": 140400000,
     "MaxSpawn": 270000000,
-    "MaxSpawnMaint": 162000000
+    "MaxSpawnMaint": 162000000,
+    "BlueMageSpells": ""
   },
   "2966": {
     "ID": 2966,
@@ -813,7 +860,8 @@
     "MinSpawn": 169200000,
     "MinSpawnMaint": 100800000,
     "MaxSpawn": 190800000,
-    "MaxSpawnMaint": 115200000
+    "MaxSpawnMaint": 115200000,
+    "BlueMageSpells": ""
   },
   "2967": {
     "ID": 2967,
@@ -830,7 +878,8 @@
     "MinSpawn": 234000000,
     "MinSpawnMaint": 140400000,
     "MaxSpawn": 255600000,
-    "MaxSpawnMaint": 153360000
+    "MaxSpawnMaint": 153360000,
+    "BlueMageSpells": "Doom"
   },
   "2968": {
     "ID": 2968,
@@ -847,7 +896,8 @@
     "MinSpawn": 216000000,
     "MinSpawnMaint": 129600000,
     "MaxSpawn": 302400000,
-    "MaxSpawnMaint": 183600000
+    "MaxSpawnMaint": 183600000,
+    "BlueMageSpells": ""
   },
   "2969": {
     "ID": 2969,
@@ -864,7 +914,8 @@
     "MinSpawn": 216000000,
     "MinSpawnMaint": 129600000,
     "MaxSpawn": 302400000,
-    "MaxSpawnMaint": 190800000
+    "MaxSpawnMaint": 190800000,
+    "BlueMageSpells": ""
   },
   "4350": {
     "ID": 4350,
@@ -881,7 +932,8 @@
     "MinSpawn": 0,
     "MinSpawnMaint": 0,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": ""
   },
   "4351": {
     "ID": 4351,
@@ -898,7 +950,8 @@
     "MinSpawn": 0,
     "MinSpawnMaint": 0,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": ""
   },
   "4352": {
     "ID": 4352,
@@ -915,7 +968,8 @@
     "MinSpawn": 0,
     "MinSpawnMaint": 0,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": ""
   },
   "4353": {
     "ID": 4353,
@@ -932,7 +986,8 @@
     "MinSpawn": 0,
     "MinSpawnMaint": 0,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": ""
   },
   "4354": {
     "ID": 4354,
@@ -949,7 +1004,8 @@
     "MinSpawn": 0,
     "MinSpawnMaint": 0,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": "Tail Screw"
   },
   "4355": {
     "ID": 4355,
@@ -966,7 +1022,8 @@
     "MinSpawn": 0,
     "MinSpawnMaint": 0,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": ""
   },
   "4356": {
     "ID": 4356,
@@ -983,7 +1040,8 @@
     "MinSpawn": 0,
     "MinSpawnMaint": 0,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": ""
   },
   "4357": {
     "ID": 4357,
@@ -1000,7 +1058,8 @@
     "MinSpawn": 0,
     "MinSpawnMaint": 0,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": ""
   },
   "4358": {
     "ID": 4358,
@@ -1017,7 +1076,8 @@
     "MinSpawn": 0,
     "MinSpawnMaint": 0,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": "Chirp"
   },
   "4359": {
     "ID": 4359,
@@ -1034,7 +1094,8 @@
     "MinSpawn": 0,
     "MinSpawnMaint": 0,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": ""
   },
   "4360": {
     "ID": 4360,
@@ -1051,7 +1112,8 @@
     "MinSpawn": 0,
     "MinSpawnMaint": 0,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": ""
   },
   "4361": {
     "ID": 4361,
@@ -1068,7 +1130,8 @@
     "MinSpawn": 0,
     "MinSpawnMaint": 0,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": ""
   },
   "4362": {
     "ID": 4362,
@@ -1085,7 +1148,8 @@
     "MinSpawn": 14400000,
     "MinSpawnMaint": 8640000,
     "MaxSpawn": 21600000,
-    "MaxSpawnMaint": 12960000
+    "MaxSpawnMaint": 12960000,
+    "BlueMageSpells": "Northerlies"
   },
   "4363": {
     "ID": 4363,
@@ -1102,7 +1166,8 @@
     "MinSpawn": 14400000,
     "MinSpawnMaint": 8640000,
     "MaxSpawn": 21600000,
-    "MaxSpawnMaint": 12960000
+    "MaxSpawnMaint": 12960000,
+    "BlueMageSpells": ""
   },
   "4364": {
     "ID": 4364,
@@ -1119,7 +1184,8 @@
     "MinSpawn": 14400000,
     "MinSpawnMaint": 8640000,
     "MaxSpawn": 21600000,
-    "MaxSpawnMaint": 12960000
+    "MaxSpawnMaint": 12960000,
+    "BlueMageSpells": ""
   },
   "4365": {
     "ID": 4365,
@@ -1136,7 +1202,8 @@
     "MinSpawn": 14400000,
     "MinSpawnMaint": 8640000,
     "MaxSpawn": 21600000,
-    "MaxSpawnMaint": 12960000
+    "MaxSpawnMaint": 12960000,
+    "BlueMageSpells": ""
   },
   "4366": {
     "ID": 4366,
@@ -1153,7 +1220,8 @@
     "MinSpawn": 14400000,
     "MinSpawnMaint": 8640000,
     "MaxSpawn": 21600000,
-    "MaxSpawnMaint": 12960000
+    "MaxSpawnMaint": 12960000,
+    "BlueMageSpells": "Bomb Toss, Gobskin"
   },
   "4367": {
     "ID": 4367,
@@ -1170,7 +1238,8 @@
     "MinSpawn": 14400000,
     "MinSpawnMaint": 8640000,
     "MaxSpawn": 21600000,
-    "MaxSpawnMaint": 12960000
+    "MaxSpawnMaint": 12960000,
+    "BlueMageSpells": "Chirp"
   },
   "4368": {
     "ID": 4368,
@@ -1187,7 +1256,8 @@
     "MinSpawn": 14400000,
     "MinSpawnMaint": 8640000,
     "MaxSpawn": 21600000,
-    "MaxSpawnMaint": 12960000
+    "MaxSpawnMaint": 12960000,
+    "BlueMageSpells": ""
   },
   "4369": {
     "ID": 4369,
@@ -1204,7 +1274,8 @@
     "MinSpawn": 14400000,
     "MinSpawnMaint": 8640000,
     "MaxSpawn": 21600000,
-    "MaxSpawnMaint": 12960000
+    "MaxSpawnMaint": 12960000,
+    "BlueMageSpells": ""
   },
   "4370": {
     "ID": 4370,
@@ -1221,7 +1292,8 @@
     "MinSpawn": 14400000,
     "MinSpawnMaint": 8640000,
     "MaxSpawn": 21600000,
-    "MaxSpawnMaint": 12960000
+    "MaxSpawnMaint": 12960000,
+    "BlueMageSpells": ""
   },
   "4371": {
     "ID": 4371,
@@ -1238,7 +1310,8 @@
     "MinSpawn": 14400000,
     "MinSpawnMaint": 8640000,
     "MaxSpawn": 21600000,
-    "MaxSpawnMaint": 12960000
+    "MaxSpawnMaint": 12960000,
+    "BlueMageSpells": ""
   },
   "4372": {
     "ID": 4372,
@@ -1255,7 +1328,8 @@
     "MinSpawn": 14400000,
     "MinSpawnMaint": 8640000,
     "MaxSpawn": 21600000,
-    "MaxSpawnMaint": 12960000
+    "MaxSpawnMaint": 12960000,
+    "BlueMageSpells": ""
   },
   "4373": {
     "ID": 4373,
@@ -1272,7 +1346,8 @@
     "MinSpawn": 14400000,
     "MinSpawnMaint": 8640000,
     "MaxSpawn": 21600000,
-    "MaxSpawnMaint": 12960000
+    "MaxSpawnMaint": 12960000,
+    "BlueMageSpells": ""
   },
   "4374": {
     "ID": 4374,
@@ -1289,7 +1364,8 @@
     "MinSpawn": 302400000,
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 475200000,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": ""
   },
   "4375": {
     "ID": 4375,
@@ -1306,7 +1382,8 @@
     "MinSpawn": 302400000,
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 475200000,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": ""
   },
   "4376": {
     "ID": 4376,
@@ -1323,7 +1400,8 @@
     "MinSpawn": 302400000,
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 475200000,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": ""
   },
   "4377": {
     "ID": 4377,
@@ -1340,7 +1418,8 @@
     "MinSpawn": 302400000,
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 475200000,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": ""
   },
   "4378": {
     "ID": 4378,
@@ -1357,7 +1436,8 @@
     "MinSpawn": 302400000,
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 475200000,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": ""
   },
   "4380": {
     "ID": 4380,
@@ -1374,7 +1454,8 @@
     "MinSpawn": 302400000,
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 475200000,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": ""
   },
   "5984": {
     "ID": 5984,
@@ -1391,7 +1472,8 @@
     "MinSpawn": 302400000,
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 475200000,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": ""
   },
   "5985": {
     "ID": 5985,
@@ -1408,7 +1490,8 @@
     "MinSpawn": 302400000,
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 475200000,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": "Launcher"
   },
   "5986": {
     "ID": 5986,
@@ -1425,7 +1508,8 @@
     "MinSpawn": 302400000,
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 475200000,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": ""
   },
   "5987": {
     "ID": 5987,
@@ -1442,7 +1526,8 @@
     "MinSpawn": 302400000,
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 475200000,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": ""
   },
   "5988": {
     "ID": 5988,
@@ -1459,7 +1544,8 @@
     "MinSpawn": 302400000,
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 475200000,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": ""
   },
   "5989": {
     "ID": 5989,
@@ -1476,7 +1562,8 @@
     "MinSpawn": 302400000,
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 475200000,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": "Protean Wave"
   },
   "5990": {
     "ID": 5990,
@@ -1493,7 +1580,8 @@
     "MinSpawn": 14400000,
     "MinSpawnMaint": 8640000,
     "MaxSpawn": 21600000,
-    "MaxSpawnMaint": 12960000
+    "MaxSpawnMaint": 12960000,
+    "BlueMageSpells": ""
   },
   "5991": {
     "ID": 5991,
@@ -1510,7 +1598,8 @@
     "MinSpawn": 14400000,
     "MinSpawnMaint": 8640000,
     "MaxSpawn": 21600000,
-    "MaxSpawnMaint": 12960000
+    "MaxSpawnMaint": 12960000,
+    "BlueMageSpells": ""
   },
   "5992": {
     "ID": 5992,
@@ -1527,7 +1616,8 @@
     "MinSpawn": 14400000,
     "MinSpawnMaint": 8640000,
     "MaxSpawn": 21600000,
-    "MaxSpawnMaint": 12960000
+    "MaxSpawnMaint": 12960000,
+    "BlueMageSpells": "Alpine Draft"
   },
   "5993": {
     "ID": 5993,
@@ -1544,7 +1634,8 @@
     "MinSpawn": 14400000,
     "MinSpawnMaint": 8640000,
     "MaxSpawn": 21600000,
-    "MaxSpawnMaint": 12960000
+    "MaxSpawnMaint": 12960000,
+    "BlueMageSpells": ""
   },
   "5994": {
     "ID": 5994,
@@ -1561,7 +1652,8 @@
     "MinSpawn": 14400000,
     "MinSpawnMaint": 8640000,
     "MaxSpawn": 21600000,
-    "MaxSpawnMaint": 12960000
+    "MaxSpawnMaint": 12960000,
+    "BlueMageSpells": "Devour"
   },
   "5995": {
     "ID": 5995,
@@ -1578,7 +1670,8 @@
     "MinSpawn": 14400000,
     "MinSpawnMaint": 8640000,
     "MaxSpawn": 21600000,
-    "MaxSpawnMaint": 12960000
+    "MaxSpawnMaint": 12960000,
+    "BlueMageSpells": "Aetherial Spark"
   },
   "5996": {
     "ID": 5996,
@@ -1595,7 +1688,8 @@
     "MinSpawn": 14400000,
     "MinSpawnMaint": 8640000,
     "MaxSpawn": 21600000,
-    "MaxSpawnMaint": 12960000
+    "MaxSpawnMaint": 12960000,
+    "BlueMageSpells": ""
   },
   "5997": {
     "ID": 5997,
@@ -1612,7 +1706,8 @@
     "MinSpawn": 14400000,
     "MinSpawnMaint": 8640000,
     "MaxSpawn": 21600000,
-    "MaxSpawnMaint": 12960000
+    "MaxSpawnMaint": 12960000,
+    "BlueMageSpells": "Ice Spikes"
   },
   "5998": {
     "ID": 5998,
@@ -1629,7 +1724,8 @@
     "MinSpawn": 14400000,
     "MinSpawnMaint": 8640000,
     "MaxSpawn": 21600000,
-    "MaxSpawnMaint": 12960000
+    "MaxSpawnMaint": 12960000,
+    "BlueMageSpells": ""
   },
   "5999": {
     "ID": 5999,
@@ -1646,7 +1742,8 @@
     "MinSpawn": 14400000,
     "MinSpawnMaint": 8640000,
     "MaxSpawn": 21600000,
-    "MaxSpawnMaint": 12960000
+    "MaxSpawnMaint": 12960000,
+    "BlueMageSpells": ""
   },
   "6000": {
     "ID": 6000,
@@ -1663,7 +1760,8 @@
     "MinSpawn": 14400000,
     "MinSpawnMaint": 8640000,
     "MaxSpawn": 21600000,
-    "MaxSpawnMaint": 12960000
+    "MaxSpawnMaint": 12960000,
+    "BlueMageSpells": ""
   },
   "6001": {
     "ID": 6001,
@@ -1680,7 +1778,8 @@
     "MinSpawn": 14400000,
     "MinSpawnMaint": 8640000,
     "MaxSpawn": 21600000,
-    "MaxSpawnMaint": 12960000
+    "MaxSpawnMaint": 12960000,
+    "BlueMageSpells": ""
   },
   "6002": {
     "ID": 6002,
@@ -1697,7 +1796,8 @@
     "MinSpawn": 302400000,
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": ""
   },
   "6003": {
     "ID": 6003,
@@ -1714,7 +1814,8 @@
     "MinSpawn": 302400000,
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": ""
   },
   "6004": {
     "ID": 6004,
@@ -1731,7 +1832,8 @@
     "MinSpawn": 302400000,
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": ""
   },
   "6005": {
     "ID": 6005,
@@ -1748,7 +1850,8 @@
     "MinSpawn": 302400000,
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": "Tingle, Triple Trident"
   },
   "6006": {
     "ID": 6006,
@@ -1765,7 +1868,8 @@
     "MinSpawn": 302400000,
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": ""
   },
   "6007": {
     "ID": 6007,
@@ -1782,7 +1886,8 @@
     "MinSpawn": 302400000,
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": ""
   },
   "6008": {
     "ID": 6008,
@@ -1799,7 +1904,8 @@
     "MinSpawn": 302400000,
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": ""
   },
   "6009": {
     "ID": 6009,
@@ -1816,7 +1922,8 @@
     "MinSpawn": 302400000,
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": ""
   },
   "6010": {
     "ID": 6010,
@@ -1833,7 +1940,8 @@
     "MinSpawn": 302400000,
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": ""
   },
   "6011": {
     "ID": 6011,
@@ -1850,7 +1958,8 @@
     "MinSpawn": 302400000,
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": ""
   },
   "6012": {
     "ID": 6012,
@@ -1867,7 +1976,8 @@
     "MinSpawn": 302400000,
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": ""
   },
   "6013": {
     "ID": 6013,
@@ -1884,7 +1994,8 @@
     "MinSpawn": 302400000,
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 0,
-    "MaxSpawnMaint": 288000000
+    "MaxSpawnMaint": 288000000,
+    "BlueMageSpells": ""
   },
    "8653":{
       "ID":8653,
@@ -1903,7 +2014,8 @@
       "MaxSpawn":475200000,
       "MaxSpawnMaint":288000000,
       "AudI":null,
-      "Early":null
+      "Early":null,
+      "BlueMageSpells": "Song of Torment"
    },
    "8654":{
       "ID":8654,
@@ -1922,7 +2034,8 @@
       "MaxSpawn":21600000,
       "MaxSpawnMaint":12960000,
       "AudI":null,
-      "Early":null
+      "Early":null,
+      "BlueMageSpells": "Feculent Flood"
    },
    "8655":{
       "ID":8655,
@@ -1941,7 +2054,8 @@
       "MaxSpawn":21600000,
       "MaxSpawnMaint":12960000,
       "AudI":null,
-      "Early":null
+      "Early":null,
+      "BlueMageSpells": ""
    },
    "8656":{
       "ID":8656,
@@ -1960,7 +2074,8 @@
       "MaxSpawn":15000,
       "MaxSpawnMaint":15000,
       "AudI":null,
-      "Early":null
+      "Early":null,
+      "BlueMageSpells": ""
    },
    "8657":{
       "ID":8657,
@@ -1979,7 +2094,8 @@
       "MaxSpawn":15000,
       "MaxSpawnMaint":15000,
       "AudI":null,
-      "Early":null
+      "Early":null,
+      "BlueMageSpells": ""
    },
    "8890":{
       "ID":8890,
@@ -1998,7 +2114,8 @@
       "MaxSpawn":475200000,
       "MaxSpawnMaint":288000000,
       "AudI":null,
-      "Early":null
+      "Early":null,
+      "BlueMageSpells": "Doom"
    },
    "8891":{
       "ID":8891,
@@ -2017,7 +2134,8 @@
       "MaxSpawn":21600000,
       "MaxSpawnMaint":12960000,
       "AudI":null,
-      "Early":null
+      "Early":null,
+      "BlueMageSpells": ""
    },
    "8892":{
       "ID":8892,
@@ -2036,7 +2154,8 @@
       "MaxSpawn":21600000,
       "MaxSpawnMaint":12960000,
       "AudI":null,
-      "Early":null
+      "Early":null,
+      "BlueMageSpells": ""
    },
    "8893":{
       "ID":8893,
@@ -2055,7 +2174,8 @@
       "MaxSpawn":15000,
       "MaxSpawnMaint":15000,
       "AudI":null,
-      "Early":null
+      "Early":null,
+      "BlueMageSpells": ""
    },
    "8894":{
       "ID":8894,
@@ -2074,7 +2194,8 @@
       "MaxSpawn":15000,
       "MaxSpawnMaint":15000,
       "AudI":null,
-      "Early":null
+      "Early":null,
+      "BlueMageSpells": ""
    },
    "8895":{
       "ID":8895,
@@ -2093,7 +2214,8 @@
       "MaxSpawn":475200000,
       "MaxSpawnMaint":288000000,
       "AudI":null,
-      "Early":null
+      "Early":null,
+      "BlueMageSpells": ""
    },
    "8896":{
       "ID":8896,
@@ -2112,7 +2234,8 @@
       "MaxSpawn":21600000,
       "MaxSpawnMaint":12960000,
       "AudI":null,
-      "Early":null
+      "Early":null,
+      "BlueMageSpells": "Aetherial Spark"
    },
    "8897":{
       "ID":8897,
@@ -2131,7 +2254,8 @@
       "MaxSpawn":21600000,
       "MaxSpawnMaint":12960000,
       "AudI":null,
-      "Early":null
+      "Early":null,
+      "BlueMageSpells": ""
    },
    "8898":{
       "ID":8898,
@@ -2150,7 +2274,8 @@
       "MaxSpawn":15000,
       "MaxSpawnMaint":15000,
       "AudI":null,
-      "Early":null
+      "Early":null,
+      "BlueMageSpells": ""
    },
    "8899":{
       "ID":8899,
@@ -2169,7 +2294,8 @@
       "MaxSpawn":15000,
       "MaxSpawnMaint":15000,
       "AudI":null,
-      "Early":null
+      "Early":null,
+      "BlueMageSpells": ""
    },
     "8900": {
       "ID": 8900,
@@ -2188,7 +2314,8 @@
       "MaxSpawn": 475200000,
       "MaxSpawnMaint": 288000000,
       "AudI": null,
-      "Early": null
+      "Early": null,
+      "BlueMageSpells": ""
   },
    "8901":{
       "ID":8901,
@@ -2207,7 +2334,8 @@
       "MaxSpawn":21600000,
       "MaxSpawnMaint":12960000,
       "AudI":null,
-      "Early":null
+      "Early":null,
+      "BlueMageSpells": ""
    },
    "8902":{
       "ID":8902,
@@ -2226,7 +2354,8 @@
       "MaxSpawn":21600000,
       "MaxSpawnMaint":12960000,
       "AudI":null,
-      "Early":null
+      "Early":null,
+      "BlueMageSpells": ""
    },
    "8903":{
       "ID":8903,
@@ -2245,7 +2374,8 @@
       "MaxSpawn":15000,
       "MaxSpawnMaint":15000,
       "AudI":null,
-      "Early":null
+      "Early":null,
+      "BlueMageSpells": ""
    },
    "8904":{
       "ID":8904,
@@ -2264,7 +2394,8 @@
       "MaxSpawn":15000,
       "MaxSpawnMaint":15000,
       "AudI":null,
-      "Early":null
+      "Early":null,
+      "BlueMageSpells": ""
    },
     "8905": {
       "ID": 8905,
@@ -2283,7 +2414,8 @@
       "MaxSpawn": 475200000,
       "MaxSpawnMaint": 288000000,
       "AudI": null,
-      "Early": null
+      "Early": null,
+      "BlueMageSpells": "The Dragon's Voice, The Ram's Voice"
   },
    "8906":{
       "ID":8906,
@@ -2302,7 +2434,8 @@
       "MaxSpawn":21600000,
       "MaxSpawnMaint":12960000,
       "AudI":null,
-      "Early":null
+      "Early":null,
+      "BlueMageSpells": ""
    },
    "8907":{
       "ID":8907,
@@ -2321,7 +2454,8 @@
       "MaxSpawn":21600000,
       "MaxSpawnMaint":12960000,
       "AudI":null,
-      "Early":null
+      "Early":null,
+      "BlueMageSpells": ""
    },
    "8908":{
       "ID":8908,
@@ -2340,7 +2474,8 @@
       "MaxSpawn":15000,
       "MaxSpawnMaint":15000,
       "AudI":null,
-      "Early":null
+      "Early":null,
+      "BlueMageSpells": ""
    },
    "8909":{
       "ID":8909,
@@ -2359,7 +2494,8 @@
       "MaxSpawn":15000,
       "MaxSpawnMaint":15000,
       "AudI":null,
-      "Early":null
+      "Early":null,
+      "BlueMageSpells": ""
    },
     "8910": {
       "ID": 8910,
@@ -2378,7 +2514,8 @@
       "MaxSpawn": 475200000,
       "MaxSpawnMaint": 288000000,
       "AudI": null,
-      "Early": null
+      "Early": null,
+      "BlueMageSpells": ""
   },
    "8911":{
       "ID":8911,
@@ -2397,7 +2534,8 @@
       "MaxSpawn":21600000,
       "MaxSpawnMaint":12960000,
       "AudI":null,
-      "Early":null
+      "Early":null,
+      "BlueMageSpells": ""
    },
    "8912":{
       "ID":8912,
@@ -2416,7 +2554,8 @@
       "MaxSpawn":21600000,
       "MaxSpawnMaint":12960000,
       "AudI":null,
-      "Early":null
+      "Early":null,
+      "BlueMageSpells": ""
    },
    "8913":{
       "ID":8913,
@@ -2435,7 +2574,8 @@
       "MaxSpawn":15000,
       "MaxSpawnMaint":15000,
       "AudI":null,
-      "Early":null
+      "Early":null,
+      "BlueMageSpells": ""
    },
    "8914":{
       "ID":8914,
@@ -2454,11 +2594,12 @@
       "MaxSpawn":15000,
       "MaxSpawnMaint":15000,
       "AudI":null,
-      "Early":null
+      "Early":null,
+      "BlueMageSpells": ""
    },
    "18915":{
       "ID":18915,
-      "Name":"Forgotten Rebellion",
+      "Name":"Forgiven Rebellion",
       "Rank":"SS",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID":491,
@@ -2473,7 +2614,8 @@
       "MaxSpawn":15000,
       "MaxSpawnMaint":15000,
       "AudI":null,
-      "Early":null
+      "Early":null,
+      "BlueMageSpells": ""
    },
    "8916":{
       "ID":8916,
@@ -2492,7 +2634,8 @@
       "MaxSpawn":15000,
       "MaxSpawnMaint":15000,
       "AudI":null,
-      "Early":null
+      "Early":null,
+      "BlueMageSpells": ""
    },
    "10635":{
       "ID":10635,
@@ -2500,7 +2643,17 @@
       "Rank":"B",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID": 956,
-      "ZoneName":"Labyrinthos"
+      "ZoneName":"Labyrinthos",
+      "RegionId":0,
+      "RegionName":"The Northern Empty",
+      "SpawnTrigger":null,
+      "Tips":null,
+      "CanPredict":false,
+      "MinSpawn":5000,
+      "MinSpawnMaint":5000,
+      "MaxSpawn":15000,
+      "MaxSpawnMaint":15000,
+      "BlueMageSpells": ""
    },
    "10636":{
       "ID":10636,
@@ -2508,7 +2661,17 @@
       "Rank":"B",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID": 956,
-      "ZoneName":"Labyrinthos"
+      "ZoneName":"Labyrinthos",
+      "RegionId":10,
+      "RegionName":"The Northern Empty",
+      "SpawnTrigger":null,
+      "Tips":null,
+      "CanPredict":false,
+      "MinSpawn":5000,
+      "MinSpawnMaint":5000,
+      "MaxSpawn":15000,
+      "MaxSpawnMaint":15000,
+      "BlueMageSpells": ""
    },
    "10623":{
       "ID":10623,
@@ -2516,7 +2679,16 @@
       "Rank":"A",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID": 956,
-      "ZoneName":"Labyrinthos"
+      "ZoneName":"Labyrinthos",
+      "RegionId": 0,
+      "RegionName": "The Northern Empty",
+      "SpawnTrigger": null,
+      "Tips": null,
+      "MinSpawn": 14400000,
+      "MinSpawnMaint": 8640000,
+      "MaxSpawn": 21600000,
+      "MaxSpawnMaint": 12960000,
+      "BlueMageSpells": ""
    },
    "10624":{
       "ID":10624,
@@ -2524,7 +2696,16 @@
       "Rank":"A",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID": 956,
-      "ZoneName":"Labyrinthos"
+      "ZoneName":"Labyrinthos",
+      "RegionId": 0,
+      "RegionName": "The Northern Empty",
+      "SpawnTrigger": null,
+      "Tips": null,
+      "MinSpawn": 14400000,
+      "MinSpawnMaint": 8640000,
+      "MaxSpawn": 21600000,
+      "MaxSpawnMaint": 12960000,
+      "BlueMageSpells": ""
    },
    "10617":{
       "ID":10617,
@@ -2532,7 +2713,16 @@
       "Rank":"S",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID": 956,
-      "ZoneName":"Labyrinthos"
+      "ZoneName":"Labyrinthos",
+      "RegionId": 0,
+      "RegionName": "The Northern Empty",
+      "SpawnTrigger": "",
+      "Tips": "",
+      "MinSpawn": 302400000,
+      "MinSpawnMaint": 180000000,
+      "MaxSpawn": 475200000,
+      "MaxSpawnMaint": 288000000,
+      "BlueMageSpells": ""
    },
    "10637":{
       "ID":10637,
@@ -2540,7 +2730,17 @@
       "Rank":"B",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID": 957,
-      "ZoneName":"Thavnair"
+      "ZoneName":"Thavnair",
+      "RegionId":0,
+      "RegionName":"Ilsabard",
+      "SpawnTrigger":null,
+      "Tips":null,
+      "CanPredict":false,
+      "MinSpawn":5000,
+      "MinSpawnMaint":5000,
+      "MaxSpawn":15000,
+      "MaxSpawnMaint":15000,
+      "BlueMageSpells": "Schiltron"
    },
    "10638":{
       "ID":10638,
@@ -2548,7 +2748,17 @@
       "Rank":"B",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID": 957,
-      "ZoneName":"Thavnair"
+      "ZoneName":"Thavnair",
+      "RegionId":0,
+      "RegionName":"Ilsabard",
+      "SpawnTrigger":null,
+      "Tips":null,
+      "CanPredict":false,
+      "MinSpawn":5000,
+      "MinSpawnMaint":5000,
+      "MaxSpawn":15000,
+      "MaxSpawnMaint":15000,
+      "BlueMageSpells": ""
    },
    "10625":{
       "ID":10625,
@@ -2556,7 +2766,16 @@
       "Rank":"A",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID": 957,
-      "ZoneName":"Thavnair"
+      "ZoneName":"Thavnair",
+      "RegionId": 0,
+      "RegionName": "Ilsabard",
+      "SpawnTrigger": null,
+      "Tips": null,
+      "MinSpawn": 14400000,
+      "MinSpawnMaint": 8640000,
+      "MaxSpawn": 21600000,
+      "MaxSpawnMaint": 12960000,
+      "BlueMageSpells": "Devour"
    },
    "10626":{
       "ID":10626,
@@ -2564,7 +2783,16 @@
       "Rank":"A",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID": 957,
-      "ZoneName":"Thavnair"
+      "ZoneName":"Thavnair",
+      "RegionId": 0,
+      "RegionName": "Ilsabard",
+      "SpawnTrigger": null,
+      "Tips": null,
+      "MinSpawn": 14400000,
+      "MinSpawnMaint": 8640000,
+      "MaxSpawn": 21600000,
+      "MaxSpawnMaint": 12960000,
+      "BlueMageSpells": ""
    },
    "10618":{
       "ID":10618,
@@ -2572,7 +2800,16 @@
       "Rank":"S",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID": 957,
-      "ZoneName":"Thavnair"
+      "ZoneName":"Thavnair",
+      "RegionId": 0,
+      "RegionName": "Ilsabard",
+      "SpawnTrigger": "",
+      "Tips": "",
+      "MinSpawn": 302400000,
+      "MinSpawnMaint": 180000000,
+      "MaxSpawn": 475200000,
+      "MaxSpawnMaint": 288000000,
+      "BlueMageSpells": ""
    },
    "10639":{
       "ID":10639,
@@ -2580,7 +2817,17 @@
       "Rank":"B",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID": 958,
-      "ZoneName":"Garlemald"
+      "ZoneName":"Garlemald",
+      "RegionId":0,
+      "RegionName":"Ilsabard",
+      "SpawnTrigger":null,
+      "Tips":null,
+      "CanPredict":false,
+      "MinSpawn":5000,
+      "MinSpawnMaint":5000,
+      "MaxSpawn":15000,
+      "MaxSpawnMaint":15000,
+      "BlueMageSpells": ""
    },
    "10640":{
       "ID":10640,
@@ -2588,7 +2835,17 @@
       "Rank":"B",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID": 958,
-      "ZoneName":"Garlemald"
+      "ZoneName":"Garlemald",
+      "RegionId":0,
+      "RegionName":"Ilsabard",
+      "SpawnTrigger":null,
+      "Tips":null,
+      "CanPredict":false,
+      "MinSpawn":5000,
+      "MinSpawnMaint":5000,
+      "MaxSpawn":15000,
+      "MaxSpawnMaint":15000,
+      "BlueMageSpells": ""
    },
    "10627":{
       "ID":10627,
@@ -2596,7 +2853,16 @@
       "Rank":"A",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID": 958,
-      "ZoneName":"Garlemald"
+      "ZoneName":"Garlemald",
+      "RegionId": 0,
+      "RegionName": "Ilsabard",
+      "SpawnTrigger": null,
+      "Tips": null,
+      "MinSpawn": 14400000,
+      "MinSpawnMaint": 8640000,
+      "MaxSpawn": 21600000,
+      "MaxSpawnMaint": 12960000,
+      "BlueMageSpells": ""
    },
    "10628":{
       "ID":10628,
@@ -2604,7 +2870,16 @@
       "Rank":"A",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID": 958,
-      "ZoneName":"Garlemald"
+      "ZoneName":"Garlemald",
+      "RegionId": 0,
+      "RegionName": "Ilsabard",
+      "SpawnTrigger": null,
+      "Tips": null,
+      "MinSpawn": 14400000,
+      "MinSpawnMaint": 8640000,
+      "MaxSpawn": 21600000,
+      "MaxSpawnMaint": 12960000,
+      "BlueMageSpells": ""
    },
    "10619":{
       "ID":10619,
@@ -2612,7 +2887,16 @@
       "Rank":"S",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID": 958,
-      "ZoneName":"Garlemald"
+      "ZoneName":"Garlemald",
+      "RegionId": 0,
+      "RegionName": "Ilsabard",
+      "SpawnTrigger": "",
+      "Tips": "",
+      "MinSpawn": 302400000,
+      "MinSpawnMaint": 180000000,
+      "MaxSpawn": 475200000,
+      "MaxSpawnMaint": 288000000,
+      "BlueMageSpells": ""
    },
    "10641":{
       "ID":10641,
@@ -2620,7 +2904,17 @@
       "Rank":"B",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID": 959,
-      "ZoneName":"Mare Lamentorum"
+      "ZoneName":"Mare Lamentorum",
+      "RegionId":0,
+      "RegionName":"The Sea of Stars",
+      "SpawnTrigger":null,
+      "Tips":null,
+      "CanPredict":false,
+      "MinSpawn":5000,
+      "MinSpawnMaint":5000,
+      "MaxSpawn":15000,
+      "MaxSpawnMaint":15000,
+      "BlueMageSpells": ""
    },
    "10642":{
       "ID":10642,
@@ -2628,7 +2922,17 @@
       "Rank":"B",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID": 959,
-      "ZoneName":"Mare Lamentorum"
+      "ZoneName":"Mare Lamentorum",
+      "RegionId":0,
+      "RegionName":"The Sea of Stars",
+      "SpawnTrigger":null,
+      "Tips":null,
+      "CanPredict":false,
+      "MinSpawn":5000,
+      "MinSpawnMaint":5000,
+      "MaxSpawn":15000,
+      "MaxSpawnMaint":15000,
+      "BlueMageSpells": ""
    },
    "10629":{
       "ID":10629,
@@ -2636,7 +2940,16 @@
       "Rank":"A",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID": 959,
-      "ZoneName":"Mare Lamentorum"
+      "ZoneName":"Mare Lamentorum",
+      "RegionId": 0,
+      "RegionName": "The Sea of Stars",
+      "SpawnTrigger": null,
+      "Tips": null,
+      "MinSpawn": 14400000,
+      "MinSpawnMaint": 8640000,
+      "MaxSpawn": 21600000,
+      "MaxSpawnMaint": 12960000,
+      "BlueMageSpells": ""
    },
    "10630":{
       "ID":10630,
@@ -2644,7 +2957,16 @@
       "Rank":"A",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID": 959,
-      "ZoneName":"Mare Lamentorum"
+      "ZoneName":"Mare Lamentorum",
+      "RegionId": 0,
+      "RegionName": "The Sea of Stars",
+      "SpawnTrigger": null,
+      "Tips": null,
+      "MinSpawn": 14400000,
+      "MinSpawnMaint": 8640000,
+      "MaxSpawn": 21600000,
+      "MaxSpawnMaint": 12960000,
+      "BlueMageSpells": ""
    },
    "10620":{
       "ID":10620,
@@ -2652,7 +2974,16 @@
       "Rank":"S",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID": 959,
-      "ZoneName":"Mare Lamentorum"
+      "ZoneName":"Mare Lamentorum",
+      "RegionId": 0,
+      "RegionName": "The Sea of Stars",
+      "SpawnTrigger": "",
+      "Tips": "",
+      "MinSpawn": 302400000,
+      "MinSpawnMaint": 180000000,
+      "MaxSpawn": 475200000,
+      "MaxSpawnMaint": 288000000,
+      "BlueMageSpells": ""
    },
    "10643":{
       "ID":10643,
@@ -2660,7 +2991,17 @@
       "Rank":"B",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID": 961,
-      "ZoneName":"Elpis"
+      "ZoneName":"Elpis",
+      "RegionId":0,
+      "RegionName":"The World Unsundered",
+      "SpawnTrigger":null,
+      "Tips":null,
+      "CanPredict":false,
+      "MinSpawn":5000,
+      "MinSpawnMaint":5000,
+      "MaxSpawn":15000,
+      "MaxSpawnMaint":15000,
+      "BlueMageSpells": ""
    },
    "10644":{
       "ID":10644,
@@ -2668,7 +3009,17 @@
       "Rank":"B",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID": 961,
-      "ZoneName":"Elpis"
+      "ZoneName":"Elpis",
+      "RegionId":0,
+      "RegionName":"The World Unsundered",
+      "SpawnTrigger":null,
+      "Tips":null,
+      "CanPredict":false,
+      "MinSpawn":5000,
+      "MinSpawnMaint":5000,
+      "MaxSpawn":15000,
+      "MaxSpawnMaint":15000,
+      "BlueMageSpells": ""
    },
    "10631":{
       "ID":10631,
@@ -2676,7 +3027,16 @@
       "Rank":"A",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID": 961,
-      "ZoneName":"Elpis"
+      "ZoneName":"Elpis",
+      "RegionId": 0,
+      "RegionName": "The World Unsundered",
+      "SpawnTrigger": null,
+      "Tips": null,
+      "MinSpawn": 14400000,
+      "MinSpawnMaint": 8640000,
+      "MaxSpawn": 21600000,
+      "MaxSpawnMaint": 12960000,
+      "BlueMageSpells": ""
    },
    "10632":{
       "ID":10632,
@@ -2684,7 +3044,16 @@
       "Rank":"A",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID": 961,
-      "ZoneName":"Elpis"
+      "ZoneName":"Elpis",
+      "RegionId": 0,
+      "RegionName": "The World Unsundered",
+      "SpawnTrigger": null,
+      "Tips": null,
+      "MinSpawn": 14400000,
+      "MinSpawnMaint": 8640000,
+      "MaxSpawn": 21600000,
+      "MaxSpawnMaint": 12960000,
+      "BlueMageSpells": ""
    },
    "10621":{
       "ID":10620,
@@ -2692,7 +3061,16 @@
       "Rank":"S",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID": 961,
-      "ZoneName":"Elpis"
+      "ZoneName":"Elpis",
+      "RegionId": 0,
+      "RegionName": "The World Unsundered",
+      "SpawnTrigger": "",
+      "Tips": "",
+      "MinSpawn": 302400000,
+      "MinSpawnMaint": 180000000,
+      "MaxSpawn": 475200000,
+      "MaxSpawnMaint": 288000000,
+      "BlueMageSpells": ""
    },
    "10645":{
       "ID":10645,
@@ -2700,7 +3078,17 @@
       "Rank":"B",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID": 960,
-      "ZoneName":"Ultima Thule"
+      "ZoneName":"Ultima Thule",
+      "RegionId":0,
+      "RegionName":"The Sea of Stars",
+      "SpawnTrigger":null,
+      "Tips":null,
+      "CanPredict":false,
+      "MinSpawn":5000,
+      "MinSpawnMaint":5000,
+      "MaxSpawn":15000,
+      "MaxSpawnMaint":15000,
+      "BlueMageSpells": ""
    },
    "10646":{
       "ID":10646,
@@ -2708,7 +3096,17 @@
       "Rank":"B",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID": 960,
-      "ZoneName":"Ultima Thule"
+      "ZoneName":"Ultima Thule",
+      "RegionId":0,
+      "RegionName":"The Sea of Stars",
+      "SpawnTrigger":null,
+      "Tips":null,
+      "CanPredict":false,
+      "MinSpawn":5000,
+      "MinSpawnMaint":5000,
+      "MaxSpawn":15000,
+      "MaxSpawnMaint":15000,
+      "BlueMageSpells": ""
    },
    "10633":{
       "ID":10633,
@@ -2716,7 +3114,16 @@
       "Rank":"A",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID": 960,
-      "ZoneName":"Ultima Thule"
+      "ZoneName":"Ultima Thule",
+      "RegionId": 0,
+      "RegionName": "The Sea of Stars",
+      "SpawnTrigger": null,
+      "Tips": null,
+      "MinSpawn": 14400000,
+      "MinSpawnMaint": 8640000,
+      "MaxSpawn": 21600000,
+      "MaxSpawnMaint": 12960000,
+      "BlueMageSpells": ""
    },
    "10634":{
       "ID":10634,
@@ -2724,7 +3131,16 @@
       "Rank":"A",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID": 960,
-      "ZoneName":"Ultima Thule"
+      "ZoneName":"Ultima Thule",
+      "RegionId": 0,
+      "RegionName": "The Sea of Stars",
+      "SpawnTrigger": null,
+      "Tips": null,
+      "MinSpawn": 14400000,
+      "MinSpawnMaint": 8640000,
+      "MaxSpawn": 21600000,
+      "MaxSpawnMaint": 12960000,
+      "BlueMageSpells": ""
    },
    "10622":{
       "ID":10622,
@@ -2732,7 +3148,16 @@
       "Rank":"S",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID": 960,
-      "ZoneName":"Ultima Thule"
+      "ZoneName":"Ultima Thule",
+      "RegionId": 0,
+      "RegionName": "The Sea of Stars",
+      "SpawnTrigger": "",
+      "Tips": "",
+      "MinSpawn": 302400000,
+      "MinSpawnMaint": 180000000,
+      "MaxSpawn": 475200000,
+      "MaxSpawnMaint": 288000000,
+      "BlueMageSpells": ""
    },
    "10616":{
       "ID":10616,
@@ -2740,7 +3165,16 @@
       "Rank":"SS Minion",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID": 960,
-      "ZoneName":"Ultima Thule"
+      "ZoneName":"Ultima Thule",
+      "RegionId": 0,
+      "RegionName": "The Sea of Stars",
+      "SpawnTrigger": null,
+      "Tips": null,
+      "MinSpawn": 5000,
+      "MinSpawnMaint": 5000,
+      "MaxSpawn": 15000,
+      "MaxSpawnMaint": 15000,
+      "BlueMageSpells": ""
    },
    "110615":{
       "ID":110615,
@@ -2748,6 +3182,16 @@
       "Rank":"SS",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
       "ZoneID": 960,
-      "ZoneName":"Ultima Thule"
+      "ZoneName":"Ultima Thule",
+      "RegionId": 0,
+      "RegionName": "The Sea of Stars",
+      "SpawnTrigger": null,
+      "Tips": null,
+      "CanPredict": false,
+      "MinSpawn": 5000,
+      "MinSpawnMaint": 5000,
+      "MaxSpawn": 15000,
+      "MaxSpawnMaint": 15000,
+      "BlueMageSpells": "Doom"
    }
  }

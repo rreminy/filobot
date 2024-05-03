@@ -496,6 +496,9 @@ class HuntManager:
                             self._log.debug(f"FATE {name} on world {world} instance {instance} expired [2]\n{repr(xivhunt)}")
                             content = f"~~{content}~~ {self.get_expired_text(seconds, is_jp)}"
 
+                        if _key not in self._notifications[sub.channel_id][world]:
+                            return
+
                         del self._notifications[sub.channel_id][world][_key]
 
                     # if not notification.author.bot:
@@ -949,6 +952,8 @@ class HuntManager:
             if delete_notification:
                 del self._notifications[channel][world][key]
             return message, log
+
+        return None
 
     def get_world(self, id: int):
         try:

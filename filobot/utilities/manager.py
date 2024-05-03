@@ -23,10 +23,10 @@ from filobot.utilities.time_utils import RemainingTime
 
 class HuntManager:
 
-    JA_DATACENTERS = ('Elemental', 'Gaia', 'Mana', 'Meteor')
-    EU_DATACENTERS = ('Light', 'Chaos')
-    NA_DATACENTERS = ('Primal', 'Aether', 'Crystal', 'Dynamis')
-    OC_DATACENTERS = ('Materia')
+    JA_DATACENTERS = ['Elemental', 'Gaia', 'Mana', 'Meteor']
+    EU_DATACENTERS = ['Light', 'Chaos']
+    NA_DATACENTERS = ['Primal', 'Aether', 'Crystal', 'Dynamis']
+    OC_DATACENTERS = ['Materia']
 
     SUB_EW_A    = 'endwalker_a'
     SUB_EW_S    = 'endwalker_s'

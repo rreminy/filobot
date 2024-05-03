@@ -892,7 +892,6 @@ class HuntManager:
                 if (fate['Duration'] > 0):
                     duration_str = f" / {RemainingTime(fate['Duration']).to_simple()}"
 
-
                 if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS:
                     embed.description = f"""{xivhunt['status']}% {ja_zone_name} {en_zone_name} ({xivhunt['coords']}) {instancesymbol}"""
 
@@ -914,6 +913,16 @@ class HuntManager:
 
             if role_mention:
                 content = f"""{role_mention} {content}"""
+
+            if "BlueMageSpells" in hunt and hunt['BlueMageSpells']:
+                embed.description = f"""{embed.description}\n**Spells: {hunt['BlueMageSpells']}**"""
+
+                _meta = SubscriptionsMeta.select().where((SubscriptionsMeta.channel_id == sub.channel_id)
+                & (SubscriptionsMeta.attachName == "blu_spell"))
+                meta  = {m.name : m.value for m in _meta}
+
+                if 'notifier' in meta:
+                    content = f"""{content} {meta['notifier']}"""
 
             message = await self._send_sub_message(content, embed, sub)
             if not message:

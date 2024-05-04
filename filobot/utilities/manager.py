@@ -915,7 +915,7 @@ class HuntManager:
                 content = f"""{role_mention} {content}"""
 
             if "BlueMageSpells" in hunt and hunt['BlueMageSpells']:
-                embed.description = f"""{embed.description}\n**Spells: {hunt['BlueMageSpells']}**"""
+                embed.description = f"""{embed.description}\nBlue Mage Spells: **{hunt['BlueMageSpells']}**"""
 
                 _meta = SubscriptionsMeta.select().where((SubscriptionsMeta.channel_id == sub.channel_id)
                 & (SubscriptionsMeta.attachName == "blu_spell"))

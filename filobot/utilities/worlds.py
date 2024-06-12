@@ -19,7 +19,7 @@ _path_base = os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep
 worlds = {
     'name': "Worlds",
     'file_path': _path_base + os.path.join('data', 'worlds.csv'),
-    'url': 'https://raw.githubusercontent.com/xivapi/ffxiv-datamining/master/csv/World.csv',
+    'url': 'https://api.ffxivsonar.com/filo/worlds',
     'last_updated': 0,
     'data': ""
 }
@@ -27,7 +27,7 @@ worlds = {
 datacenters = {
     'name': "Datacenters",
     'file_path': _path_base + os.path.join('data', 'datacenters.csv'),
-    'url': 'https://raw.githubusercontent.com/xivapi/ffxiv-datamining/master/csv/WorldDCGroupType.csv',
+    'url': 'https://api.ffxivsonar.com/filo/datacenters',
     'last_updated': 0,
     'data': ""
 }

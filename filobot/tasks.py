@@ -20,7 +20,6 @@ import json
 import logging
 logger = logging.getLogger(__name__)
 
-
 async def update_hunts():
     await bot.wait_until_ready()
 
@@ -91,7 +90,7 @@ async def bear_handler(self, data):
                 lastAlive = False if int(data['lastDeathTime']) > int(data['expectMinTime']) else True
 
                 if lastAlive:
-                    horusHunt = await hunt_manager.horus.update_bear(data)
+                    horusHunt = await hunt_manager.horus.update_bear(data, hunt_manager.getmarksinfo()[data['huntName'].lower()])
 
                     if horusHunt is not None:
                         await hunt_manager.recheck_trackers('FeedListener2', data['huntName'], horusHunt, 0)
@@ -131,10 +130,13 @@ async def update_game():
             log.exception('Exception thrown while changing game status')
         await asyncio.sleep(60.0)
 
-
+huntInstance = dict()
+chaosHunts = False
 async def _process_data(source, data, message):
     marks_info = hunt_manager.horus.marks_info
     fates_info = hunt_manager.horus.fates_info
+    global huntInstance
+    global chaosHunts
 
     try:
         if 'id' in data:
@@ -142,6 +144,9 @@ async def _process_data(source, data, message):
                 #logger.debug(f"Processing {data['id']} as a fate")
                 await _process_fate(source, data)
             elif data['id'] in marks_info: # It's a hunt
+                if chaosHunts and marks_info[data['id']]['Rank'] == "S":
+                    huntInstance[hunt_manager.get_world(int(data['wId'])) + '_' + marks_info[data['id']]['Name']] = data[config.get(source, 'i')] if config.get(source, 'i') in data else 0
+                    return
                 #logger.debug(f"Processing {data['id']} as a hunt")
                 await _process_hunt(source, data)
             else: # when all else fails
@@ -151,6 +156,8 @@ async def _process_data(source, data, message):
             logger.debug(f"Received {message.content}")
             logger.debug(message.webhook_id)
             if message.webhook_id is not None and message.content.find("] S rank ") != -1:
+                if not chaosHunts:
+                    chaosHunts = True
                 logger.debug(f"Processing message as a chaos hunt")
                 await _process_chaoshunt(source, data, message)
         else:
@@ -217,7 +224,7 @@ async def _process_chaoshunt(source, data, message):
         if not hunt:
             return
         x, y    = message.content.split("(")[1].split(",")[0].strip(), message.content.split("(")[1].split(",")[1].split(")")[0].strip()
-        i = 1
+        i = huntInstance[world + '_' + hunt['Name']] if (world + '_' + hunt['Name']) in huntInstance else 1
         last_seen = int(time.time())
         xivhunt = {
             'rank': hunt['Rank'],

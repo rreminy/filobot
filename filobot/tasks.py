@@ -300,8 +300,6 @@ async def _process_fate(source, data):
         # Variables
         startTimeEpoch = int(data['startTimeEpoch'])
         progress = int(int(data['progress']) / progressUpdateInterval) * progressUpdateInterval
-        if (progress > 90 and source == "FeedListener1"):
-            return 
         xivhunt["status"] = str(progress)
 
         # Rate limit updates

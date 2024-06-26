@@ -6,6 +6,7 @@ from configparser import ConfigParser
 import discord
 import math
 from discord.ext import commands
+from discord import app_commands
 
 from filobot.cogs import Hunts
 from filobot.cogs.admin import Admin
@@ -52,14 +53,12 @@ GAMES = ("with moogles", "in Totomo Omo's estate", "in the Izakaya Pub",
          "Hydaelyn", "Final Fantasy XIV", "FFXIV", "Centurio Hunts", "the Moon",
          "the Sun", "Zenos", "Hades", "Python", "XIVAPI", "Horus", "with Tora",)
 
-
 @bot.event
 async def on_ready():
     log.info(f"""Logged in as {bot.user.name} ({bot.user.id})""")
 
     print('Filo is ready for action!')
     print('------')
-
 
 @bot.event
 async def on_guild_join(guild: discord.Guild):
@@ -86,15 +85,15 @@ async def on_command_error(ctx: commands.context.Context, error: Exception):
         else:
             fmt = ' and '.join(missing)
         _message = 'I need the **{}** permission(s) to run this command.'.format(fmt)
-        await ctx.send(_message)
+        await ctx.reply(_message, ephemeral=True)
         return
 
     if isinstance(error, commands.DisabledCommand):
-        await ctx.send('This command has been disabled.')
+        await ctx.reply('This command has been disabled.', ephemeral=True)
         return
 
     if isinstance(error, commands.CommandOnCooldown):
-        await ctx.send("This command is on cooldown, please retry in {}s.".format(math.ceil(error.retry_after)))
+        await ctx.reply("This command is on cooldown, please retry in {}s.".format(math.ceil(error.retry_after)), ephemeral=True)
         return
 
     if isinstance(error, commands.MissingPermissions):
@@ -104,17 +103,17 @@ async def on_command_error(ctx: commands.context.Context, error: Exception):
         else:
             fmt = ' and '.join(missing)
         _message = 'You need the **{}** permission(s) to use this command.'.format(fmt)
-        await ctx.send(_message)
+        await ctx.reply(_message, ephemeral=True)
         return
 
     if isinstance(error, commands.UserInputError):
-        await ctx.send("Invalid input. Please use `f.help` for instructions on how to use this command.")
+        await ctx.send("Invalid input. Please use `f.help` for instructions on how to use this command.", ephemeral=True)
         # await ctx.command.send_command_help(ctx) TODO
         return
 
     if isinstance(error, commands.NoPrivateMessage):
         try:
-            await ctx.author.send('This command cannot be used in direct messages.')
+            await ctx.author.reply('This command cannot be used in direct messages.', ephemeral=True)
         except discord.Forbidden:
             pass
         return
@@ -124,7 +123,7 @@ async def on_command_error(ctx: commands.context.Context, error: Exception):
         return
 
     if isinstance(error, commands.CheckFailure):
-        await ctx.send("You do not have permission to use this command.")
+        await ctx.reply("You do not have permission to use this command.", ephemeral=True)
         return
 
     # ignore all other exception types, but print them to stderr

@@ -24,10 +24,12 @@ from filobot.utilities.time_utils import RemainingTime
 class HuntManager:
 
     JA_DATACENTERS = ['Elemental', 'Gaia', 'Mana', 'Meteor']
-    EU_DATACENTERS = ['Light', 'Chaos']
+    EU_DATACENTERS = ['Light', 'Chaos', 'Shadow']
     NA_DATACENTERS = ['Primal', 'Aether', 'Crystal', 'Dynamis']
     OC_DATACENTERS = ['Materia']
 
+    SUB_DT_A    = 'dawntrail_a'
+    SUB_DT_S    = 'dawntrail_s'
     SUB_EW_A    = 'endwalker_a'
     SUB_EW_S    = 'endwalker_s'
     SUB_SHB_A   = 'shadowbringers_a'
@@ -41,7 +43,7 @@ class HuntManager:
     SUB_FATE    = 'rare_fates'
     SUB_TRAINS  = 'trains'
 
-    HUNT_SUBSCRIPTIONS = ('ew_a', 'ew_s', 'shb_a', 'shb_s', 'sb_a', 'sb_s', 'hw_a', 'hw_s', 'arr_a', 'arr_s')
+    HUNT_SUBSCRIPTIONS = ('dt_a', 'dt_s', 'ew_a', 'ew_s', 'shb_a', 'shb_s', 'sb_a', 'sb_s', 'hw_a', 'hw_s', 'arr_a', 'arr_s')
 
     ARR_ZONES = ('Central Shroud', 'East Shroud', 'South Shroud', 'North Shroud', 'Western Thanalan',
                  'Central Thanalan', 'Eastern Thanalan', 'Southern Thanalan', 'Northern Thanalan', 'Middle La Noscea',
@@ -55,6 +57,8 @@ class HuntManager:
     SHB_ZONES = ('Il Mheg', "The Rak'tika Greatwood", 'The Tempest', 'Amh Araeng', 'Lakeland', 'Kholusia')
 
     EW_ZONES = ('Labyrinthos', "Thavnair", 'Garlemald', 'Mare Lamentorum', 'Elpis', 'Ultima Thule')
+
+    DT_ZONES = ("Kozama'uka", "Yak T'el", "Urqopacha", "Shaaloani", "Heritage Found", "Living Memory")
 
     COND_DEAD = 'deaths'
     COND_OPEN = 'openings'
@@ -113,8 +117,10 @@ class HuntManager:
             return "sb"
         elif zone_id < 956:
             return "shb"
-        else:
+        elif zone_id < 962:
             return "ew"
+        else:
+            return "dt"
 
     async def recheck(self):
         """
@@ -268,19 +274,15 @@ class HuntManager:
         # Validate world
         world = world.strip().lower().title()
         if world not in Worlds.get_worlds():
-            await self.bot.get_channel(channel).send(
-                "No world by that name found - please check your spelling and try again"
-            )
-            return
+            #await self.bot.get_channel(channel).send("No world by that name found - please check your spelling and try again", ephemeral=True)
+            return "No world by that name found - please check your spelling and try again"
 
         # Validate subscription channel
         try:
             sub = getattr(self, f"""SUB_{subscription.upper()}""")
         except AttributeError:
-            await self.bot.get_channel(channel).send(
-                "Invalid subscription provided, valid subscriptions are: ew_a, ew_s, shb_a, shb_s, sb_a, sb_s, hw_a, hw_s, arr_a, arr_s, fate, trains"
-            )
-            return
+            #await self.bot.get_channel(channel).send("Invalid subscription provided, valid subscriptions are: dt_a, dt_s, ew_a, ew_s, shb_a, shb_s, sb_a, sb_s, hw_a, hw_s, arr_a, arr_s, fate, trains", ephemeral=True)
+            return "Invalid subscription provided, valid subscriptions are: dt_a, dt_s, ew_a, ew_s, shb_a, shb_s, sb_a, sb_s, hw_a, hw_s, arr_a, arr_s, fate, trains"
 
         # Validate conditions
         if conditions == 'all':
@@ -289,10 +291,8 @@ class HuntManager:
             conditions = conditions.replace(' ', '').lower().split(',')
             _invalid_conditions = set(conditions) - set(self.CONDITIONS)
             if _invalid_conditions:
-                await self.bot.get_channel(channel).send(
-                        "Invalid conditions supplied: " + str(_invalid_conditions)
-                )
-                return
+                #await self.bot.get_channel(channel).send("Invalid conditions supplied: " + str(_invalid_conditions))
+                return ("Invalid conditions supplied: " + str(_invalid_conditions))
 
         # Already subscribed?
         if Subscriptions.select().where(
@@ -300,10 +300,8 @@ class HuntManager:
                 & (Subscriptions.world == world)
                 & (Subscriptions.category == sub)
         ).count():
-            await self.bot.get_channel(channel).send(
-                "This channel is already subscribed to this feed. If you want unsubscribe, use the unsub command"
-            )
-            return
+            #await self.bot.get_channel(channel).send("This channel is already subscribed to this feed. If you want unsubscribe, use the unsub command", ephemeral=True)
+            return "This channel is already subscribed to this feed. If you want unsubscribe, use the unsub command"
 
         for condition in conditions:
             Subscriptions.insert({
@@ -313,8 +311,10 @@ class HuntManager:
                 'event'     : condition
             }).execute()
 
-        await self.bot.get_channel(channel).send(f"""Subscribed channel to {str(sub).replace('_', ' ').title()} on {world}""")
+        #await self.bot.get_channel(channel).send(f"""Subscribed channel to {str(sub).replace('_', ' ').title()} on {world}""", ephemeral=True)
+        message = f"""Subscribed channel to {str(sub).replace('_', ' ').title()} on {world}"""
         self._reload()
+        return message
 
     async def subscribe_all(self, datacenter: str, channel: int, subscription: str, conditions: typing.Optional[str] = 'all'):
         """
@@ -324,10 +324,8 @@ class HuntManager:
         try:
             sub = getattr(self, f"""SUB_{subscription.upper()}""")
         except AttributeError:
-            await self.bot.get_channel(channel).send(
-                "Invalid subscription provided, valid subscriptions are: ew_a, ew_s, shb_a, shb_s, sb_a, sb_s, hw_a, hw_s, arr_a, arr_s, fate, trains"
-            )
-            return
+            #await self.bot.get_channel(channel).send("Invalid subscription provided, valid subscriptions are: dt_a, dt_s, ew_a, ew_s, shb_a, shb_s, sb_a, sb_s, hw_a, hw_s, arr_a, arr_s, fate, trains", ephemeral=True)
+            return "Invalid subscription provided, valid subscriptions are: dt_a, dt_s, ew_a, ew_s, shb_a, shb_s, sb_a, sb_s, hw_a, hw_s, arr_a, arr_s, fate, trains"
 
         # Validate conditions
         if conditions == 'all':
@@ -336,16 +334,14 @@ class HuntManager:
             conditions = conditions.replace(' ', '').lower().split(',')
             _invalid_conditions = set(conditions) - set(self.CONDITIONS)
             if _invalid_conditions:
-                await self.bot.get_channel(channel).send(
-                        "Invalid conditions supplied: " + str(_invalid_conditions)
-                )
-                return
+                #await self.bot.get_channel(channel).send("Invalid conditions supplied: " + str(_invalid_conditions), ephemeral=True)
+                return ("Invalid conditions supplied: " + str(_invalid_conditions))
 
         # Validate datacenter
         datacenter = datacenter.strip().lower().title()
         if datacenter not in Worlds.get_datacenters():
-            await self.bot.get_channel(channel).send(f"Invalid datacenter provided, valid datacenters are: {', '.join(Worlds.get_datacenters())}")
-            return
+            #await self.bot.get_channel(channel).send(f"Invalid datacenter provided, valid datacenters are: {', '.join(Worlds.get_datacenters())}", ephemeral=True)
+            return (f"Invalid datacenter provided, valid datacenters are: {', '.join(Worlds.get_datacenters())}")
 
         for world in Worlds.get_datacenter_worlds(datacenter):
             # Already subscribed? Overwrite it
@@ -363,10 +359,10 @@ class HuntManager:
                     'event'     : condition
                 }).execute()
 
-        await self.bot.get_channel(channel).send(
-            f"""Subscribed channel to {str(sub).replace('_', ' ').title()} on **all worlds**"""
-        )
+        #await self.bot.get_channel(channel).send(f"""Subscribed channel to {str(sub).replace('_', ' ').title()} on **all worlds**""", ephemeral=True)
+        message = f"""Subscribed channel to {str(sub).replace('_', ' ').title()} on **all worlds**"""
         self._reload()
+        return message
 
     async def unsubscribe(self, channel: int, world: str, subscription: str):
         """
@@ -374,18 +370,14 @@ class HuntManager:
         """
         world = world.strip().lower().title()
         if world not in Worlds.get_worlds():
-            await self.bot.get_channel(channel).send(
-                "No world by that name found - please check your spelling and try again"
-            )
-            return
+            #await self.bot.get_channel(channel).send("No world by that name found - please check your spelling and try again", ephemeral=True)
+            return "No world by that name found - please check your spelling and try again"
 
         try:
             sub = getattr(self, f"""SUB_{subscription.upper()}""")
         except AttributeError:
-            await self.bot.get_channel(channel).send(
-                "Invalid subscription provided, valid subscriptions are: ew_a, ew_s, shb_a, shb_s, sb_a, sb_s, hw_a, hw_s, arr_a, arr_s, fate, trains"
-            )
-            return
+            #await self.bot.get_channel(channel).send("Invalid subscription provided, valid subscriptions are: dt_a, dt_s, ew_a, ew_s, shb_a, shb_s, sb_a, sb_s, hw_a, hw_s, arr_a, arr_s, fate, trains", ephemeral=True)
+            return "Invalid subscription provided, valid subscriptions are: dt_a, dt_s, ew_a, ew_s, shb_a, shb_s, sb_a, sb_s, hw_a, hw_s, arr_a, arr_s, fate, trains"
 
         Subscriptions.delete().where(
                 (Subscriptions.channel_id == channel)
@@ -393,8 +385,10 @@ class HuntManager:
                 & (Subscriptions.category == sub)
         ).execute()
 
-        await self.bot.get_channel(channel).send(f"""Unsubscribed channel from {str(sub).replace('_', ' ').title()} on {world}""")
+        #await self.bot.get_channel(channel).send(f"""Unsubscribed channel from {str(sub).replace('_', ' ').title()} on {world}""", ephemeral=True)
+        message = f"""Unsubscribed channel from {str(sub).replace('_', ' ').title()} on {world}"""
         self._reload()
+        return message
 
     async def get_subscriptions(self, channel: int) -> typing.List[Subscriptions]:
         """

@@ -339,7 +339,7 @@ class Worlds:
     # Worlds functions
     @staticmethod
     def get_worlds():
-        return worlds['list']
+        return worlds['list'] if 'list' in worlds else None
 
     @staticmethod
     def get_worlds_id():

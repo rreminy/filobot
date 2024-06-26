@@ -44,28 +44,30 @@ async def update_fates():
 async def feed_listener(source):
     address = config.get(source, "address")
 
-    if 'bear' in address:
-        try:
-            dataCenters = list(hunt_manager.JA_DATACENTERS) + list(hunt_manager.EU_DATACENTERS) + list(hunt_manager.NA_DATACENTERS) + list(hunt_manager.OC_DATACENTERS)
-            sessions = []
+    #disabled due to potential instance conflicts
+    #if 'bear' in address:
+    #    try:
+    #        dataCenters = list(hunt_manager.JA_DATACENTERS) + list(hunt_manager.EU_DATACENTERS) + list(hunt_manager.NA_DATACENTERS) + list(hunt_manager.OC_DATACENTERS)
+    #        sessions = []
 
-            for dataCenter in dataCenters:
-                log.info(f"Connecting to bear for {dataCenter}")
-                session = socketio.AsyncClient()
-                await session.connect(address, namespaces='/HuntUpdate', socketio_path='/socket', retry=True)
-                await session.emit('Change Room Request', dataCenter, namespace='/HuntUpdate')
-                session.on('*', handler=bear_handler, namespace='/HuntUpdate')
-                sessions.append(session)
+    #        for dataCenter in dataCenters:
+    #            log.info(f"Connecting to bear for {dataCenter}")
+    #            session = socketio.AsyncClient()
+    #            await session.connect(address, namespaces='/HuntUpdate', socketio_path='/socket', retry=True)
+    #            await session.emit('Change Room Request', dataCenter, namespace='/HuntUpdate')
+    #            session.on('*', handler=bear_handler, namespace='/HuntUpdate')
+    #            sessions.append(session)
 
-            while not bot.is_closed():
-                await asyncio.sleep(15.0) # Nothing to do anymore! But we can stall indefinitely until shutdown so we can disconnect properly
+    #        while not bot.is_closed():
+    #            await asyncio.sleep(15.0) # Nothing to do anymore! But we can stall indefinitely until shutdown so we can disconnect properly
 
-            for session in sessions:
-                session.disconnect()
-        except Exception:
-                log.exception(f"Exception occurred in feed listener associated with {address}")
-                pass
-    else:
+    #        for session in sessions:
+    #            session.disconnect()
+    #    except Exception:
+    #            log.exception(f"Exception occurred in feed listener associated with {address}")
+    #            pass
+    #else:
+    if not 'bear' in address:
         async with aiohttp.ClientSession() as session:
             while not bot.is_closed():
                 await asyncio.sleep(15.0)

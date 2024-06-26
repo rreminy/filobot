@@ -17,6 +17,15 @@ class Admin(commands.Cog):
         self.bot = bot
 
     @commands.command(hidden=True)
+    @commands.has_permissions(administrator=True)
+    async def sync(self, ctx: commands.context.Context):
+        """
+        Syncs commands
+        """
+        await self.bot.tree.sync()
+        await ctx.reply("Sync'd app commands! You may need to CTRL+R", ephemeral=True)
+
+    @commands.command(hidden=True)
     @commands.is_owner()
     async def ban(self, ctx: commands.context.Context, id: typing.Optional[int] = None):
         """

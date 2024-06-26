@@ -22,9 +22,9 @@ class Misc(commands.Cog):
         """
         Boop!
         """
-        now = datetime.datetime.utcnow().timestamp()
+        now = datetime.datetime.now().timestamp()
         response_time = now - ctx.message.created_at.timestamp()
-        await ctx.send('Boop! Response time: {0} seconds'.format(round(response_time, 1)))
+        await ctx.reply(content=('Boop! Response time: {0} seconds'.format(round(response_time, 1))), ephemeral=True)
 
     @commands.command(hidden=True)
     async def off(self, ctx: commands.context.Context):

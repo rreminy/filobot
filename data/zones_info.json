@@ -10843,5 +10843,95 @@
     "name_fr": "Elpis",
     "name_ja": "エルピス",
     "expac": "EW"
+  },
+  "1187": {
+    "id": 1187,
+    "mapId": 857,
+    "scale": 1,
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "name": "Urqopacha",
+    "name_de": "Urqopacha",
+    "name_en": "Urqopacha",
+    "name_fr": "Urqopacha",
+    "name_ja": "オルコ・パチャ",
+    "expac": "DT"
+  },
+  "1188": {
+    "id": 1188,
+    "mapId": 858,
+    "scale": 1,
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "name": "Kozama'uka",
+    "name_de": "Kozama'uka",
+    "name_en": "Kozama'uka",
+    "name_fr": "Kozama'uka",
+    "name_ja": "コザマル・カ",
+    "expac": "DT"
+  },
+  "1189": {
+    "id": 1189,
+    "mapId": 859,
+    "scale": 1,
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "name": "Yak T'el",
+    "name_de": "Yak T'el",
+    "name_en": "Yak T'el",
+    "name_fr": "Yak T'el",
+    "name_ja": "ヤクテル樹海",
+    "expac": "DT"
+  },
+  "1190": {
+    "id": 1190,
+    "mapId": 860,
+    "scale": 1,
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "name": "Shaaloani",
+    "name_de": "Shaaloani",
+    "name_en": "Shaaloani",
+    "name_fr": "Shaaloani",
+    "name_ja": "シャーローニ荒野",
+    "expac": "DT"
+  },
+  "1191": {
+    "id": 1191,
+    "mapId": 861,
+    "scale": 1,
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "name": "Heritage Found",
+    "name_de": "Ewiges Erbe",
+    "name_en": "Heritage Found",
+    "name_fr": "L'hoirie Recouvrée",
+    "name_ja": "ヘリテージファウンド",
+    "expac": "DT"
+  },
+  "1192": {
+    "id": 1192,
+    "mapId": 862,
+    "scale": 1,
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "name": "Living Memory",
+    "name_de": "Lebende Erinnerung",
+    "name_en": "Living Memory",
+    "name_fr": "La Mémoire Vivante",
+    "name_ja": "リビング・メモリー",
+    "expac": "DT"
   }
 }

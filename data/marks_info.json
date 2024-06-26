@@ -3385,7 +3385,7 @@
       "MinSpawnMaint": 8640000,
       "MaxSpawn": 21600000,
       "MaxSpawnMaint": 12960000,
-      "BlueMageSpells": "Devour"
+      "BlueMageSpells": ""
    },
    "12753":{
       "ID":12753,

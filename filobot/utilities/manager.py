@@ -849,6 +849,8 @@ class HuntManager:
                 attachcategory = "SHB"
             if hunt['ZoneName'] in self.EW_ZONES:
                 attachcategory = "EW"
+            if hunt['ZoneName'] in self.DT_ZONES:
+                attachcategory = "DT"
             if 'Rank' in hunt and hunt['Rank']:
                 attachcategory = '_'.join((attachcategory, hunt['Rank'][0:1])).lower()
 
@@ -1020,6 +1022,9 @@ class HuntManager:
                     self._marks_info[key]['Channel'] = channel
                 elif mark['ZoneName'] in self.EW_ZONES and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
                     channel = getattr(self, f"""SUB_EW_{mark['Rank'][0:1]}""")
+                    self._marks_info[key]['Channel'] = channel
+                elif mark['ZoneName'] in self.DT_ZONES and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
+                    channel = getattr(self, f"""SUB_DT_{mark['Rank'][0:1]}""")
                     self._marks_info[key]['Channel'] = channel
                 else:
                     self._log.info(f"""Not binding hunt {mark['Name']} to a subscription channel""")

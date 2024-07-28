@@ -135,8 +135,6 @@ async def update_game():
 async def _process_data(source, data, message):
     marks_info = hunt_manager.horus.marks_info
     fates_info = hunt_manager.horus.fates_info
-    global huntInstance
-    global chaosHunts
 
     try:
         if 'id' in data:
@@ -220,7 +218,7 @@ async def _process_chaoshunt(source, data, message):
             return
         x, y    = message.content.split("(")[1].split(",")[0].strip(), message.content.split("(")[1].split(",")[1].split(")")[0].strip()
         i = message.content.split(")")[1].strip()
-        i = int(i if i is not "" else 1)
+        i = int(i if i != "" else 1)
         last_seen = int(time.time())
         xivhunt = {
             'rank': hunt['Rank'],

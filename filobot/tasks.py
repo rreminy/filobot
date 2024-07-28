@@ -219,6 +219,8 @@ async def _process_chaoshunt(source, data, message):
         if not hunt:
             return
         x, y    = message.content.split("(")[1].split(",")[0].strip(), message.content.split("(")[1].split(",")[1].split(")")[0].strip()
+        i = message.content.split(")")[1].strip()
+        i = int(i if i is not "" else 1)
         last_seen = int(time.time())
         xivhunt = {
             'rank': hunt['Rank'],

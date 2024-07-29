@@ -209,9 +209,10 @@ async def _process_chaoshunt(source, data, message):
         world   = message.content.split("[")[1].split("]")[0]
         zone    = message.content.split("rank ")[1].split(",")[0].strip()
         hunt    = None
+        logger.debug(f"Searching for S Rank at: {zone}")
         for mark in hunt_manager._marks_info.values():
-            logger.debug(mark)
             if mark['ZoneName'].lower() == zone.lower() and mark['Rank'] == "S":
+                logger.debug(f"Found: {mark}")
                 hunt = mark
                 break
         if not hunt:

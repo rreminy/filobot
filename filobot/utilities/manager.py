@@ -702,6 +702,8 @@ class HuntManager:
         """
         Hunt and fate found event handler
         """
+        self._log.debug(f"on_find: World = {world} | name = {name} | xivhunt = {xivhunt} | instance = {instance}")
+
         if world not in self._hunts:
             self._hunts[world] = {'horus': {}, 'xivhunt': []}
 

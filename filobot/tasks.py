@@ -132,13 +132,9 @@ async def update_game():
             log.exception('Exception thrown while changing game status')
         await asyncio.sleep(60.0)
 
-huntInstance = dict()
-chaosHunts = False
 async def _process_data(source, data, message):
     marks_info = hunt_manager.horus.marks_info
     fates_info = hunt_manager.horus.fates_info
-    global huntInstance
-    global chaosHunts
 
     try:
         if 'id' in data:
@@ -146,9 +142,6 @@ async def _process_data(source, data, message):
                 #logger.debug(f"Processing {data['id']} as a fate")
                 await _process_fate(source, data)
             elif data['id'] in marks_info: # It's a hunt
-                if chaosHunts and marks_info[data['id']]['Rank'] == "S":
-                    huntInstance[hunt_manager.get_world(int(data['wId'])) + '_' + marks_info[data['id']]['Name']] = data[config.get(source, 'i')] if config.get(source, 'i') in data else 0
-                    return
                 #logger.debug(f"Processing {data['id']} as a hunt")
                 await _process_hunt(source, data)
             else: # when all else fails
@@ -158,8 +151,6 @@ async def _process_data(source, data, message):
             logger.debug(f"Received {message.content}")
             logger.debug(message.webhook_id)
             if message.webhook_id is not None and message.content.find("] S rank ") != -1:
-                if not chaosHunts:
-                    chaosHunts = True
                 logger.debug(f"Processing message as a chaos hunt")
                 await _process_chaoshunt(source, data, message)
         else:
@@ -218,15 +209,17 @@ async def _process_chaoshunt(source, data, message):
         world   = message.content.split("[")[1].split("]")[0]
         zone    = message.content.split("rank ")[1].split(",")[0].strip()
         hunt    = None
+        logger.debug(f"Searching for S Rank at: {zone}")
         for mark in hunt_manager._marks_info.values():
-            logger.debug(mark)
             if mark['ZoneName'].lower() == zone.lower() and mark['Rank'] == "S":
+                logger.debug(f"Found: {mark}")
                 hunt = mark
                 break
         if not hunt:
             return
         x, y    = message.content.split("(")[1].split(",")[0].strip(), message.content.split("(")[1].split(",")[1].split(")")[0].strip()
-        i = huntInstance[world + '_' + hunt['Name']] if (world + '_' + hunt['Name']) in huntInstance else 1
+        i = message.content.split(")")[1].strip()
+        i = int(i if i != "" else 1)
         last_seen = int(time.time())
         xivhunt = {
             'rank': hunt['Rank'],

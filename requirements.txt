@@ -6,3 +6,4 @@ PyYAML
 gitpython
 beautifulsoup4
 socketio
+async-timeout>=4.0.3

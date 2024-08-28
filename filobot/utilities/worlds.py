@@ -281,7 +281,7 @@ async def do_update(force=False):
     # Setup update tasks
     tasks = []
     for obj in [datacenters, worlds]:
-        tasks.append(update(obj, force))
+        tasks.append(asyncio.create_task(update(obj, force)))
 
     # Await all tasks and proccess all data
     await asyncio.wait(tasks)

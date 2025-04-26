@@ -10933,5 +10933,20 @@
     "name_fr": "La Mémoire Vivante",
     "name_ja": "リビング・メモリー",
     "expac": "DT"
+  },
+  "1237": {
+    "id": 1237,
+    "mapId": 1004,
+    "scale": 1,
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "name": "Sinus Ardorum",
+    "name_de": "Sinus Ardorum",
+    "name_en": "Sinus Ardorum",
+    "name_fr": "Sinus Ardorum",
+    "name_ja": "焦がれの入江",
+    "expac": "DT"
   }
 }

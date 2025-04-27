@@ -65,6 +65,8 @@ class HuntManager:
     COND_FIND = 'finds'
     CONDITIONS = (COND_DEAD, COND_OPEN, COND_FIND)
 
+    lock = asyncio.Lock()
+
     def __init__(self, bot: Bot):
         self._log = logging.getLogger(__name__)
         self.bot = bot
@@ -207,32 +209,33 @@ class HuntManager:
                     if recent_fate in self._hunts[world]['xivhunt']:
                         self._hunts[world]['xivhunt'].remove(recent_fate)
 
-        job_list = list()
-        for channel in list(self._notifications.keys()):
-            for world in list(self._notifications[channel].keys()):
-                for key in list(self._notifications[channel][world].keys()):
-                    name = key.rsplit("_")[0]
+        async with self.lock:
+            job_list = list()
+            for channel in list(self._notifications.keys()):
+                for world in list(self._notifications[channel].keys()):
+                    for key in list(self._notifications[channel][world].keys()):
+                        name = key.rsplit("_")[0]
 
-                    if self._notifications[channel][world][key] and name in self._fates_info.keys():
-                        message, log = self._notifications[channel][world][key]
-                        message = await message.fetch()
-                        try:
-                            embed = message.embeds[0]
-                        except:
-                            continue
+                        if name in self._fates_info.keys() and self._notifications[channel][world][key]:
+                            message, log = self._notifications[channel][world][key]
+                            message = await message.fetch()
+                            try:
+                                embed = message.embeds[0]
+                            except:
+                                continue
 
-                        if not embed:
-                            continue
+                            if not embed:
+                                continue
 
-                        seconds_left = RemainingTime.from_simple_time(embed.footer.text if isinstance(embed.footer.text, str) else "30:00").to_seconds()
-                        message_time = message.edited_at if message.edited_at is not None else message.created_at
+                            seconds_left = RemainingTime.from_simple_time(embed.footer.text if isinstance(embed.footer.text, str) else "30:00").to_seconds()
+                            message_time = message.edited_at if message.edited_at is not None else message.created_at
 
-                        self._log.info(f"""edited_at: {repr(message.edited_at)}\ncreated_at: {repr(message.created_at)}""")
+                            self._log.info(f"""edited_at: {repr(message.edited_at)}\ncreated_at: {repr(message.created_at)}""")
 
-                        if int(time.time()) >= int(message_time.timestamp()) + seconds_left:
-                            #  Strikethrough the fate!
-                            # self._log.info(f"""Expiring? Fate: {self._fates_info[name]['Name']} ({world})\n{time.time()} >= {int(message_time.replace(tzinfo=datetime.timezone.utc).timestamp())} + {seconds_left} ({int(message_time.replace(tzinfo=datetime.timezone.utc).timestamp()) + seconds_left})""")
-                            job_list.append(self.on_progress(world, self._fates_info[name]['Name'], None, int(key.rsplit("_")[1])))
+                            if int(time.time()) >= int(message_time.timestamp()) + seconds_left:
+                                #  Strikethrough the fate!
+                                # self._log.info(f"""Expiring? Fate: {self._fates_info[name]['Name']} ({world})\n{time.time()} >= {int(message_time.replace(tzinfo=datetime.timezone.utc).timestamp())} + {seconds_left} ({int(message_time.replace(tzinfo=datetime.timezone.utc).timestamp()) + seconds_left})""")
+                                job_list.append(self.on_progress(world, self._fates_info[name]['Name'], None, int(key.rsplit("_")[1])))
         await asyncio.gather(*job_list)
 
     async def set_notifier(self, channel: int, role: discord.Role, attachname: str) -> None:
@@ -493,7 +496,8 @@ class HuntManager:
                         if _key not in self._notifications[sub.channel_id][world]:
                             return
 
-                        del self._notifications[sub.channel_id][world][_key]
+                        async with self.lock:
+                            del self._notifications[sub.channel_id][world][_key]
 
                     # if not notification.author.bot:
                     #     continue
@@ -687,7 +691,8 @@ class HuntManager:
                             self._log.exception("Exception thrown")
                 else:
                     if not complete and f"{self.SUB_TRAINS.lower()}_1" in self._notifications[sub.channel_id][world]:
-                        del self._notifications[sub.channel_id][world][f"{self.SUB_TRAINS.lower()}_1"]
+                        async with self.lock:
+                            del self._notifications[sub.channel_id][world][f"{self.SUB_TRAINS.lower()}_1"]
 
             if not complete or self.COND_DEAD == sub.event:
                 # Sending a new message
@@ -796,7 +801,8 @@ class HuntManager:
                         for n_channel in self._notifications:
                             if world in self._notifications[n_channel]:
                                 if _key in self._notifications[n_channel][world]:
-                                    del self._notifications[n_channel][world][_key]
+                                    async with self.lock:
+                                        del self._notifications[n_channel][world][_key]
             else:
                 # self._log.debug(f"""Ignoring notifications for {hunt['Rank']} rank hunts""")
                 return
@@ -972,7 +978,8 @@ class HuntManager:
         if key in self._notifications[channel][world]:
             message, log = self._notifications[channel][world][key]
             if delete_notification:
-                del self._notifications[channel][world][key]
+                async with self.lock:
+                    del self._notifications[channel][world][key]
             return message, log
 
         return None

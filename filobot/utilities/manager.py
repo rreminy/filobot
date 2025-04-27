@@ -24,7 +24,7 @@ from filobot.utilities.time_utils import RemainingTime
 class HuntManager:
 
     JA_DATACENTERS = ['Elemental', 'Gaia', 'Mana', 'Meteor']
-    EU_DATACENTERS = ['Light', 'Chaos', 'Shadow']
+    EU_DATACENTERS = ['Light', 'Chaos']
     NA_DATACENTERS = ['Primal', 'Aether', 'Crystal', 'Dynamis']
     OC_DATACENTERS = ['Materia']
 
@@ -593,7 +593,7 @@ class HuntManager:
                             # Set embed description
                             try:
                                 embed.description = f"~~{notification.embeds[0].description}~~" if notification.embeds[0].description else ""
-                                embed.set_image(url=discord.Embed.Empty)
+                                embed.set_image(url=discord.Embed.Empty) # This might be giving a secret error, we may want to use None instead
                             except:
                                 pass
 
@@ -750,11 +750,6 @@ class HuntManager:
                 if _key in self._hunts[world]['xivhunt']:
 
                     lastNotificationTime = None
-                    for channel in self._notifications:
-                        break # disabled
-                        if world in self._notifications[channel] and _key in self._notifications[channel][world] and len(self._notifications[channel][world][_key]) > 0:
-                            lastNotificationTime = self._notifications[channel][world][_key][0].created_at.replace(tzinfo=datetime.timezone.utc).timestamp()
-                            break
 
                     if lastNotificationTime is None:
                         lastNotificationTime = time.time();
@@ -762,14 +757,16 @@ class HuntManager:
                     try:
                         lastNotificationTime = int(
                             (
+                                # Thanks to the sorting below, [0] will hopefully not be None, if at all possible. Attempt to extract lastNotificationTime
                                 lambda f : f[0][0].created_at.replace(tzinfo=datetime.timezone.utc).timestamp() if f[0] is not None else time.time()
                             )
                             (
                                 sorted
                                 (
+                                    # Order the list of notifications, putting any "None" values to the back (there should not be a list though)
                                     (lambda n : [(self._notifications[c][world][_key] if world in self._notifications[c] and _key in self._notifications[c][world] else None) for c in n])
-                                    (self._notifications.keys()),
-                                    key=lambda e: e is None
+                                    (self._notifications.keys()), # Pass list of notifications keys to n
+                                    key=lambda e: e is None # If the previous lamda function returned None, push it to the back of the list
                                 )
                             )
                         )
@@ -863,7 +860,7 @@ class HuntManager:
             role_mention = meta['notifier'] if 'notifier' in meta else None
 
             # content = f"""**{world}** {hunt['Rank']} Rank: **{hunt['Name']}** @ {hunt['ZoneName']} ({xivhunt['coords']}) i{instance}"""
-            instancesymbol = "①" if instance == 1 else "②" if instance == 2 else "③" if instance == 3 else instance
+            instancesymbol = "①" if instance == 1 else "②" if instance == 2 else "③" if instance == 3 else "④" if instance == 4 else "⑤" if instance == 5 else "⑥" if instance == 6 else instance
 
             content = f"""[{world}] {hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol}"""
 
@@ -910,7 +907,25 @@ class HuntManager:
                         embed.set_footer(text=f"""{remaining_str}{duration_str} remaining""")
 
             if role_mention:
-                content = f"""{role_mention} {content}"""
+                mentionARole = True
+                if hunt['ZoneID'] == 1237:
+                    if instance != 1 and f"{world}_{_key[:-1]}1" in self._fate_timers and (int(time.time()) - (int(self._fate_timers[f"{world}_{_key[:-1]}1"]) / 1000)) <= 2400:
+                        mentionARole = False
+                        #embed.set_image(url=None)
+                    if instance != 2 and f"{world}_{_key[:-1]}2" in self._fate_timers and (int(time.time()) - (int(self._fate_timers[f"{world}_{_key[:-1]}2"]) / 1000)) <= 2400:
+                        mentionARole = False
+                        #embed.set_image(url=None)
+                    if instance != 3 and f"{world}_{_key[:-1]}3" in self._fate_timers and (int(time.time()) - (int(self._fate_timers[f"{world}_{_key[:-1]}3"]) / 1000)) <= 2400:
+                        mentionARole = False
+                        #embed.set_image(url=None)
+                    if instance != 4 and f"{world}_{_key[:-1]}4" in self._fate_timers and (int(time.time()) - (int(self._fate_timers[f"{world}_{_key[:-1]}4"]) / 1000)) <= 2400:
+                        mentionARole = False
+                        #embed.set_image(url=None)
+                    if instance != 5 and f"{world}_{_key[:-1]}5" in self._fate_timers and (int(time.time()) - (int(self._fate_timers[f"{world}_{_key[:-1]}5"]) / 1000)) <= 2400:
+                        mentionARole = False
+                        #embed.set_image(url=None)
+                if mentionARole:
+                    content = f"""{role_mention} {content}"""
 
             if "BlueMageSpells" in hunt and hunt['BlueMageSpells']:
                 embed.description = f"""{embed.description}\nBlue Mage Spells: **{hunt['BlueMageSpells']}**"""

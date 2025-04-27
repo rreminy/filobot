@@ -141,6 +141,10 @@ def hunt_simple_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: ty
                 else:
                     embed.set_image(url=f"https://api.ffxivsonar.com/render/map?zoneid={xivhunt['zone_id']}&flagx={xivhunt['x']}&flagy={xivhunt['y']}")
 
+                if 'hp' in xivhunt:
+                    embed.title = f"{embed.title} {int(float(xivhunt['hp']))}%"
+                    #embed.set_footer(text=f"HP Remaining: {xivhunt['hp']}%")
+
             return embed
 
 
@@ -155,7 +159,7 @@ def fate_simple_embed(fate_name: str, xivhunt: typing.Optional = None) -> discor
                 embed.colour = COLOR_DIED
 
             if xivhunt is not None and xivhunt['world']:
-                if Worlds.get_world_datacenter(xivhunt['world']) in ('Elemental', 'Gaia', 'Mana', 'Meteor'):
+                if Worlds.get_world_datacenter(xivhunt['world']) in ('Elemental', 'Gaia', 'Mana', 'Meteor') and xivhunt['zone_id'] != 1237:
                     embed.title = f"[{xivhunt['world']}] {fate['NameJa']} {fate['Name']}"
                 else:
                     embed.title = f"[{xivhunt['world']}] {fate['Name']}"
@@ -163,7 +167,7 @@ def fate_simple_embed(fate_name: str, xivhunt: typing.Optional = None) -> discor
             else:
                 embed.title = f"{fate['Name']}"
 
-            if xivhunt is not None:
+            if xivhunt is not None and xivhunt['zone_id'] != 1237:
                 embed.set_image(url=f"https://api.ffxivsonar.com/render/map?zoneid={xivhunt['zone_id']}&flagx={xivhunt['x']}&flagy={xivhunt['y']}&fate=true");
 
             return embed

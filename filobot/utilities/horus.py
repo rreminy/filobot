@@ -40,14 +40,16 @@ class Horus:
 
         self._bear = {}
 
-    async def update_bear(self, data, hunt_data):
+    async def update_bear(self, data, hunt_data, huntName, instance):
         world = data['worldName']
 
         if not world in self._bear:
             self._bear[world] = {}
 
-        instance = 0 if 'instance' not in data else data['instance']
-        _key = data['huntName'].strip().lower() + f"_{instance}"
+        if instance == 0:
+            instance = 0 if 'instance' not in data else data['instance']
+
+        _key = huntName.strip().lower() + f"_{instance}"
 
         timer = {
             'Id': hunt_data['ID'],

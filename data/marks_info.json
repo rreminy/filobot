@@ -627,7 +627,8 @@
     "MinSpawnMaint": 90000000,
     "MaxSpawn": 172800000,
     "MaxSpawnMaint": 104400000,
-    "BlueMageSpells": ""
+    "BlueMageSpells": "",
+    "Players": 4
   },
   "2954": {
     "ID": 2954,
@@ -645,7 +646,8 @@
     "MinSpawnMaint": 144000000,
     "MaxSpawn": 277200000,
     "MaxSpawnMaint": 169200000,
-    "BlueMageSpells": "Acorn Bomb"
+    "BlueMageSpells": "Acorn Bomb",
+    "Players": 2
   },
   "2955": {
     "ID": 2955,
@@ -663,7 +665,8 @@
     "MinSpawnMaint": 108000000,
     "MaxSpawn": 183600000,
     "MaxSpawnMaint": 111600000,
-    "BlueMageSpells": "Mind Blast"
+    "BlueMageSpells": "Mind Blast",
+    "Players": 4
   },
   "2956": {
     "ID": 2956,
@@ -681,7 +684,8 @@
     "MinSpawnMaint": 122400000,
     "MaxSpawn": 234000000,
     "MaxSpawnMaint": 140400000,
-    "BlueMageSpells": ""
+    "BlueMageSpells": "",
+    "Players": 3
   },
   "2957": {
     "ID": 2957,
@@ -699,7 +703,8 @@
     "MinSpawnMaint": 122400000,
     "MaxSpawn": 234000000,
     "MaxSpawnMaint": 140400000,
-    "BlueMageSpells": "Eerie Soundwave"
+    "BlueMageSpells": "Eerie Soundwave",
+    "Players": 3
   },
   "2958": {
     "ID": 2958,
@@ -717,7 +722,8 @@
     "MinSpawnMaint": 144000000,
     "MaxSpawn": 277200000,
     "MaxSpawnMaint": 169200000,
-    "BlueMageSpells": "Glower"
+    "BlueMageSpells": "Glower",
+    "Players": 2
   },
   "2959": {
     "ID": 2959,
@@ -735,7 +741,8 @@
     "MinSpawnMaint": 144000000,
     "MaxSpawn": 277200000,
     "MaxSpawnMaint": 169200000,
-    "BlueMageSpells": ""
+    "BlueMageSpells": "",
+    "Players": 2
   },
   "2960": {
     "ID": 2960,
@@ -753,7 +760,8 @@
     "MinSpawnMaint": 95040000,
     "MaxSpawn": 194400000,
     "MaxSpawnMaint": 116640000,
-    "BlueMageSpells": "Plaincracker"
+    "BlueMageSpells": "Plaincracker",
+    "Players": 3
   },
   "2961": {
     "ID": 2961,
@@ -771,7 +779,8 @@
     "MinSpawnMaint": 122400000,
     "MaxSpawn": 226800000,
     "MaxSpawnMaint": 136800000,
-    "BlueMageSpells": ""
+    "BlueMageSpells": "",
+    "Players": 3
   },
   "2962": {
     "ID": 2962,
@@ -789,7 +798,8 @@
     "MinSpawnMaint": 140400000,
     "MaxSpawn": 270000000,
     "MaxSpawnMaint": 162000000,
-    "BlueMageSpells": ""
+    "BlueMageSpells": "",
+    "Players": 3
   },
   "2963": {
     "ID": 2963,
@@ -807,7 +817,8 @@
     "MinSpawnMaint": 108000000,
     "MaxSpawn": 183600000,
     "MaxSpawnMaint": 111600000,
-    "BlueMageSpells": "Sticky Tongue"
+    "BlueMageSpells": "Sticky Tongue",
+    "Players": 4
   },
   "2964": {
     "ID": 2964,
@@ -825,7 +836,8 @@
     "MinSpawnMaint": 90000000,
     "MaxSpawn": 172800000,
     "MaxSpawnMaint": 104400000,
-    "BlueMageSpells": ""
+    "BlueMageSpells": "",
+    "Players": 3
   },
   "2965": {
     "ID": 2965,
@@ -843,7 +855,8 @@
     "MinSpawnMaint": 140400000,
     "MaxSpawn": 270000000,
     "MaxSpawnMaint": 162000000,
-    "BlueMageSpells": ""
+    "BlueMageSpells": "",
+    "Players": 3
   },
   "2966": {
     "ID": 2966,
@@ -861,7 +874,8 @@
     "MinSpawnMaint": 100800000,
     "MaxSpawn": 190800000,
     "MaxSpawnMaint": 115200000,
-    "BlueMageSpells": ""
+    "BlueMageSpells": "",
+    "Players": 3
   },
   "2967": {
     "ID": 2967,
@@ -879,7 +893,8 @@
     "MinSpawnMaint": 140400000,
     "MaxSpawn": 255600000,
     "MaxSpawnMaint": 153360000,
-    "BlueMageSpells": "Doom"
+    "BlueMageSpells": "Doom",
+    "Players": 3
   },
   "2968": {
     "ID": 2968,
@@ -897,7 +912,8 @@
     "MinSpawnMaint": 129600000,
     "MaxSpawn": 302400000,
     "MaxSpawnMaint": 183600000,
-    "BlueMageSpells": ""
+    "BlueMageSpells": "",
+    "Players": 3
   },
   "2969": {
     "ID": 2969,
@@ -915,7 +931,8 @@
     "MinSpawnMaint": 129600000,
     "MaxSpawn": 302400000,
     "MaxSpawnMaint": 190800000,
-    "BlueMageSpells": ""
+    "BlueMageSpells": "",
+    "Players": 3
   },
   "4350": {
     "ID": 4350,
@@ -1365,7 +1382,8 @@
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 475200000,
     "MaxSpawnMaint": 288000000,
-    "BlueMageSpells": ""
+    "BlueMageSpells": "",
+    "Players": 2
   },
   "4375": {
     "ID": 4375,
@@ -1383,7 +1401,8 @@
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 475200000,
     "MaxSpawnMaint": 288000000,
-    "BlueMageSpells": ""
+    "BlueMageSpells": "",
+    "Players": 3
   },
   "4376": {
     "ID": 4376,
@@ -1401,7 +1420,8 @@
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 475200000,
     "MaxSpawnMaint": 288000000,
-    "BlueMageSpells": ""
+    "BlueMageSpells": "",
+    "Players": 2
   },
   "4377": {
     "ID": 4377,
@@ -1419,7 +1439,8 @@
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 475200000,
     "MaxSpawnMaint": 288000000,
-    "BlueMageSpells": ""
+    "BlueMageSpells": "",
+    "Players": 3
   },
   "4378": {
     "ID": 4378,
@@ -1437,7 +1458,8 @@
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 475200000,
     "MaxSpawnMaint": 288000000,
-    "BlueMageSpells": ""
+    "BlueMageSpells": "",
+    "Players": 2
   },
   "4380": {
     "ID": 4380,
@@ -1455,7 +1477,8 @@
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 475200000,
     "MaxSpawnMaint": 288000000,
-    "BlueMageSpells": ""
+    "BlueMageSpells": "",
+    "Players": 4
   },
   "5984": {
     "ID": 5984,
@@ -1473,7 +1496,8 @@
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 475200000,
     "MaxSpawnMaint": 288000000,
-    "BlueMageSpells": ""
+    "BlueMageSpells": "",
+    "Players": 3
   },
   "5985": {
     "ID": 5985,
@@ -1491,7 +1515,8 @@
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 475200000,
     "MaxSpawnMaint": 288000000,
-    "BlueMageSpells": "Launcher"
+    "BlueMageSpells": "Launcher",
+    "Players": 3
   },
   "5986": {
     "ID": 5986,
@@ -1509,7 +1534,8 @@
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 475200000,
     "MaxSpawnMaint": 288000000,
-    "BlueMageSpells": ""
+    "BlueMageSpells": "",
+    "Players": 2
   },
   "5987": {
     "ID": 5987,
@@ -1527,7 +1553,8 @@
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 475200000,
     "MaxSpawnMaint": 288000000,
-    "BlueMageSpells": ""
+    "BlueMageSpells": "",
+    "Players": 3
   },
   "5988": {
     "ID": 5988,
@@ -1545,7 +1572,8 @@
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 475200000,
     "MaxSpawnMaint": 288000000,
-    "BlueMageSpells": ""
+    "BlueMageSpells": "",
+    "Players": 2
   },
   "5989": {
     "ID": 5989,
@@ -1563,7 +1591,8 @@
     "MinSpawnMaint": 180000000,
     "MaxSpawn": 475200000,
     "MaxSpawnMaint": 288000000,
-    "BlueMageSpells": "Protean Wave"
+    "BlueMageSpells": "Protean Wave",
+    "Players": 2
   },
   "5990": {
     "ID": 5990,
@@ -2015,7 +2044,8 @@
       "MaxSpawnMaint":288000000,
       "AudI":null,
       "Early":null,
-      "BlueMageSpells": "Song of Torment"
+      "BlueMageSpells": "Song of Torment",
+      "Players": 2
    },
    "8654":{
       "ID":8654,
@@ -2115,7 +2145,8 @@
       "MaxSpawnMaint":288000000,
       "AudI":null,
       "Early":null,
-      "BlueMageSpells": "Doom"
+      "BlueMageSpells": "Doom",
+      "Players": 4
    },
    "8891":{
       "ID":8891,
@@ -2215,7 +2246,8 @@
       "MaxSpawnMaint":288000000,
       "AudI":null,
       "Early":null,
-      "BlueMageSpells": ""
+      "BlueMageSpells": "",
+      "Players": 2
    },
    "8896":{
       "ID":8896,
@@ -2315,7 +2347,8 @@
       "MaxSpawnMaint": 288000000,
       "AudI": null,
       "Early": null,
-      "BlueMageSpells": ""
+      "BlueMageSpells": "",
+      "Players": 2
   },
    "8901":{
       "ID":8901,
@@ -2415,7 +2448,8 @@
       "MaxSpawnMaint": 288000000,
       "AudI": null,
       "Early": null,
-      "BlueMageSpells": "Dragon/Ram's Voice"
+      "BlueMageSpells": "Dragon/Ram's Voice",
+      "Players": 2
   },
    "8906":{
       "ID":8906,
@@ -2515,7 +2549,8 @@
       "MaxSpawnMaint": 288000000,
       "AudI": null,
       "Early": null,
-      "BlueMageSpells": ""
+      "BlueMageSpells": "",
+      "Players": 2
   },
    "8911":{
       "ID":8911,
@@ -2597,8 +2632,8 @@
       "Early":null,
       "BlueMageSpells": ""
    },
-   "18915":{
-      "ID":18915,
+   "8915":{
+      "ID":8915,
       "Name":"Forgiven Rebellion",
       "Rank":"SS",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
@@ -2722,7 +2757,8 @@
       "MinSpawnMaint": 180000000,
       "MaxSpawn": 475200000,
       "MaxSpawnMaint": 288000000,
-      "BlueMageSpells": ""
+      "BlueMageSpells": "",
+      "Players": 2
    },
    "10637":{
       "ID":10637,
@@ -2809,7 +2845,8 @@
       "MinSpawnMaint": 180000000,
       "MaxSpawn": 475200000,
       "MaxSpawnMaint": 288000000,
-      "BlueMageSpells": ""
+      "BlueMageSpells": "",
+      "Players": 4
    },
    "10639":{
       "ID":10639,
@@ -2896,7 +2933,8 @@
       "MinSpawnMaint": 180000000,
       "MaxSpawn": 475200000,
       "MaxSpawnMaint": 288000000,
-      "BlueMageSpells": ""
+      "BlueMageSpells": "",
+      "Players": 2
    },
    "10641":{
       "ID":10641,
@@ -2983,7 +3021,8 @@
       "MinSpawnMaint": 180000000,
       "MaxSpawn": 475200000,
       "MaxSpawnMaint": 288000000,
-      "BlueMageSpells": ""
+      "BlueMageSpells": "",
+      "Players": 4
    },
    "10643":{
       "ID":10643,
@@ -3070,7 +3109,8 @@
       "MinSpawnMaint": 180000000,
       "MaxSpawn": 475200000,
       "MaxSpawnMaint": 288000000,
-      "BlueMageSpells": ""
+      "BlueMageSpells": "",
+      "Players": 2
    },
    "10645":{
       "ID":10645,
@@ -3157,7 +3197,8 @@
       "MinSpawnMaint": 180000000,
       "MaxSpawn": 475200000,
       "MaxSpawnMaint": 288000000,
-      "BlueMageSpells": ""
+      "BlueMageSpells": "",
+      "Players": 16
    },
    "10616":{
       "ID":10616,
@@ -3176,8 +3217,8 @@
       "MaxSpawnMaint": 15000,
       "BlueMageSpells": ""
    },
-   "110615":{
-      "ID":110615,
+   "10615":{
+      "ID":10615,
       "Name":"Ker",
       "Rank":"SS",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",
@@ -3279,7 +3320,8 @@
       "MinSpawnMaint": 180000000,
       "MaxSpawn": 475200000,
       "MaxSpawnMaint": 288000000,
-      "BlueMageSpells": ""
+      "BlueMageSpells": "",
+      "Players": 2
    },
    "13144":{
       "ID":13144,
@@ -3366,7 +3408,8 @@
       "MinSpawnMaint": 180000000,
       "MaxSpawn": 475200000,
       "MaxSpawnMaint": 288000000,
-      "BlueMageSpells": ""
+      "BlueMageSpells": "",
+      "Players": 4
    },
    "13148":{
       "ID":13148,
@@ -3453,7 +3496,8 @@
       "MinSpawnMaint": 180000000,
       "MaxSpawn": 475200000,
       "MaxSpawnMaint": 288000000,
-      "BlueMageSpells": ""
+      "BlueMageSpells": "",
+      "Players": 4
    },
    "13150":{
       "ID":13150,
@@ -3540,7 +3584,8 @@
       "MinSpawnMaint": 180000000,
       "MaxSpawn": 475200000,
       "MaxSpawnMaint": 288000000,
-      "BlueMageSpells": ""
+      "BlueMageSpells": "",
+      "Players": 4
    },
    "13152":{
       "ID":13152,
@@ -3627,7 +3672,8 @@
       "MinSpawnMaint": 180000000,
       "MaxSpawn": 475200000,
       "MaxSpawnMaint": 288000000,
-      "BlueMageSpells": ""
+      "BlueMageSpells": "",
+      "Players": 4
    },
    "13154":{
       "ID":13154,
@@ -3714,10 +3760,11 @@
       "MinSpawnMaint": 180000000,
       "MaxSpawn": 475200000,
       "MaxSpawnMaint": 288000000,
-      "BlueMageSpells": ""
+      "BlueMageSpells": "",
+      "Players": 4
    },
-   "113406":{
-      "ID":113406,
+   "13406":{
+      "ID":13406,
       "Name":"Arch Aethereater",
       "Rank":"SS",
       "Image":"https://horus-hunts.net/Content/Marks/hunt.jpg",

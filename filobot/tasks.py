@@ -44,30 +44,23 @@ async def update_fates():
 async def feed_listener(source):
     address = config.get(source, "address")
 
-    #disabled due to potential instance conflicts
-    #if 'bear' in address:
-    #    try:
-    #        dataCenters = list(hunt_manager.JA_DATACENTERS) + list(hunt_manager.EU_DATACENTERS) + list(hunt_manager.NA_DATACENTERS) + list(hunt_manager.OC_DATACENTERS)
-    #        sessions = []
+    if 'bear' in address:
+        try:
+            dataCenters = hunt_manager.NA_DATACENTERS + hunt_manager.EU_DATACENTERS + hunt_manager.OC_DATACENTERS + hunt_manager.JA_DATACENTERS
 
-    #        for dataCenter in dataCenters:
-    #            log.info(f"Connecting to bear for {dataCenter}")
-    #            session = socketio.AsyncClient()
-    #            await session.connect(address, namespaces='/HuntUpdate', socketio_path='/socket', retry=True)
-    #            await session.emit('Change Room Request', dataCenter, namespace='/HuntUpdate')
-    #            session.on('*', handler=bear_handler, namespace='/HuntUpdate')
-    #            sessions.append(session)
+            session = socketio.AsyncClient()
+            await session.connect(address, namespaces='/HuntUpdate', socketio_path='/socket', retry=True)
+            await session.emit('Change Room Request', dataCenters, namespace='/HuntUpdate')
+            session.on('*', handler=bear_handler, namespace='/HuntUpdate')
 
-    #        while not bot.is_closed():
-    #            await asyncio.sleep(15.0) # Nothing to do anymore! But we can stall indefinitely until shutdown so we can disconnect properly
+            while not bot.is_closed():
+                await asyncio.sleep(15.0) # Nothing to do anymore! But we can stall indefinitely until shutdown so we can disconnect properly
 
-    #        for session in sessions:
-    #            session.disconnect()
-    #    except Exception:
-    #            log.exception(f"Exception occurred in feed listener associated with {address}")
-    #            pass
-    #else:
-    if not 'bear' in address:
+            session.disconnect()
+        except Exception:
+                log.exception(f"Exception occurred in feed listener associated with {address}")
+                pass
+    else:
         async with aiohttp.ClientSession() as session:
             while not bot.is_closed():
                 await asyncio.sleep(15.0)
@@ -88,17 +81,25 @@ async def feed_listener(source):
 async def bear_handler(self, data):
     try:
         if data is not None and type(data) == dict and len(data) > 1:
-            if 'huntName' in data and data['huntName'].lower() in hunt_manager.getmarksinfo() and 'lastDeathTime' in data and 'expectMinTime' in data:
-                lastAlive = False if int(data['lastDeathTime']) > int(data['expectMinTime']) else True
+            if 'Notification' in data and data['Notification'] == "FoundReport" and 'Reporter' in data and data['Reporter'] != "" and 'World' in data:
+                instance = int(data['Hunt'][-1]) if data['Hunt'][-2] == " " and data['Hunt'][-1].isdigit() else 0
+                huntName = data['huntName'] if instance else data['huntName'][:-2]
+                world = data['World']                
+            if 'huntName' in data:
+                instance = int(data['huntName'][-1]) if data['huntName'][-2] == " " and data['huntName'][-1].isdigit() else 0
+                huntName = data['huntName'] if instance else data['huntName'][:-2]
 
-                if lastAlive:
-                    horusHunt = await hunt_manager.horus.update_bear(data, hunt_manager.getmarksinfo()[data['huntName'].lower()])
+                if huntName.lower() in hunt_manager.getmarksinfo() and 'lastDeathTime' in data and 'expectMinTime' in data:
+                    lastAlive = False if int(data['lastDeathTime']) > int(data['expectMinTime']) else True
 
-                    if horusHunt is not None:
-                        await hunt_manager.recheck_trackers('FeedListener2', data['huntName'], horusHunt, 0)
+                    if lastAlive:
+                        horusHunt = await hunt_manager.horus.update_bear(data, hunt_manager.getmarksinfo()[huntName.lower()], huntName, instance)
+
+                        if horusHunt is not None:
+                            await hunt_manager.recheck_trackers('FeedListener2', huntName, horusHunt, instance)
             if 'fateName' in data and 'completed' in data:
                 progress = 100 if data['completed'] else 0
-
+                instance = int(data['fateName'][-1]) if data['fateName'][-2] == " " and data['fateName'][-1].isdigit() else 1
                 if progress == 100 and data['fateId'] in hunt_manager.horus.fates_info:
                     fateStruct = {
                         'progress': 100,
@@ -109,9 +110,9 @@ async def bear_handler(self, data):
                         'state': 1,
                         'x': 1,
                         'y': 1,
-                        'i': 1,
-                        'lastReported': data['lastDeath'].replace('T', ' ').split('.')[0],
-                        'zoneID': str(hunt_manager.get_zone_id(hunt_manager.horus.fates_info[data['fateId']]['ZoneName'])),
+                        'i': instance,
+                        'lastReported': datetime.datetime.fromtimestamp(int((f"{data['lastDeath']}").split('.')[0][:-3]), datetime.timezone.utc).isoformat(),
+                        'zoneID': f"{hunt_manager.get_zone_id(hunt_manager.horus.fates_info[data['fateId']]['ZoneName'])}"
                     }
 
                     await _process_data('FeedListener2', fateStruct, None)
@@ -185,6 +186,8 @@ async def _process_hunt(source, data):
             'x': x,
             'y': y,
             'zone_id': int(data["zoneID"]),
+            'players': int(data["players"] if 'players' in data else 4),
+            'hp': data["hp"] if "hp" in data else 0
         }
 
         # A hack to get the correct zone name
@@ -195,6 +198,26 @@ async def _process_hunt(source, data):
         if not alive:
             # TODO: Deaths
             return
+
+        if hunt['Rank'] == "A":
+           if xivhunt['players'] < 8 and xivhunt['zone_id'] > 494 and xivhunt['zone_id'] < 962:
+              return
+           if xivhunt['players'] < 9 and xivhunt['zone_id'] >= 962:
+              return
+
+        if hunt['Rank'] == "S" and 'Players' in hunt and xivhunt['players'] < hunt['Players']:
+           datacenter = "Undecided"
+           try:
+              datacenter = worlds.Worlds.get_world_datacenter(world)
+           except:
+              log.exception('Exception thrown obtaining datacenter')
+           #if xivhunt['players'] > 1:
+              #print(f"{time.time()} :  {hunt['Name']} on {world} only has {xivhunt['players']} players")
+           if datacenter != "Primal" and datacenter != "Dynamis":
+              return
+
+        if hunt['Rank'] == "SS":
+           return
 
         return await hunt_manager.on_find(world, hunt['Name'], xivhunt, int(i) or 1)
 
@@ -230,6 +253,7 @@ async def _process_chaoshunt(source, data, message):
             'world': world,
             'x': x,
             'y': y,
+            'hp': 0,
             #'zone_id': int(data["zoneID"]), # chaoshunt doesn't have a zone_id but its determined below
         }
 
@@ -306,6 +330,9 @@ async def _process_fate(source, data):
         if startTimeEpoch > 0:
                 fate_start[key] = startTimeEpoch
         fate_progress[key] = progress
+
+        #future feature
+        #if progress > 4 and players > 2 and fate['Name'] in AchievementFateList:
 
         # A hack to get the correct zone name (each fate id is in a unique zone and position, so this should work)
         zone = hunt_manager.get_zone(data["zoneID"])

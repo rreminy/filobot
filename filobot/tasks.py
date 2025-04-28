@@ -205,7 +205,7 @@ async def _process_hunt(source, data):
            if xivhunt['players'] < 9 and xivhunt['zone_id'] >= 962:
               return
 
-        if hunt['Rank'] == "S" and 'Players' in hunt and xivhunt['players'] < hunt['Players']:
+        if hunt['Rank'] == "S" and 'Players' in hunt and xivhunt['players'] < hunt['Players'] and config.getboolean('Bot', 'PlayerActivityCheck'):
            datacenter = "Undecided"
            try:
               datacenter = worlds.Worlds.get_world_datacenter(world)
@@ -213,7 +213,7 @@ async def _process_hunt(source, data):
               log.exception('Exception thrown obtaining datacenter')
            #if xivhunt['players'] > 1:
               #print(f"{time.time()} :  {hunt['Name']} on {world} only has {xivhunt['players']} players")
-           if datacenter != "Primal" and datacenter != "Dynamis":
+           if datacenter != "Primal" and datacenter != "Dynamis" and datacenter != "Crystal":
               return
 
         if hunt['Rank'] == "SS":
@@ -305,6 +305,7 @@ async def _process_fate(source, data):
             'x': x,
             'y': y,
             'zone_id': int(data["zoneID"]),
+            'players': int(data["players"] if 'players' in data else 0)
         }
 
         # Fate key
@@ -331,8 +332,9 @@ async def _process_fate(source, data):
                 fate_start[key] = startTimeEpoch
         fate_progress[key] = progress
 
-        #future feature
-        #if progress > 4 and players > 2 and fate['Name'] in AchievementFateList:
+        if str(fate['ID']) in hunt_manager._achievementfates_info:
+            if progress <= 4 or progress > 40 or int(time_left / 60) < 8 or xivhunt['players'] < 1:
+                return
 
         # A hack to get the correct zone name (each fate id is in a unique zone and position, so this should work)
         zone = hunt_manager.get_zone(data["zoneID"])
@@ -463,6 +465,9 @@ async def track_stats():
         await asyncio.sleep(1800.0)
 
 async def auto_restart():
+    if config.getboolean('Bot', 'AutoRestart') == False:
+        return
+
     RESTART_PERIOD = 60 * 60 * 24 * 3
     MINIMUM_THRESHOLD = 60 * 60 * 6
 

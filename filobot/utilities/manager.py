@@ -79,6 +79,7 @@ class HuntManager:
 
         self._marks_info = {}
         self._fates_info = {}
+        self._achievementfates_info = {}
         self._zones_info = {}
         self._load_marks()
         self._load_fates()
@@ -1057,6 +1058,9 @@ class HuntManager:
     def _load_fates(self):
         with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'fates_info.json'), 'r', encoding='utf-8') as json_file:
             fates = json.load(json_file)
+        with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'achievementfates_info.json'), 'r', encoding='utf-8') as json_file:
+            self._achievementfates_info = json.load(json_file)
+            fates.update(self._achievementfates_info)
 
             for _id, fate in fates.items():
                 key = fate['Name'].lower()

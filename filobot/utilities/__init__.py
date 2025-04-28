@@ -10,6 +10,8 @@ with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join
     marks_info = json.load(json_file)
 with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'fates_info.json'), 'r', encoding='utf-8') as json_file:
     fates_info = json.load(json_file)
+with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'achievementfates_info.json'), 'r', encoding='utf-8') as json_file:
+    fates_info.update(json.load(json_file))
 
 COLOR_A = 0xFB6107
 COLOR_S = 0xF3DE2C
@@ -136,6 +138,8 @@ def hunt_simple_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: ty
                     embed.title += " DEAD"
 
             if xivhunt is not None:
+                #if 'players' in xivhunt:
+                    #embed.title += f" Players: {xivhunt['players']}"
                 if mark['Rank'] == 'SS Minion' and 'zone_id' in xivhunt and xivhunt['zone_id'] in SS_MINIONS_MAPS:
                     embed.set_image(url=SS_MINIONS_MAPS[xivhunt['zone_id']])
                 else:
@@ -167,7 +171,7 @@ def fate_simple_embed(fate_name: str, xivhunt: typing.Optional = None) -> discor
             else:
                 embed.title = f"{fate['Name']}"
 
-            if xivhunt is not None and xivhunt['zone_id'] != 1237:
+            if xivhunt is not None and xivhunt['zone_id'] != 1237 and xivhunt['zone_id'] != 886:
                 embed.set_image(url=f"https://api.ffxivsonar.com/render/map?zoneid={xivhunt['zone_id']}&flagx={xivhunt['x']}&flagy={xivhunt['y']}&fate=true");
 
             return embed

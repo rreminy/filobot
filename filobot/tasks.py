@@ -305,6 +305,7 @@ async def _process_fate(source, data):
             'x': x,
             'y': y,
             'zone_id': int(data["zoneID"]),
+            'players': int(data["players"] if 'players' in data else 0)
         }
 
         # Fate key
@@ -331,8 +332,9 @@ async def _process_fate(source, data):
                 fate_start[key] = startTimeEpoch
         fate_progress[key] = progress
 
-        #future feature
-        #if progress > 4 and players > 2 and fate['Name'] in AchievementFateList:
+        if str(fate['ID']) in hunt_manager._achievementfates_info:
+            if progress <= 4 or progress > 40 or int(time_left / 60) < 8 or xivhunt['players'] < 1:
+                return
 
         # A hack to get the correct zone name (each fate id is in a unique zone and position, so this should work)
         zone = hunt_manager.get_zone(data["zoneID"])

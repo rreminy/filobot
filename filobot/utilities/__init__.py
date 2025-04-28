@@ -171,7 +171,7 @@ def fate_simple_embed(fate_name: str, xivhunt: typing.Optional = None) -> discor
             else:
                 embed.title = f"{fate['Name']}"
 
-            if xivhunt is not None and xivhunt['zone_id'] != 1237:
+            if xivhunt is not None and xivhunt['zone_id'] != 1237 and xivhunt['zone_id'] != 886:
                 embed.set_image(url=f"https://api.ffxivsonar.com/render/map?zoneid={xivhunt['zone_id']}&flagx={xivhunt['x']}&flagy={xivhunt['y']}&fate=true");
 
             return embed

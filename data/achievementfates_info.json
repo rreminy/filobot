@@ -15,6 +15,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": false,
     "BlueMageSpells": ""
   },
   "335": {
@@ -33,6 +34,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": false,
     "BlueMageSpells": ""
   },
   "503": {
@@ -51,6 +53,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": false,
     "BlueMageSpells": ""
   },
   "504": {
@@ -69,6 +72,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": false,
     "BlueMageSpells": ""
   },
   "507": {
@@ -87,6 +91,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": false,
     "BlueMageSpells": ""
   },
   "647": {
@@ -105,6 +110,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": false,
     "BlueMageSpells": ""
   },
   "758": {
@@ -123,6 +129,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": true,
     "BlueMageSpells": ""
   },
   "793": {
@@ -141,6 +148,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": false,
     "BlueMageSpells": ""
   },
   "855": {
@@ -159,6 +167,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": false,
     "BlueMageSpells": ""
   },
   "870": {
@@ -177,6 +186,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": true,
     "BlueMageSpells": ""
   },
   "871": {
@@ -195,6 +205,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": true,
     "BlueMageSpells": ""
   },
   "1129": {
@@ -213,6 +224,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": false,
     "BlueMageSpells": ""
   },
   "1172": {
@@ -231,6 +243,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": false,
     "BlueMageSpells": ""
   },
   "1194": {
@@ -249,6 +262,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": false,
     "BlueMageSpells": ""
   },
   "1238": {
@@ -267,6 +281,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": false,
     "BlueMageSpells": ""
   },
   "1267": {
@@ -285,6 +300,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": false,
     "BlueMageSpells": ""
   },
   "1277": {
@@ -303,6 +319,26 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": false,
+    "BlueMageSpells": ""
+  },
+  "1319": {
+    "ID": 1319,
+    "Name": "The Dataqi Chronicles: Declarations",
+    "NameJa": "ダタクの旅：マタンガ逆襲",
+    "Image": "https://horus-hunts.net/Content/Marks/hunt.jpg",
+    "ZoneID": 372,
+    "ZoneName": "The Azim Steppe",
+    "RegionId": 9,
+    "RegionName": "Othard",
+    "SpawnTrigger": "FATE Chain. Complete every FATE with Dataqi in the name.",
+    "Tips": null,
+    "CanPredict": false,
+    "MinSpawn": 0,
+    "MinSpawnMaint": 0,
+    "MaxSpawn": 10800,
+    "MaxSpawnMaint": 10800,
+    "IgnoreProgress": true,
     "BlueMageSpells": ""
   },
   "1320": {
@@ -321,11 +357,12 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": true,
     "BlueMageSpells": ""
   },
   "1487": {
     "ID": 1487,
-    "Name": "Fuath to Be Reckoned ",
+    "Name": "Fuath to Be Reckoned",
     "NameJa": "悪童ダエン兄弟：最後の戦い",
     "Image": "https://horus-hunts.net/Content/Marks/hunt.jpg",
     "ZoneID": 494,
@@ -339,6 +376,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": true,
     "BlueMageSpells": ""
   },
   "1504": {
@@ -357,6 +395,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": true,
     "BlueMageSpells": ""
   },
   "1518": {
@@ -375,6 +414,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": true,
     "BlueMageSpells": ""
   },
   "1530": {
@@ -393,6 +433,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": true,
     "BlueMageSpells": ""
   }
 }

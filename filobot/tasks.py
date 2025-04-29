@@ -213,7 +213,7 @@ async def _process_hunt(source, data):
               log.exception('Exception thrown obtaining datacenter')
            #if xivhunt['players'] > 1:
               #print(f"{time.time()} :  {hunt['Name']} on {world} only has {xivhunt['players']} players")
-           if datacenter != "Primal" and datacenter != "Dynamis" and datacenter != "Crystal":
+           if datacenter != "Primal" and datacenter != "Dynamis" and datacenter != "Crystal" and datacenter != "Chaos":
               return
 
         if hunt['Rank'] == "SS":
@@ -253,7 +253,7 @@ async def _process_chaoshunt(source, data, message):
             'world': world,
             'x': x,
             'y': y,
-            'hp': 0,
+            'hp': 100,
             #'zone_id': int(data["zoneID"]), # chaoshunt doesn't have a zone_id but its determined below
         }
 
@@ -333,7 +333,8 @@ async def _process_fate(source, data):
         fate_progress[key] = progress
 
         if str(fate['ID']) in hunt_manager._achievementfates_info:
-            if progress <= 4 or progress > 40 or int(time_left / 60) < 8 or xivhunt['players'] < 1:
+            #if progress <= 4 or progress > 40 or int(time_left / 60) < 8 or xivhunt['players'] < 1:
+            if progress > 40 or int(time_left / 60) < 8 or (progress <= 11 and 'IgnoreProgress' in fate and fate['IgnoreProgress'] == False):
                 return
 
         # A hack to get the correct zone name (each fate id is in a unique zone and position, so this should work)

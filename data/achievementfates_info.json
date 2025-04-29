@@ -15,6 +15,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": false,
     "BlueMageSpells": ""
   },
   "335": {
@@ -33,6 +34,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": false,
     "BlueMageSpells": ""
   },
   "503": {
@@ -51,6 +53,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": false,
     "BlueMageSpells": ""
   },
   "504": {
@@ -69,6 +72,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": false,
     "BlueMageSpells": ""
   },
   "507": {
@@ -87,6 +91,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": false,
     "BlueMageSpells": ""
   },
   "647": {
@@ -105,6 +110,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": false,
     "BlueMageSpells": ""
   },
   "758": {
@@ -123,6 +129,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": true,
     "BlueMageSpells": ""
   },
   "793": {
@@ -141,6 +148,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": false,
     "BlueMageSpells": ""
   },
   "855": {
@@ -159,6 +167,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": false,
     "BlueMageSpells": ""
   },
   "870": {
@@ -177,6 +186,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": true,
     "BlueMageSpells": ""
   },
   "871": {
@@ -195,6 +205,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": true,
     "BlueMageSpells": ""
   },
   "1129": {
@@ -213,6 +224,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": false,
     "BlueMageSpells": ""
   },
   "1172": {
@@ -231,6 +243,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": false,
     "BlueMageSpells": ""
   },
   "1194": {
@@ -249,6 +262,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": false,
     "BlueMageSpells": ""
   },
   "1238": {
@@ -267,6 +281,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": false,
     "BlueMageSpells": ""
   },
   "1267": {
@@ -285,6 +300,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": false,
     "BlueMageSpells": ""
   },
   "1277": {
@@ -303,6 +319,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": false,
     "BlueMageSpells": ""
   },
   "1319": {
@@ -321,6 +338,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": true,
     "BlueMageSpells": ""
   },
   "1320": {
@@ -339,6 +357,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": true,
     "BlueMageSpells": ""
   },
   "1487": {
@@ -357,24 +376,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
-    "BlueMageSpells": ""
-  },
-  "1503": {
-    "ID": 1503,
-    "Name": "Toxic Nightshade",
-    "NameJa": "紫葉団との戦い：一斉蜂起",
-    "Image": "https://horus-hunts.net/Content/Marks/hunt.jpg",
-    "ZoneID": 491,
-    "ZoneName": "Lakeland",
-    "RegionId": 10,
-    "RegionName": "Norvrandt",
-    "SpawnTrigger": "FATE Chain.",
-    "Tips": null,
-    "CanPredict": false,
-    "MinSpawn": 0,
-    "MinSpawnMaint": 0,
-    "MaxSpawn": 10800,
-    "MaxSpawnMaint": 10800,
+    "IgnoreProgress": true,
     "BlueMageSpells": ""
   },
   "1504": {
@@ -393,6 +395,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": true,
     "BlueMageSpells": ""
   },
   "1518": {
@@ -411,6 +414,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": true,
     "BlueMageSpells": ""
   },
   "1530": {
@@ -429,6 +433,7 @@
     "MinSpawnMaint": 0,
     "MaxSpawn": 10800,
     "MaxSpawnMaint": 10800,
+    "IgnoreProgress": true,
     "BlueMageSpells": ""
   }
 }

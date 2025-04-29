@@ -213,7 +213,7 @@ async def _process_hunt(source, data):
               log.exception('Exception thrown obtaining datacenter')
            #if xivhunt['players'] > 1:
               #print(f"{time.time()} :  {hunt['Name']} on {world} only has {xivhunt['players']} players")
-           if datacenter != "Primal" and datacenter != "Dynamis" and datacenter != "Crystal":
+           if datacenter != "Primal" and datacenter != "Dynamis" and datacenter != "Crystal" and datacenter != "Chaos":
               return
 
         if hunt['Rank'] == "SS":
@@ -253,7 +253,7 @@ async def _process_chaoshunt(source, data, message):
             'world': world,
             'x': x,
             'y': y,
-            'hp': 0,
+            'hp': 100,
             #'zone_id': int(data["zoneID"]), # chaoshunt doesn't have a zone_id but its determined below
         }
 

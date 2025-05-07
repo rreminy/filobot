@@ -20,6 +20,8 @@ import json
 import logging
 logger = logging.getLogger(__name__)
 
+huntQueue = {}
+
 async def update_hunts():
     await bot.wait_until_ready()
 
@@ -73,7 +75,31 @@ async def feed_listener(source):
                                 await _process_data(source, data, None)
                             except:
                                 pass
-                except Exception:
+                    huntQueueCopy = huntQueue.copy()
+                    for key, value in huntQueueCopy.items():
+                        try:
+                            if not isinstance(value, list) or len(value) < 2 or value[0] == None or value[1] == None:
+                                #timestring = time.strftime("%H:%M:%S")
+                                #print(f"{timestring} Removing hunt due to malformed data")
+                                huntQueue.pop(key)
+                                continue
+                            data = value[0]
+                            hunt = value[1]
+                            if (int(time.time()) - hunt['last_seen']) > 240:
+                                #timestring = time.strftime("%H:%M:%S")
+                                #print(f"{timestring} Removing hunt due to being more than 4 minutes")
+                                huntQueue.pop(key)
+                                continue
+                            if (int(time.time()) - hunt['last_seen']) >= 0:
+                                #timestring = time.strftime("%H:%M:%S")
+                                #print(f"{timestring} Releasing hunt due to reaching elapsed time")
+                                await _process_data(source, data, None)
+                        except Exception as e:
+                            #print(f"Exception: {e}")
+                            pass
+                except Exception as e:
+                    #timestring = time.strftime("%H:%M:%S")
+                    #print(f"{timestring} Exception: {e}")
                     log.exception(f"Exception occurred in feed listener associated with {address}")
                     pass # TODO: Logging
 
@@ -187,7 +213,7 @@ async def _process_hunt(source, data):
             'y': y,
             'zone_id': int(data["zoneID"]),
             'players': int(data["players"] if 'players' in data else 4),
-            'hp': data["hp"] if "hp" in data else 0
+            'hp': data["hp"] if "hp" in data else 100
         }
 
         # A hack to get the correct zone name
@@ -205,7 +231,12 @@ async def _process_hunt(source, data):
            if xivhunt['players'] < 9 and xivhunt['zone_id'] >= 962:
               return
 
-        if hunt['Rank'] == "S" and 'Players' in hunt and xivhunt['players'] < hunt['Players'] and config.getboolean('Bot', 'PlayerActivityCheck'):
+        key = f"{world}_{hunt['Name'].strip().lower()}_{i}"
+
+        #if xivhunt['players'] == 0 and hunt['Rank'] == "S":
+           #print(f"{hunt['Name']} on {world} has {xivhunt['players']} players")
+
+        if hunt['Rank'] == "S" and int(float(xivhunt['hp'])) == 100 and 'Players' in hunt and xivhunt['players'] < hunt['Players'] and config.getboolean('Bot', 'PlayerActivityCheck'):
            datacenter = "Undecided"
            try:
               datacenter = worlds.Worlds.get_world_datacenter(world)
@@ -214,7 +245,25 @@ async def _process_hunt(source, data):
            #if xivhunt['players'] > 1:
               #print(f"{time.time()} :  {hunt['Name']} on {world} only has {xivhunt['players']} players")
            if datacenter != "Primal" and datacenter != "Dynamis" and datacenter != "Crystal" and datacenter != "Chaos":
-              return
+              key = f"{world}_{hunt['Name'].strip().lower()}_{i}"
+              if key not in huntQueue:
+                 if hunt['WaitTime'] != 0 and hunt['WaitTime'] != 1560:
+                    huntQueue[key] = [data, xivhunt]
+                    huntQueue[key][1]['last_seen'] = (int(time.time()) + hunt['WaitTime'])
+                    #timestring = time.strftime("%H:%M:%S")
+                    #print(f"{timestring} Added hunt to queue")
+                 return
+              else:
+                 if (int(time.time()) - huntQueue[key][1]['last_seen']) < 0 or (int(time.time()) - huntQueue[key][1]['last_seen']) > 240:
+                    return
+                 #else:
+                    #print('lastseens were the same, posting hunt')
+
+        if key in huntQueue:
+           #print(f"{key} {(huntQueue[key][1]['last_seen'] - int(time.time()))}")
+           huntQueue.pop(key)
+           #timestring = time.strftime("%H:%M:%S")
+           #print(f"{timestring} Removed hunt from hunt queue")
 
         if hunt['Rank'] == "SS":
            return

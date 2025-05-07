@@ -4,6 +4,7 @@ import typing
 from filobot.utilities.staticdata import marks_info
 from filobot.utilities.staticdata import fates_info
 from filobot.utilities.worlds import Worlds
+from filobot.utilities.map_utils import SS_MINIONS_MAPS
 
 COLOR_A = 0xFB6107
 COLOR_S = 0xF3DE2C
@@ -13,22 +14,6 @@ COLOR_OPEN = 0x7CB518
 COLOR_MAXED = 0x275DAD
 COLOR_DIED = 0xFB6107
 COLOR_CLOSED = 0x5B616A
-
-SS_MINIONS_MAPS = {
-    813: "https://assets.ffxivsonar.com/ssminions/813.jpg",
-    814: "https://assets.ffxivsonar.com/ssminions/814.jpg",
-    815: "https://assets.ffxivsonar.com/ssminions/815.jpg",
-    816: "https://assets.ffxivsonar.com/ssminions/816.jpg",
-    817: "https://assets.ffxivsonar.com/ssminions/817.jpg",
-    818: "https://assets.ffxivsonar.com/ssminions/818.jpg",
-
-    956: "https://assets.ffxivsonar.com/ssminions/956.jpg",
-    957: "https://assets.ffxivsonar.com/ssminions/957.jpg",
-    958: "https://assets.ffxivsonar.com/ssminions/958.jpg",
-    959: "https://assets.ffxivsonar.com/ssminions/959.jpg",
-    960: "https://assets.ffxivsonar.com/ssminions/960.jpg",
-    961: "https://assets.ffxivsonar.com/ssminions/961.jpg",
-}
 
 def hunt_simple_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: typing.Optional = None) -> discord.Embed:
     for _id, mark in marks_info.items():

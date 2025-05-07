@@ -5,6 +5,7 @@ from filobot.utilities.staticdata import marks_info
 from filobot.utilities.staticdata import fates_info
 from filobot.utilities.worlds import Worlds
 from filobot.utilities.map_utils import SS_MINIONS_MAPS
+from filobot.utilities import parse_name
 
 COLOR_A = 0xFB6107
 COLOR_S = 0xF3DE2C
@@ -17,7 +18,7 @@ COLOR_CLOSED = 0x5B616A
 
 def hunt_report_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: typing.Optional = None) -> discord.Embed:
     for _id, mark in marks_info.items():
-        if hunt_name.strip().lower() == mark['Name'].lower():
+        if parse_name(hunt_name) == mark['Name'].lower():
             embed = discord.Embed()
 
             world = xivhunt['world'] if xivhunt else None
@@ -66,7 +67,7 @@ def hunt_report_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: ty
 
 def fate_report_embed(fate_name: str, xivhunt: typing.Optional = None) -> discord.Embed:
     for _id, fate in fates_info.items():
-        if fate_name.strip().lower() == fate['Name'].lower():
+        if parse_name(fate_name) == fate['Name'].lower():
             embed = discord.Embed()
 
             if xivhunt is not None and xivhunt['status'] == 'alive':
@@ -90,7 +91,7 @@ def fate_report_embed(fate_name: str, xivhunt: typing.Optional = None) -> discor
 
 def hunt_info_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: typing.Optional = None) -> discord.Embed:
     for _id, mark in marks_info.items():
-        if hunt_name.strip().lower() == mark['Name'].lower():
+        if parse_name(hunt_name) == mark['Name'].lower():
             embed = discord.Embed(title=mark['Name'], description=f"""Rank {mark['Rank']}""")
             embed.set_thumbnail(url=mark['Image'])
 
@@ -143,7 +144,7 @@ def hunt_info_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: typi
 
 def fate_info_embed(fate_name: str) -> discord.Embed:
     for _id, fate in fates_info.items():
-        if fate_name.strip().lower() == fate['Name'].lower():
+        if parse_name(fate_name) == fate['Name'].lower():
             embed = discord.Embed(title=fate['Name'])
             embed.colour = COLOR_S
             embed.add_field(name='Zone', value=fate['ZoneName'])

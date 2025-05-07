@@ -251,3 +251,9 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+#html files
+*.html
+
+#bat files
+*.bat

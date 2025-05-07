@@ -12,7 +12,7 @@ from discord.ext import commands
 from discord.utils import get
 from discord import app_commands
 from discord import Locale
-from filobot.utilities import hunt_embed, fate_embed, parse_hunt_name
+from filobot.utilities import hunt_embed, fate_embed, parse_name
 from filobot.utilities.manager import HuntManager
 from filobot.utilities.worlds import Worlds
 
@@ -108,7 +108,7 @@ class Hunts(commands.Cog):
         """
         try:
             try:
-                hunt_name = parse_hunt_name(name)
+                hunt_name = parse_name(name)
             except KeyError:
                 hunt_name = name.lower().strip()
 
@@ -132,7 +132,7 @@ class Hunts(commands.Cog):
         """
         try:
             try:
-                hunt_name = parse_hunt_name(name)
+                hunt_name = parse_name(name)
             except KeyError:
                 hunt_name = name.lower().strip()
 
@@ -976,7 +976,7 @@ class Hunts(commands.Cog):
     async def srank(self, ctx: commands.context.Context, *, world: str, level: app_commands.Choice[int]):
         try:
             if not world or not level:
-                hunt_name = parse_hunt_name(hunt_name)
+                hunt_name = parse_name(hunt_name)
                 embed = hunt_embed(hunt_name)
                 await ctx.response.send_message(embed=embed, ephemeral=True)
                 return
@@ -1004,7 +1004,7 @@ class Hunts(commands.Cog):
         # Make sure the world is properly formatted
         world = world.strip().lower().title()
         try:
-            hunt_name = parse_hunt_name(hunt_name)
+            hunt_name = parse_name(hunt_name)
         except KeyError:
             hunt_name = hunt_name.lower().strip()
 

@@ -159,9 +159,8 @@ def fate_embed(fate_name: str) -> discord.Embed:
             return embed
     raise KeyError
 
-def parse_hunt_name(hunt_name: str) -> str:
-    name = hunt_name.lower().strip()
-    return name
+def parse_name(name: str) -> str:
+    return name.lower().strip()
 
 def parse_duration_string(start: float, end: float):
     # Uptime

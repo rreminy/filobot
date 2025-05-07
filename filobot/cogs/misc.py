@@ -5,7 +5,6 @@ import discord
 import git
 from discord.ext import commands
 
-from filobot.models import Player, ScoutingSessions
 from filobot.utilities.manager import HuntManager
 
 
@@ -47,7 +46,6 @@ class Misc(commands.Cog):
         Get some miscellaneous bot statistics
         """
         a_count, s_count = await self._hunt_manager.count()
-        train_count = ScoutingSessions.select().where(ScoutingSessions.status == ScoutingSessions.STATUS_COMPLETED).count()
         player_count = Player.select().where(Player.status == Player.STATUS_VERIFIED).count()
 
         # Git build hash
@@ -74,7 +72,6 @@ class Misc(commands.Cog):
 
         embed.add_field(name='A-Ranks Relayed', value="{:,}".format(a_count))
         embed.add_field(name='S-Ranks Relayed', value="{:,}".format(s_count))
-        embed.add_field(name='Hunt Trains Organized', value="{:,}".format(train_count))
         embed.add_field(name='Players Verified', value="{:,}".format(player_count))
 
         embed.set_footer(text=f"""Build {short_sha} • Up for {', '.join(uptime)}""")

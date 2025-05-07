@@ -16,7 +16,6 @@ from filobot.models import KillLog, Subscriptions, SubscriptionsMeta
 from filobot.utilities import hunt_simple_embed, fate_simple_embed
 from filobot.utilities.horus import HorusHunt
 from .horus import Horus
-from .xivhunt import XivHunt
 from filobot.utilities.worlds import Worlds
 from filobot.utilities.time_utils import RemainingTime
 
@@ -71,7 +70,6 @@ class HuntManager:
         self._log = logging.getLogger(__name__)
         self.bot = bot
 
-        self.xivhunt = XivHunt(bot)
         self.horus = Horus(bot)
 
         self._subscriptions = list(Subscriptions.select())
@@ -92,9 +90,6 @@ class HuntManager:
         self._fate_timers = {}
 
         self._recent_fates = {}
-
-        # Callbacks
-        self._recheck_cbs = []
 
         # Logged notifications for editing later
         self._notifications = {}
@@ -140,8 +135,7 @@ class HuntManager:
             self._changed[world] = {}
             self._found[world] = {}
 
-            # xivhunt = await self.xivhunt.load(world)
-            horus   = await self.horus.load(world)
+            horus = await self.horus.load(world)
             if horus is None:
                 continue
 
@@ -154,18 +148,7 @@ class HuntManager:
                     job_list.append(self.on_change(world, self._hunts[world]['horus'][key], hunt))
             await asyncio.gather(*job_list)
 
-            # Check and see if hunts have been found on XIVHunt
-            # for name, hunt in xivhunt.items():  # type: str, dict
-            #     if name in self._hunts[world]['xivhunt'] and hunt['status'] == 'seen':
-            #         # First time seeing this hunt?
-            #         if self._hunts[world]['xivhunt'][name]['status'] != 'seen':
-            #             self._log.info(f"""Hunt seen for the first time! {name.title()} on {world}""")
-            #             self._found[world][name] = hunt
-            #             await self.on_find(world, name, hunt)
-
-            # self._hunts[world]['xivhunt'] = xivhunt
             self._hunts[world]['horus'] = horus
-            await self.on_recheck(world, horus)
 
     async def recheck_trackers(self, source: str, name: str, hunt: HorusHunt, instance: int):
         """
@@ -188,17 +171,6 @@ class HuntManager:
             self._changed[world][key] = hunt
             job_list.append(self.on_change(world, self._hunts[world]['horus'][key], hunt))
         await asyncio.gather(*job_list)
-
-    async def on_recheck(self, world: str, horus: HorusHunt):
-        for callback in self._recheck_cbs:
-            await callback(world, horus)
-
-    def add_recheck_cb(self, callback: typing.Callable):
-        if callback in self._recheck_cbs:
-            self._log.warning('Callback already defined: ' + repr(callback))
-            return
-
-        self._recheck_cbs.append(callback)
 
     async def check_fates(self):
         self._log.debug(f"""Checking FATES""")

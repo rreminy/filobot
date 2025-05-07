@@ -10,9 +10,7 @@ from discord import app_commands
 
 from filobot.cogs import Hunts
 from filobot.cogs.admin import Admin
-from filobot.cogs.ffxiv import FFXIV
 from filobot.cogs.misc import Misc
-from filobot.cogs.settings import Settings
 from filobot.models import db, GuildSettings, KillLog, Player, ScoutingHunts, ScoutingSessions, Subscriptions, SubscriptionsMeta, Blacklist
 from filobot.utilities.manager import HuntManager
 
@@ -41,12 +39,8 @@ intents.message_content = True
 bot = commands.Bot(command_prefix='g.', intents=intents)
 hunt_manager = HuntManager(bot)
 asyncio.run(bot.add_cog(Hunts(bot, hunt_manager)))
-# asyncio.run(bot.add_cog(Scouting(bot, hunt_manager)))
-asyncio.run(bot.add_cog(FFXIV(bot, config.get('Bot', 'XivApiKey'))))
 asyncio.run(bot.add_cog(Admin(bot)))
 asyncio.run(bot.add_cog(Misc(bot, hunt_manager)))
-asyncio.run(bot.add_cog(Settings(bot)))
-
 GAMES = ("with moogles", "in Totomo Omo's estate", "in the Izakaya Pub",
          "pranks on Joel Cleveland'", "with the hunt tracker", "Diabolos", "with hunts",
          "Marriage", "boredom", "with Sum", "with Eorzea", "Ascians", "Zodiark",

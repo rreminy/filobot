@@ -6,7 +6,6 @@ import typing
 import time
 import datetime
 import asyncio
-
 import arrow
 import discord
 from discord.ext.commands import Bot
@@ -19,9 +18,7 @@ from .horus import Horus
 from filobot.utilities.worlds import Worlds
 from filobot.utilities.time_utils import RemainingTime
 
-
 class HuntManager:
-
     JA_DATACENTERS = ['Elemental', 'Gaia', 'Mana', 'Meteor']
     EU_DATACENTERS = ['Light', 'Chaos']
     NA_DATACENTERS = ['Primal', 'Aether', 'Crystal', 'Dynamis']

@@ -3,19 +3,14 @@ import sys
 import logging
 import time
 import csv
-
 import asyncio
 import aiohttp
 
 # Constants
 UPDATE_INTERVAL = 60 * 60 * 24 # 24 hours in seconds
-
-# Logger
 logger = logging.getLogger(__name__)
-
-
-# Globals
 _path_base = os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep
+
 worlds = {
     'name': "Worlds",
     'file_path': _path_base + os.path.join('data', 'worlds.csv'),
@@ -32,7 +27,6 @@ datacenters = {
     'data': ""
 }
 
-
 def force_update_needed():
     # Check if anything is outdated
     for obj in [worlds, datacenters]:
@@ -40,17 +34,12 @@ def force_update_needed():
             return True
     return False
 
-
 def update_needed_for(obj):
-    # If data is empty then an update is needed
     if (obj['data'] == ""):
         return True
-
-    # Check if its outdated
     if time.time() > get_last_update(obj) + UPDATE_INTERVAL:
         return True
     return False
-
 
 def get_last_update(obj):
     # If last updated time is 0 then ... check it up
@@ -59,26 +48,17 @@ def get_last_update(obj):
             obj['last_updated'] = os.path.getmtime(obj['file_path'])
         except:
             return 0
-
-    # Return last updated time
     return obj['last_updated']
 
-
 def read_file(path):
-    # Open the file
     logger.debug(f"Reading file: {path}")
     with open(path, 'rb') as file:
-        # Read the file and return its contents
         return file.read().decode('utf-8')
 
-
 def write_file(path, data):
-    # Open the file
     logger.debug(f"Writing file: {path}")
     with open(path, 'wb') as file:
-        # Write the data into the file
         return file.write(bytearray(data, 'utf-8'))
-
 
 async def fetch(url):
     logger.debug(f"Fetching URL: {url}")
@@ -86,47 +66,36 @@ async def fetch(url):
         async with session.get(url) as response:
             return await response.text()
 
-
 async def update(obj, force=False):
     # Is the list updated? (Early check)
     if (not update_needed_for(obj)) and (obj['data'] != "") and (not force):
-        # No need to update
         logger.debug(f"update(): {obj['name']} data is already up to date")
         return
 
     try:
-        # Read the file (do this early in case download fails)
         logger.debug(f"update(): Reading {obj['name']} data...")
         obj['data'] = read_file(obj['file_path'])
 
-        # Is the list outdated?
         if update_needed_for(obj) or (obj['data'] == "") or force:
             raise Exception('Update needed')
     except:
         try:
-            # Download list (fall-back)
             logger.debug(f"update(): Downloading {obj['name']} data...")
             obj['data'] = await fetch(obj['url'])
 
             try:
-                # Write the data to the file
                 logger.debug(f"update(): Saving {obj['name']} data...")
                 write_file(obj['file_path'], obj['data'])
             except Exception:
                 logger.exception(f"update(): Unable to save {obj['name']} data")
-
-                # Sets the last updated time for the object
                 obj['last_updated'] = time.time()
         except:
             logger.exception(f"update(): Unable to download {obj['name']} data")
 
-    # Is there data to begin with?
     if obj['data'] == "":
         logger.exception(f"update(): {obj['name']} data unavailable!!")
         sys.exit(1)
 
-
-# Process datacenters information
 def process_datacenters():
     # ======================
     # Datacenters processing
@@ -263,7 +232,6 @@ def process_datacenters():
     worlds['world_data'] = world_data
     worlds['list'] = datacenter_list
 
-
 async def do_update(force=False):
     # Debug feedback additional string
     forced_string = ""
@@ -286,7 +254,6 @@ async def do_update(force=False):
     # Await all tasks and proccess all data
     await asyncio.wait(tasks)
     process_datacenters()
-
 
 def debug_print():
     logger.debug("Raw variable data")
@@ -316,8 +283,6 @@ def debug_print():
     for (world, dc) in worlds['world_datacenter'].items():
         logger.debug(f"{world} => {dc}")
 
-
-# The main class
 class Worlds:
     # Datacenters functions
     @staticmethod
@@ -336,7 +301,6 @@ class Worlds:
     def is_datacenter(datacenter: str):
         return True if datacenter in datacenters['list'] else False
 
-    # Worlds functions
     @staticmethod
     def get_worlds():
         return worlds['list'] if 'list' in worlds else None
@@ -361,7 +325,6 @@ class Worlds:
     def is_world(world: str):
         return True if world in worlds['list'] else False
 
-    # Debugging functions (why would you want this...direct access)
     @staticmethod
     def debug_get_datacenters():
         return datacenters
@@ -370,14 +333,11 @@ class Worlds:
     def debug_get_worlds():
         return worlds
 
-
 async def init():
-    # Update all the data
     try:
         await do_update()
     except Exception:
         logger.exception("Data processing failed!!")
         sys.exit(1)
 
-    # Debug log the data (testing)
     debug_print()

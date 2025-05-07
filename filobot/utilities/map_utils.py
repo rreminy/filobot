@@ -35,8 +35,6 @@ class MapUtils:
         except:
             return None
 
-
-
 # ===============
 async def main():
     data = await MapUtils.get_zone_map_image_with_mark(818, 1, 1)

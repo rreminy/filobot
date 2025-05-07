@@ -2,10 +2,8 @@ import os
 import sys
 import logging
 import datetime
-
 from discord.ext import commands
 from peewee import *
-
 
 logger = logging.getLogger('peewee')
 logger.addHandler(logging.StreamHandler())
@@ -14,11 +12,9 @@ logger.setLevel(logging.WARNING)
 db_path = os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'filobot.db')
 db = SqliteDatabase(db_path, pragmas={'foreign_keys': 1})
 
-
 class BaseModel(Model):
     class Meta:
         database = db
-
 
 class Subscriptions(BaseModel):
     channel_id = IntegerField(index=True)
@@ -26,16 +22,13 @@ class Subscriptions(BaseModel):
     category = CharField(index=True)
     event = CharField()
 
-
 class SubscriptionsMeta(BaseModel):
     channel_id = IntegerField(index=True)
     attachName = CharField(index=True, null=True)
     name = CharField()
     value = CharField()
 
-
 class ScoutingSessions(BaseModel):
-
     STATUS_STARTED = 0
     STATUS_CANCELLED = -1
     STATUS_COMPLETED = 1
@@ -46,14 +39,12 @@ class ScoutingSessions(BaseModel):
     scouts = CharField(max_length=1200)
     date = DateTimeField(default=datetime.datetime.now)
 
-
 class ScoutingHunts(BaseModel):
     scouting_session = ForeignKeyField(ScoutingSessions)
     hunt = CharField()
     scouted_by = CharField()
     discord_user = IntegerField(index=True)
     date = DateTimeField(default=datetime.datetime.now)
-
 
 class KillLog(BaseModel):
     hunt_name   = CharField(index=True)
@@ -62,9 +53,7 @@ class KillLog(BaseModel):
     killed      = IntegerField(null=True)
     kill_time   = IntegerField(null=True)
 
-
 class Player(BaseModel):
-
     STATUS_PENDING  = 0
     STATUS_VERIFIED = 1
     STATUS_BANNED   = -1
@@ -76,15 +65,11 @@ class Player(BaseModel):
     status          = IntegerField(default=STATUS_PENDING)
     validation_code = CharField(max_length=36)
 
-
 class Blacklist(BaseModel):
-
     guild_id    = PrimaryKeyField()
     ban_date    = DateTimeField(default=datetime.datetime.now)
 
-
 class GuildSettings(BaseModel):
-
     TYPE_ROLE = 'role'
 
     # key : default, type

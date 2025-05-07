@@ -4,18 +4,16 @@ import datetime
 import time
 import sys
 import os
-
+import json
 import discord
-from aiohttp import web
-import aiohttp
 import socketio
+import aiohttp
+from aiohttp import web
 
 from filobot.filobot import config, bot, GAMES, hunt_manager, log
 from filobot.models import Player
 import filobot.utilities.worlds as worlds
 from filobot.utilities.horus import HorusHunt
-
-import json
 
 import logging
 logger = logging.getLogger(__name__)
@@ -56,7 +54,7 @@ async def feed_listener(source):
             session.on('*', handler=bear_handler, namespace='/HuntUpdate')
 
             while not bot.is_closed():
-                await asyncio.sleep(15.0) # Nothing to do anymore! But we can stall indefinitely until shutdown so we can disconnect properly
+                await asyncio.sleep(15.0) # Stall indefinitely until shutdown
 
             session.disconnect()
         except Exception:
@@ -401,56 +399,10 @@ async def _process_fate(source, data):
 
     return await hunt_manager.on_find(world, fate['Name'], xivhunt, int(i) or 1)
 
-
 async def discord_listener(source):
     await bot.wait_until_ready()
 
     async def on_message(message):
-        #subs = await hunt_manager.get_subscriptions(message.channel.id)
-
-        # This if shouldn't be ported to normal filo. It doesn't consider multiple discords like everything else does.
-        # Prevents Filo reporting things if a user did it correctly already, so as not to undermine them.
-        #if subs:
-        #    #  Check worlds, but first check behemoth and odin, ixion, etc, then remove those from the list, so there's no clash
-        #    world_name = None
-        #    worldList = worlds.Worlds.get_worlds().copy()
-
-        #    # These are both fates and world names, which complicates this.
-        #    if message.content.lower().find("behe") >= 0:
-        #        world_name = "Behemoth"
-
-        #    if message.content.lower().find("odin") >= 0:
-        #        world_name = "Odin"
-
-        #    if message.content.lower().find("ixion") >= 0:
-        #        world_name = "ixion"
-
-        #    worldList.remove("Behemoth")
-        #    worldList.remove("Odin")
-        #    worldList.remove("Ixion")
-
-        #    instance = 1
-
-        #    if message.content.lower().find("i2") or message.content.lower().find("instance 2"):
-        #        instance = 2
-        #    if message.content.lower().find("i3") or message.content.lower().find("instance 3"):
-        #        instance = 3
-
-        #    for world in worldList:
-        #        if message.content.lower().find(world.lower()[0:3]) >= 0:
-        #            world_name = world
-
-        #    if world_name:
-        #        submetas = await hunt_manager.get_subscriptionsmetas(message.channel.id)
-
-        #        for submeta in submetas:
-        #            if submeta.value in message.role_mentions:
-        #                if submeta.attachName == hunt_manager.SUB_TRAINS:
-        #                    await hunt_manager.log_notification(message, message.channel_id, world_name, hunt_manager.SUB_TRAINS, instance)
-        #                if submeta.attachName.lower() in hunt_manager.getmarksinfo().keys() or submeta.attachName.lower() in hunt_manager.getfatesinfo().keys():
-        #                    hunt_manager._hunts[world]['xivhunt'].append(f"{submeta.attachName.strip().lower()}_{instance}")
-        #                    await hunt_manager.log_notification(message, message.channel_id, world_name, submeta.attachName, instance)
-
         if str(message.channel.id) != config.get(source, 'Channel'):
             return
 
@@ -464,7 +416,6 @@ async def discord_listener(source):
 
     bot.add_listener(on_message)
     return
-
 
 async def start_server(source):
     async def event(request):
@@ -484,14 +435,12 @@ async def start_server(source):
     site = web.TCPSite(runner, config.get(source, 'Address'), config.get(source, 'Port'))
     await site.start()
 
-
 async def update_worlds():
     await bot.wait_until_ready()
 
     while not bot.is_closed():
         await worlds.do_update()
         await asyncio.sleep(1800.0)
-
 
 async def track_stats():
     await bot.wait_until_ready()

@@ -3,13 +3,11 @@ import logging
 import os
 import sys
 import time
-
 import aiohttp
 import asyncio
 import async_timeout
 import discord.ext
 from filobot.utilities.worlds import Worlds
-
 
 class Horus:
     CACHE_TTL = 10
@@ -131,9 +129,7 @@ class Horus:
             async with session.get(url) as response:
                 return await response.text()
 
-
 class HorusHunt:
-
     STATUS_MAXED  = 'spawn forced'
     STATUS_OPENED = 'open'
     STATUS_CLOSED = 'closed'

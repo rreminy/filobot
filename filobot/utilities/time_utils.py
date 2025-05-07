@@ -60,13 +60,11 @@ class RemainingTime:
 
         return RemainingTime(seconds)
 
-
 def seconds_to_time_str(seconds: int) -> str:
     return RemainingTime(seconds).__str__()
 
 def seconds_to_time_str_verbose(seconds: int, jp: bool = False) -> str:
     return RemainingTime(seconds).to_verbose(jp)
-
 
 test_time = 2110
 test_time_obj = RemainingTime(test_time)

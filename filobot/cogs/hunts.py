@@ -6,22 +6,15 @@ import typing
 import time
 import asyncio
 import aiohttp
-
 import discord
+import collections
 from discord.ext import commands
 from discord.utils import get
 from discord import app_commands
 from discord import Locale
-
-from filobot.utilities import hunt_embed, fate_embed, parse_sb_hunt_name, SB_HUNTS
+from filobot.utilities import hunt_embed, fate_embed, parse_hunt_name
 from filobot.utilities.manager import HuntManager
-from filobot.utilities.train import Conductor
 from filobot.utilities.worlds import Worlds
-#from filobot.utilities.map_utils import MapUtils
-
-#from filobot.tasks import process_data
-
-import collections
 
 class Hunts(commands.Cog):
 
@@ -30,9 +23,6 @@ class Hunts(commands.Cog):
         self.bot = bot
 
         self.hunt_manager = hunt_manager
-
-        self._trains = {}
-        self.hunt_manager.add_recheck_cb(self._update_train)
 
         self.srankPosts = {}
 
@@ -118,7 +108,7 @@ class Hunts(commands.Cog):
         """
         try:
             try:
-                hunt_name = parse_sb_hunt_name(name)
+                hunt_name = parse_hunt_name(name)
             except KeyError:
                 hunt_name = name.lower().strip()
 
@@ -142,7 +132,7 @@ class Hunts(commands.Cog):
         """
         try:
             try:
-                hunt_name = parse_sb_hunt_name(name)
+                hunt_name = parse_hunt_name(name)
             except KeyError:
                 hunt_name = name.lower().strip()
 
@@ -186,12 +176,17 @@ class Hunts(commands.Cog):
         """
         Relay an S Rank via paste
         """
+        debuginfo = ""
         try:
-            for hunt in self.hunt_manager.getmarksinfo():
-                if paste.find(hunt['Zone']) > -1:
+            for hunt in self.hunt_manager.getmarksinfo().values():
+                debuginfo = "in for loop"
+                if hunt['Zone'] in str(paste):
+                    debuginfo = "in if statement"
                     x, y = paste.split("(")[1].split(")")[0].strip().split(",")
+                    debuginfo = "done xy assignment"
                     for world in Worlds.get_worlds():
                         if paste.find(world):
+                            debuginfo = "under paste.find()"
                             xivhunt = {
                                 'rank': hunt['Rank'],
                                 'i': instance,
@@ -211,6 +206,7 @@ class Hunts(commands.Cog):
         except Exception as e:
             await ctx.response.send_message("Could not extract information. Try to include the following info (does not support instances): World Area Name ( X, Y )", ephemeral=True)
             print(e)
+            print(debuginfo)
 
     @relay.command(name="fate")
     async def relayFATE(self, ctx: commands.context.Context, *, paste: str, instance: int = 1) -> None:
@@ -307,6 +303,9 @@ class Hunts(commands.Cog):
         """
         try:
             datacenter = Worlds.get_world_datacenter(world)
+            if datacenter is None or datacenter.find("Admin") > -1 or datacenter.find("Mod") > -1 or datacenter.find("_") > -1 or datacenter.find("Bot") > -1 or datacenter.find("nothing") > -1 or datacenter.find("Founder") > -1:
+                await interaction.response.send_message("Failed", ephemeral=True)
+                return
             role = discord.utils.get(interaction.user.guild.roles, name=datacenter)
             action = "Added data center role "
             if role in interaction.user.roles:
@@ -977,7 +976,7 @@ class Hunts(commands.Cog):
     async def srank(self, ctx: commands.context.Context, *, world: str, level: app_commands.Choice[int]):
         try:
             if not world or not level:
-                hunt_name = parse_sb_hunt_name(hunt_name)
+                hunt_name = parse_hunt_name(hunt_name)
                 embed = hunt_embed(hunt_name)
                 await ctx.response.send_message(embed=embed, ephemeral=True)
                 return
@@ -1005,7 +1004,7 @@ class Hunts(commands.Cog):
         # Make sure the world is properly formatted
         world = world.strip().lower().title()
         try:
-            hunt_name = parse_sb_hunt_name(hunt_name)
+            hunt_name = parse_hunt_name(hunt_name)
         except KeyError:
             hunt_name = hunt_name.lower().strip()
 
@@ -1191,63 +1190,6 @@ class Hunts(commands.Cog):
             return
 
         await ctx.reply("Subscriptions for this channel have been cleared")
-
-    # @commands.command()
-    # async def train(self, ctx: commands.context.Context, world: str, starting_hunt: typing.Optional[str] = 'erle'):
-    #     """
-    #     Announces the start of a SB hunt train on the specified world
-    #     """
-    #     world = world.strip().lower().title()
-    #     starting_hunt = parse_sb_hunt_name(starting_hunt)
-    #
-    #     _meta = SubscriptionsMeta.select().where(SubscriptionsMeta.channel_id == ctx.channel.id)
-    #     meta = {m.name: m.value for m in _meta}
-    #     role_mention = meta['notifier'] if 'notifier' in meta else None
-    #
-    #     message = f"{ctx.author.mention} has announced the start of a hunt train on **{world.title()}**!"
-    #     print(message)
-    #     if role_mention:
-    #         message = f"{role_mention} {message}"
-    #
-    #     conductor = Conductor(self.hunt_manager, world, starting_hunt)
-    #     self._trains[world] = (
-    #         conductor,
-    #         await ctx.send(content=message, embed=next(conductor))
-    #     )
-    #
-    #     await ctx.message.delete()
-    #
-    # @commands.command(name='train-cancel')
-    # async def train_cancel(self, ctx: commands.context.Context, world: str):
-    #     """
-    #     Blows up the train. Boom.
-    #     """
-    #     world = world.strip().lower().title()
-    #     if world not in self._trains:
-    #         await ctx.send(f"There are no active trains on **{world.title()} at the moment", delete_after=10.0)
-    #         return
-    #
-    #     conductor, message = self._trains[world]  # type: Conductor, discord.Message
-    #     await message.delete()
-    #     del self._trains[world]
-    #     await ctx.message.delete()
-
-    async def _update_train(self, world, horus):
-        if world in self._trains:
-            conductor, message = self._trains[world]  # type: Conductor, discord.Message
-            killed = False
-            for name, horushunt in horus.items():
-                # Make sure it's an SB A-Rank
-                if name in SB_HUNTS and (horushunt.status == horushunt.STATUS_DIED):
-                    if conductor.hunt_is_in_train(name):
-                        conductor.log_kill(name)
-                        killed = True
-
-            if killed or conductor.finished:
-                await message.edit(embed=next(conductor))
-
-            if conductor.finished:
-                del self._trains[world]
 
 class SRankInteraction(discord.ui.View):
     def __init__(self, options=None, placeholder=None): #, custom_id=None):

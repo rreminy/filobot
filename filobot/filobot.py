@@ -1,14 +1,13 @@
 import asyncio
 import logging
 import traceback
-from configparser import ConfigParser
-
 import discord
 import math
+from configparser import ConfigParser
 from discord.ext import commands
 from discord import app_commands
 
-from filobot.cogs import Hunts
+from filobot.cogs.hunts import Hunts
 from filobot.cogs.admin import Admin
 from filobot.cogs.misc import Misc
 from filobot.models import db, GuildSettings, KillLog, Player, ScoutingHunts, ScoutingSessions, Subscriptions, SubscriptionsMeta, Blacklist

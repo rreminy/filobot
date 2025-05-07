@@ -1,12 +1,9 @@
 import datetime
 import logging
-
 import discord
 import git
 from discord.ext import commands
-
 from filobot.utilities.manager import HuntManager
-
 
 class Misc(commands.Cog):
 
@@ -69,11 +66,9 @@ class Misc(commands.Cog):
         embed.url = 'https://github.com/FujiMakoto/filobot'
         embed.colour = 0x2274A5
         embed.set_thumbnail(url='https://i.imgur.com/khJRCmB.jpg')
-
         embed.add_field(name='A-Ranks Relayed', value="{:,}".format(a_count))
         embed.add_field(name='S-Ranks Relayed', value="{:,}".format(s_count))
         embed.add_field(name='Players Verified', value="{:,}".format(player_count))
-
         embed.set_footer(text=f"""Build {short_sha} • Up for {', '.join(uptime)}""")
 
         await ctx.send(embed=embed)

@@ -12,7 +12,7 @@ from discord.ext.commands import Bot
 from peewee import fn
 
 from filobot.models import KillLog, Subscriptions, SubscriptionsMeta
-from filobot.utilities import hunt_simple_embed, fate_simple_embed
+from filobot.utilities.embeds import hunt_report_embed, fate_report_embed
 from filobot.utilities.horus import HorusHunt
 from .horus import Horus
 from filobot.utilities.worlds import Worlds
@@ -410,7 +410,7 @@ class HuntManager:
                 (Subscriptions.world == world)
                 & (Subscriptions.category == fate['Channel'])
         )
-        embed = fate_simple_embed(name, xivhunt)
+        embed = fate_report_embed(name, xivhunt)
 
         info = self._fates_info[name.lower()]
 
@@ -522,7 +522,7 @@ class HuntManager:
                     (Subscriptions.world == world)
                     & (Subscriptions.category == hunt['Channel'])
             )
-            embed = hunt_simple_embed(new.name, new)
+            embed = hunt_report_embed(new.name, new)
         except:
             # self._log.warning(f"""{hunt['Name']}""")
             # raise
@@ -717,7 +717,7 @@ class HuntManager:
                         (Subscriptions.world == world)
                         & (Subscriptions.category == hunt['Channel'])
                 )
-                embed = hunt_simple_embed(name, xivhunt=xivhunt)
+                embed = hunt_report_embed(name, xivhunt=xivhunt)
 
                 #  Checks if another hunt from the same world and expansion has been reported since this one.
                 #  If so, report as a new discord message instead of editing.
@@ -796,7 +796,7 @@ class HuntManager:
                 (Subscriptions.world == world)
                 & (Subscriptions.category == hunt['Channel'])
             )
-            embed = fate_simple_embed(name, xivhunt=xivhunt)
+            embed = fate_report_embed(name, xivhunt=xivhunt)
 
         else:
             self._log.debug(f"""Ignoring notifications for {name}""")

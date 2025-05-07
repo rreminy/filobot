@@ -12,7 +12,8 @@ from discord.ext import commands
 from discord.utils import get
 from discord import app_commands
 from discord import Locale
-from filobot.utilities import hunt_embed, fate_embed, parse_name
+from filobot.utilities import parse_name
+from filobot.utilities.embeds import hunt_info_embed, fate_info_embed
 from filobot.utilities.manager import HuntManager
 from filobot.utilities.worlds import Worlds
 
@@ -113,10 +114,10 @@ class Hunts(commands.Cog):
                 hunt_name = name.lower().strip()
 
             try:
-                embed = hunt_embed(name)
+                embed = hunt_info_embed(name)
             except KeyError:
                 try:
-                    embed = fate_embed(name)
+                    embed = fate_info_embed(name)
                 except KeyError:
                     await ctx.response.send_message("No hunt or fate by that name found - please check your spelling and try again", ephemeral=True)
                     return
@@ -137,10 +138,10 @@ class Hunts(commands.Cog):
                 hunt_name = name.lower().strip()
 
             try:
-                embed = hunt_embed(name)
+                embed = hunt_info_embed(name)
             except KeyError:
                 try:
-                    embed = fate_embed(name)
+                    embed = fate_info_embed(name)
                 except KeyError:
                     await ctx.response.send_message("No hunt or fate by that name found - please check your spelling and try again", ephemeral=True)
                     return
@@ -977,7 +978,7 @@ class Hunts(commands.Cog):
         try:
             if not world or not level:
                 hunt_name = parse_name(hunt_name)
-                embed = hunt_embed(hunt_name)
+                embed = hunt_info_embed(hunt_name)
                 await ctx.response.send_message(embed=embed, ephemeral=True)
                 return
 
@@ -1014,7 +1015,7 @@ class Hunts(commands.Cog):
 
         try:
             horus = self.hunt_manager.get(world, hunt_name, instance)
-            embed = hunt_embed(hunt_name, horus)
+            embed = hunt_info_embed(hunt_name, horus)
         except KeyError as e:
             self._log.info(e)
             await ctx.reply("No world or hunt by that name found - please check your spelling and try again")

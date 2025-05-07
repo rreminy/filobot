@@ -15,7 +15,7 @@ COLOR_MAXED = 0x275DAD
 COLOR_DIED = 0xFB6107
 COLOR_CLOSED = 0x5B616A
 
-def hunt_simple_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: typing.Optional = None) -> discord.Embed:
+def hunt_report_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: typing.Optional = None) -> discord.Embed:
     for _id, mark in marks_info.items():
         if hunt_name.strip().lower() == mark['Name'].lower():
             embed = discord.Embed()
@@ -64,7 +64,7 @@ def hunt_simple_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: ty
 
             return embed
 
-def fate_simple_embed(fate_name: str, xivhunt: typing.Optional = None) -> discord.Embed:
+def fate_report_embed(fate_name: str, xivhunt: typing.Optional = None) -> discord.Embed:
     for _id, fate in fates_info.items():
         if fate_name.strip().lower() == fate['Name'].lower():
             embed = discord.Embed()
@@ -88,7 +88,7 @@ def fate_simple_embed(fate_name: str, xivhunt: typing.Optional = None) -> discor
 
             return embed
 
-def hunt_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: typing.Optional = None) -> discord.Embed:
+def hunt_info_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: typing.Optional = None) -> discord.Embed:
     for _id, mark in marks_info.items():
         if hunt_name.strip().lower() == mark['Name'].lower():
             embed = discord.Embed(title=mark['Name'], description=f"""Rank {mark['Rank']}""")
@@ -141,7 +141,7 @@ def hunt_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: typing.Op
             return embed
     raise KeyError
 
-def fate_embed(fate_name: str) -> discord.Embed:
+def fate_info_embed(fate_name: str) -> discord.Embed:
     for _id, fate in fates_info.items():
         if fate_name.strip().lower() == fate['Name'].lower():
             embed = discord.Embed(title=fate['Name'])

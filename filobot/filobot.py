@@ -7,9 +7,9 @@ from configparser import ConfigParser
 from discord.ext import commands
 from discord import app_commands
 
-from filobot.cogs.hunts import Hunts
-from filobot.cogs.admin import Admin
-from filobot.cogs.misc import Misc
+from filobot.commands.hunts import Hunts
+from filobot.commands.admin import Admin
+from filobot.commands.misc import Misc
 from filobot.models import db, GuildSettings, KillLog, Player, ScoutingHunts, ScoutingSessions, Subscriptions, SubscriptionsMeta, Blacklist
 from filobot.utilities.manager import HuntManager
 

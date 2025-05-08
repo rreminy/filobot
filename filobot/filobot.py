@@ -10,7 +10,8 @@ from discord import app_commands
 from filobot.commands.hunts import Hunts
 from filobot.commands.admin import Admin
 from filobot.commands.misc import Misc
-from filobot.models import db, GuildSettings, KillLog, Player, ScoutingHunts, ScoutingSessions, Subscriptions, SubscriptionsMeta, Blacklist
+from filobot.database import db
+from filobot.database.models import GuildSettings, KillLog, Player, ScoutingHunts, ScoutingSessions, Subscriptions, SubscriptionsMeta, Blacklist
 from filobot.manager import HuntManager
 
 # Load our configuration

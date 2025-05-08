@@ -5,7 +5,7 @@ import typing
 import peewee
 from discord import Guild
 from discord.ext import commands
-from filobot.models import Player, Blacklist
+from filobot.database.models import Player, Blacklist
 
 class Admin(commands.Cog):
     def __init__(self, bot: discord.ext.commands.Bot):

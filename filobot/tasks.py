@@ -11,7 +11,7 @@ import aiohttp
 from aiohttp import web
 
 from filobot.filobot import config, bot, GAMES, hunt_manager, log
-from filobot.models import Player
+from filobot.database.models import Player
 import filobot.utilities.worlds as worlds
 from filobot.utilities.horus import HorusHunt
 

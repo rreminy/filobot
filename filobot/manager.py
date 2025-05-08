@@ -11,7 +11,7 @@ import discord
 from discord.ext.commands import Bot
 from peewee import fn
 
-from filobot.models import KillLog, Subscriptions, SubscriptionsMeta
+from filobot.database.models import KillLog, Subscriptions, SubscriptionsMeta
 from filobot.utilities.embeds import hunt_report_embed, fate_report_embed
 from filobot.utilities.horus import HorusHunt, Horus
 from filobot.utilities.worlds import Worlds

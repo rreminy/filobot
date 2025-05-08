@@ -1,8 +1,8 @@
 import arrow
 import discord
 import typing
-from filobot.utilities.staticdata import marks_info
-from filobot.utilities.staticdata import fates_info
+from filobot.utilities.static_data import marks_info
+from filobot.utilities.static_data import fates_info
 from filobot.utilities.worlds import Worlds
 from filobot.utilities.map_utils import SS_MINIONS_MAPS
 from filobot.utilities import parse_name

@@ -8,37 +8,23 @@ import datetime
 import asyncio
 import arrow
 import discord
+import filobot.constants.subscriptions as SUB
+import filobot.constants.conditions as COND
 from discord.ext.commands import Bot
 from peewee import fn
-
+from filobot.utilities import *
 from filobot.database.models import KillLog, Subscriptions, SubscriptionsMeta
 from filobot.utilities.embeds import hunt_report_embed, fate_report_embed
 from filobot.utilities.horus import HorusHunt, Horus
 from filobot.utilities.worlds import Worlds
 from filobot.utilities.time_utils import RemainingTime
+from filobot.subscriptions import SubscriptionManager
 
 class HuntManager:
     JA_DATACENTERS = ['Elemental', 'Gaia', 'Mana', 'Meteor']
     EU_DATACENTERS = ['Light', 'Chaos']
     NA_DATACENTERS = ['Primal', 'Aether', 'Crystal', 'Dynamis']
     OC_DATACENTERS = ['Materia']
-
-    SUB_DT_A    = 'dawntrail_a'
-    SUB_DT_S    = 'dawntrail_s'
-    SUB_EW_A    = 'endwalker_a'
-    SUB_EW_S    = 'endwalker_s'
-    SUB_SHB_A   = 'shadowbringers_a'
-    SUB_SHB_S   = 'shadowbringers_s'
-    SUB_SB_A    = 'stormblood_a'
-    SUB_SB_S    = 'stormblood_s'
-    SUB_HW_A    = 'heavensward_a'
-    SUB_HW_S    = 'heavensward_s'
-    SUB_ARR_A   = 'a_realm_reborn_a'
-    SUB_ARR_S   = 'a_realm_reborn_s'
-    SUB_FATE    = 'rare_fates'
-    SUB_TRAINS  = 'trains'
-
-    HUNT_SUBSCRIPTIONS = ('dt_a', 'dt_s', 'ew_a', 'ew_s', 'shb_a', 'shb_s', 'sb_a', 'sb_s', 'hw_a', 'hw_s', 'arr_a', 'arr_s')
 
     ARR_ZONES = ('Central Shroud', 'East Shroud', 'South Shroud', 'North Shroud', 'Western Thanalan',
                  'Central Thanalan', 'Eastern Thanalan', 'Southern Thanalan', 'Northern Thanalan', 'Middle La Noscea',
@@ -55,21 +41,14 @@ class HuntManager:
 
     DT_ZONES = ("Kozama'uka", "Yak T'el", "Urqopacha", "Shaaloani", "Heritage Found", "Living Memory")
 
-    COND_DEAD = 'deaths'
-    COND_OPEN = 'openings'
-    COND_FIND = 'finds'
-    CONDITIONS = (COND_DEAD, COND_OPEN, COND_FIND)
-
     lock = asyncio.Lock()
 
-    def __init__(self, bot: Bot):
+    def __init__(self, bot: Bot, subscriptions: SubscriptionManager):
         self._log = logging.getLogger(__name__)
         self.bot = bot
+        self.subscriptions = subscriptions
 
         self.horus = Horus(bot)
-
-        self._subscriptions = list(Subscriptions.select())
-        self._subscriptions_meta = list(SubscriptionsMeta.select())
 
         self._marks_info = {}
         self._fates_info = {}
@@ -239,147 +218,6 @@ class HuntManager:
 
         self._reload()
 
-    async def subscribe(self, channel: int, world: str, subscription: str, conditions: typing.Optional[str] = 'all'):
-        """
-        Subscribe a channel to hunt and fate events
-        """
-        # Validate world
-        world = world.strip().lower().title()
-        if world not in Worlds.get_worlds():
-            #await self.bot.get_channel(channel).send("No world by that name found - please check your spelling and try again", ephemeral=True)
-            return "No world by that name found - please check your spelling and try again"
-
-        # Validate subscription channel
-        try:
-            sub = getattr(self, f"""SUB_{subscription.upper()}""")
-        except AttributeError:
-            #await self.bot.get_channel(channel).send("Invalid subscription provided, valid subscriptions are: dt_a, dt_s, ew_a, ew_s, shb_a, shb_s, sb_a, sb_s, hw_a, hw_s, arr_a, arr_s, fate, trains", ephemeral=True)
-            return "Invalid subscription provided, valid subscriptions are: dt_a, dt_s, ew_a, ew_s, shb_a, shb_s, sb_a, sb_s, hw_a, hw_s, arr_a, arr_s, fate, trains"
-
-        # Validate conditions
-        if conditions == 'all':
-            conditions = list(self.CONDITIONS)
-        else:
-            conditions = conditions.replace(' ', '').lower().split(',')
-            _invalid_conditions = set(conditions) - set(self.CONDITIONS)
-            if _invalid_conditions:
-                #await self.bot.get_channel(channel).send("Invalid conditions supplied: " + str(_invalid_conditions))
-                return ("Invalid conditions supplied: " + str(_invalid_conditions))
-
-        # Already subscribed?
-        if Subscriptions.select().where(
-                (Subscriptions.channel_id == channel)
-                & (Subscriptions.world == world)
-                & (Subscriptions.category == sub)
-        ).count():
-            #await self.bot.get_channel(channel).send("This channel is already subscribed to this feed. If you want unsubscribe, use the unsub command", ephemeral=True)
-            return "This channel is already subscribed to this feed. If you want unsubscribe, use the unsub command"
-
-        for condition in conditions:
-            Subscriptions.insert({
-                'channel_id': channel,
-                'world'     : world,
-                'category'  : sub,
-                'event'     : condition
-            }).execute()
-
-        #await self.bot.get_channel(channel).send(f"""Subscribed channel to {str(sub).replace('_', ' ').title()} on {world}""", ephemeral=True)
-        message = f"""Subscribed channel to {str(sub).replace('_', ' ').title()} on {world}"""
-        self._reload()
-        return message
-
-    async def subscribe_all(self, datacenter: str, channel: int, subscription: str, conditions: typing.Optional[str] = 'all'):
-        """
-        Subscribe a channel to hunt and fate events on all worlds
-        """
-        # Validate subscription channel
-        try:
-            sub = getattr(self, f"""SUB_{subscription.upper()}""")
-        except AttributeError:
-            #await self.bot.get_channel(channel).send("Invalid subscription provided, valid subscriptions are: dt_a, dt_s, ew_a, ew_s, shb_a, shb_s, sb_a, sb_s, hw_a, hw_s, arr_a, arr_s, fate, trains", ephemeral=True)
-            return "Invalid subscription provided, valid subscriptions are: dt_a, dt_s, ew_a, ew_s, shb_a, shb_s, sb_a, sb_s, hw_a, hw_s, arr_a, arr_s, fate, trains"
-
-        # Validate conditions
-        if conditions == 'all':
-            conditions = list(self.CONDITIONS)
-        else:
-            conditions = conditions.replace(' ', '').lower().split(',')
-            _invalid_conditions = set(conditions) - set(self.CONDITIONS)
-            if _invalid_conditions:
-                #await self.bot.get_channel(channel).send("Invalid conditions supplied: " + str(_invalid_conditions), ephemeral=True)
-                return ("Invalid conditions supplied: " + str(_invalid_conditions))
-
-        # Validate datacenter
-        datacenter = datacenter.strip().lower().title()
-        if datacenter not in Worlds.get_datacenters():
-            #await self.bot.get_channel(channel).send(f"Invalid datacenter provided, valid datacenters are: {', '.join(Worlds.get_datacenters())}", ephemeral=True)
-            return (f"Invalid datacenter provided, valid datacenters are: {', '.join(Worlds.get_datacenters())}")
-
-        for world in Worlds.get_datacenter_worlds(datacenter):
-            # Already subscribed? Overwrite it
-            Subscriptions.delete().where(
-                    (Subscriptions.channel_id == channel)
-                    & (Subscriptions.world == world)
-                    & (Subscriptions.category == sub)
-            )
-
-            for condition in conditions:
-                Subscriptions.insert({
-                    'channel_id': channel,
-                    'world'     : world,
-                    'category'  : sub,
-                    'event'     : condition
-                }).execute()
-
-        #await self.bot.get_channel(channel).send(f"""Subscribed channel to {str(sub).replace('_', ' ').title()} on **all worlds**""", ephemeral=True)
-        message = f"""Subscribed channel to {str(sub).replace('_', ' ').title()} on **all worlds**"""
-        self._reload()
-        return message
-
-    async def unsubscribe(self, channel: int, world: str, subscription: str):
-        """
-        Unsubscribe a channel from hunt and fate events
-        """
-        world = world.strip().lower().title()
-        if world not in Worlds.get_worlds():
-            #await self.bot.get_channel(channel).send("No world by that name found - please check your spelling and try again", ephemeral=True)
-            return "No world by that name found - please check your spelling and try again"
-
-        try:
-            sub = getattr(self, f"""SUB_{subscription.upper()}""")
-        except AttributeError:
-            #await self.bot.get_channel(channel).send("Invalid subscription provided, valid subscriptions are: dt_a, dt_s, ew_a, ew_s, shb_a, shb_s, sb_a, sb_s, hw_a, hw_s, arr_a, arr_s, fate, trains", ephemeral=True)
-            return "Invalid subscription provided, valid subscriptions are: dt_a, dt_s, ew_a, ew_s, shb_a, shb_s, sb_a, sb_s, hw_a, hw_s, arr_a, arr_s, fate, trains"
-
-        Subscriptions.delete().where(
-                (Subscriptions.channel_id == channel)
-                & (Subscriptions.world == world)
-                & (Subscriptions.category == sub)
-        ).execute()
-
-        #await self.bot.get_channel(channel).send(f"""Unsubscribed channel from {str(sub).replace('_', ' ').title()} on {world}""", ephemeral=True)
-        message = f"""Unsubscribed channel from {str(sub).replace('_', ' ').title()} on {world}"""
-        self._reload()
-        return message
-
-    async def get_subscriptions(self, channel: int) -> typing.List[Subscriptions]:
-        """
-        Get all subscriptions for the specified channel
-        """
-        return list(Subscriptions.select().where(Subscriptions.channel_id == channel))
-
-    async def get_subscriptionsmetas(self, channel: int) -> typing.List[Subscriptions]:
-        """
-        Get all subscriptions for the specified channel
-        """
-        return list(SubscriptionsMeta.select().where(SubscriptionsMeta.channel_id == channel))
-
-    async def clear_subscriptions(self, channel: int) -> None:
-        """
-        Clear all subscriptions for the specified channel
-        """
-        Subscriptions.delete().where(Subscriptions.channel_id == channel).execute()
-        self._reload()
 
     async def count(self) -> typing.Tuple[int, int]:
         """
@@ -427,7 +265,7 @@ class HuntManager:
 
                     time_left = xivhunt['last_seen'] if xivhunt else 0
 
-                    if (not time_left or int(xivhunt['status']) == 100) and self.COND_DEAD == sub.event:
+                    if (not time_left or int(xivhunt['status']) == 100) and COND.DEAD == sub.event:
                         killed  = notification.edited_at.replace(tzinfo=datetime.timezone.utc).timestamp() if not time_left and notification.edited_at is not None else int(time.time())
                         seconds = killed - log.found
                         ja_seconds = ""
@@ -528,15 +366,15 @@ class HuntManager:
             return
 
         for sub in subs:  # type: Subscriptions
-            if new.status == new.STATUS_OPENED and self.COND_OPEN == sub.event:
-                await self._send_sub_message(f"A hunt has opened on **{world}** (**Instance {new.instance}**)!", embed, sub)
+            if new.status == new.STATUS_OPENED and COND.OPEN == sub.event:
+                await self.subscriptions.send_message(f"A hunt has opened on **{world}** (**Instance {new.instance}**)!", embed, sub)
                 continue
 
-            if new.status == new.STATUS_MAXED and self.COND_OPEN == sub.event:
-                await self._send_sub_message(f"A hunts maximum spawn window has been reached on **{world}** (**Instance {new.instance}**)!", embed, sub)
+            if new.status == new.STATUS_MAXED and COND.OPEN == sub.event:
+                await self.subscriptions.send_message(f"A hunts maximum spawn window has been reached on **{world}** (**Instance {new.instance}**)!", embed, sub)
                 continue
 
-            if new.status == new.STATUS_DIED and self.COND_DEAD == sub.event:
+            if new.status == new.STATUS_DIED and COND.DEAD == sub.event:
                 # If we previously sent a notification that the hunt was found, edit that message instead of
                 # sending a new one
                 notification = await self.get_notification(sub.channel_id, world, new.name, new.instance)
@@ -615,7 +453,7 @@ class HuntManager:
 
         subs = Subscriptions.select().where(
                 (Subscriptions.world == world)
-                & (Subscriptions.category == getattr(self, "SUB_TRAINS"))
+                & (Subscriptions.category == getattr(SUB, "TRAINS"))
         )
 
         instancesymbol = "①" if instance == 1 else "②" if instance == 2 else "③" if instance == 3 else instance
@@ -631,7 +469,7 @@ class HuntManager:
                 if xivhunt is not None:
                     content = f"""[{world}] {zone_name}({xivhunt['coords']}) {instancesymbol}"""
                 else:
-                    if self.COND_DEAD == sub.event:  # Announce train updates using only death reports!
+                    if COND.DEAD == sub.event:  # Announce train updates using only death reports!
                         content = f"""[{world}] {zone_name} {instancesymbol}"""
                     else:
                         continue
@@ -642,7 +480,7 @@ class HuntManager:
                 content = f"""[{world}]狩ツアコンプリートComplete""" if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS else f"""[{world}] Complete"""
 
             # Attempt to edit an existing message first
-            notification = await self.get_notification(sub.channel_id, world, self.SUB_TRAINS, 1, complete)
+            notification = await self.get_notification(sub.channel_id, world, SUB.TRAINS, 1, complete)
 
             if notification:
                 notification, log = notification
@@ -652,25 +490,25 @@ class HuntManager:
                         try:
                             if notification.content != content:
                                 await notification.edit(content=content) #  Edit the message
-                                await self.log_notification(notification, sub.channel_id, world, self.SUB_TRAINS, 1)
+                                await self.log_notification(notification, sub.channel_id, world, SUB.TRAINS, 1)
                             continue
                         except discord.NotFound:
                             self._log.warning(f"Train announcement was deleted for {world}.")
                         except:
                             self._log.exception("Exception thrown")
                 else:
-                    if not complete and f"{self.SUB_TRAINS.lower()}_1" in self._notifications[sub.channel_id][world]:
+                    if not complete and f"{SUB.TRAINS.lower()}_1" in self._notifications[sub.channel_id][world]:
                         async with self.lock:
-                            del self._notifications[sub.channel_id][world][f"{self.SUB_TRAINS.lower()}_1"]
+                            del self._notifications[sub.channel_id][world][f"{SUB.TRAINS.lower()}_1"]
 
-            if not complete or self.COND_DEAD == sub.event:
+            if not complete or COND.DEAD == sub.event:
                 # Sending a new message
-                message = await self._send_sub_message(content, None, sub)
+                message = await self.subscriptions.send_message(content, None, sub)
 
                 if not message:
                     continue
 
-                await self.log_notification(message, sub.channel_id, world, self.SUB_TRAINS, 1)
+                await self.log_notification(message, sub.channel_id, world, SUB.TRAINS, 1)
 
     async def on_find(self, world: str, name: str, xivhunt: dict, instance=1):
         """
@@ -808,7 +646,7 @@ class HuntManager:
             self.minions[minion_key] = time.time()
 
         for sub in subs:  # type: Subscriptions
-            if self.COND_FIND != sub.event:
+            if COND.FIND != sub.event:
                 continue
 
             attachcategory = hunt["Name"].lower()
@@ -912,7 +750,7 @@ class HuntManager:
                 if 'notifier' in meta:
                     content = f"""{content} {meta['notifier']}"""
 
-            message = await self._send_sub_message(content, embed, sub)
+            message = await self.subscriptions.send_message(content, embed, sub)
             if not message:
                 continue
 
@@ -974,23 +812,10 @@ class HuntManager:
         except:
             raise IndexError(f'No zone with the name {name} could be found')
 
-    async def _send_sub_message(self, message, embed: discord.Embed, sub: Subscriptions) -> typing.Optional[discord.Message]:
-        """
-        Attempt to send a subscription message
-        """
-        try:
-            return await self.bot.get_channel(sub.channel_id).send(message, embed=embed)
-        except AttributeError:
-            self._log.warning(f"Subscription channel is no longer active; removing channel {sub.channel_id}")
-            Subscriptions.delete().where(Subscriptions.channel_id == sub.channel_id).execute()
-        except discord.errors.Forbidden:
-            self._log.warning(f"No permission to send to channel {sub.channel_id}")
-
     def _reload(self):
         """
         Save configuration changes
         """
-        self._subscriptions = list(Subscriptions.select())
         self._subscriptions_meta = list(SubscriptionsMeta.select())
 
     def _load_marks(self):
@@ -1002,22 +827,22 @@ class HuntManager:
                 self._marks_info[key] = mark
 
                 if mark['ZoneName'] in self.ARR_ZONES and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
-                    channel = getattr(self, f"""SUB_ARR_{mark['Rank'][0:1]}""")
+                    channel = getattr(SUB, f"""ARR_{mark['Rank'][0:1]}""")
                     self._marks_info[key]['Channel'] = channel
                 elif mark['ZoneName'] in self.HW_ZONES and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
-                    channel = getattr(self, f"""SUB_HW_{mark['Rank'][0:1]}""")
+                    channel = getattr(SUB, f"""HW_{mark['Rank'][0:1]}""")
                     self._marks_info[key]['Channel'] = channel
                 elif mark['ZoneName'] in self.SB_ZONES and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
-                    channel = getattr(self, f"""SUB_SB_{mark['Rank'][0:1]}""")
+                    channel = getattr(SUB, f"""SB_{mark['Rank'][0:1]}""")
                     self._marks_info[key]['Channel'] = channel
                 elif mark['ZoneName'] in self.SHB_ZONES and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
-                    channel = getattr(self, f"""SUB_SHB_{mark['Rank'][0:1]}""")
+                    channel = getattr(SUB, f"""SHB_{mark['Rank'][0:1]}""")
                     self._marks_info[key]['Channel'] = channel
                 elif mark['ZoneName'] in self.EW_ZONES and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
-                    channel = getattr(self, f"""SUB_EW_{mark['Rank'][0:1]}""")
+                    channel = getattr(SUB, f"""EW_{mark['Rank'][0:1]}""")
                     self._marks_info[key]['Channel'] = channel
                 elif mark['ZoneName'] in self.DT_ZONES and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
-                    channel = getattr(self, f"""SUB_DT_{mark['Rank'][0:1]}""")
+                    channel = getattr(SUB, f"""DT_{mark['Rank'][0:1]}""")
                     self._marks_info[key]['Channel'] = channel
                 else:
                     self._log.info(f"""Not binding hunt {mark['Name']} to a subscription channel""")
@@ -1033,7 +858,7 @@ class HuntManager:
             for _id, fate in fates.items():
                 key = fate['Name'].lower()
                 self._fates_info[key] = fate
-                channel = getattr(self, f"""SUB_FATE""")
+                channel = getattr(SUB, f"""FATE""")
                 self._fates_info[key]['Channel'] = channel
 
     def _load_zones(self):

@@ -8,6 +8,7 @@ import asyncio
 import aiohttp
 import discord
 import collections
+import filobot.constants.subscriptions as SUBS
 from discord.ext import commands
 from discord.utils import get
 from discord import app_commands
@@ -16,14 +17,16 @@ from filobot.utilities import parse_name
 from filobot.utilities.embeds import hunt_info_embed, fate_info_embed
 from filobot.manager import HuntManager
 from filobot.utilities.worlds import Worlds
+from filobot.subscriptions import SubscriptionManager
 
 class Hunts(commands.Cog):
 
-    def __init__(self, bot: discord.ext.commands.Bot, hunt_manager: HuntManager):
+    def __init__(self, bot: discord.ext.commands.Bot, hunt_manager: HuntManager, subscriptions: SubscriptionManager):
         self._log = logging.getLogger(__name__)
         self.bot = bot
 
         self.hunt_manager = hunt_manager
+        self.subscriptions = subscriptions
 
         self.srankPosts = {}
 
@@ -1046,7 +1049,7 @@ class Hunts(commands.Cog):
             found = False
             attachname = attachname.strip().lower()
 
-            if attachname in self.hunt_manager.HUNT_SUBSCRIPTIONS or attachname == "trains":
+            if attachname in SUBS.HUNT_SUBSCRIPTIONS or attachname == "trains":
                 found = True
 
             for fate in self.hunt_manager.getfatesinfo().keys():
@@ -1091,7 +1094,7 @@ class Hunts(commands.Cog):
             found = False
             attachname = attachname.strip().lower()
 
-            if attachname in self.hunt_manager.HUNT_SUBSCRIPTIONS or attachname == "trains" or attachname == "blu_spell":
+            if attachname in SUBS.HUNT_SUBSCRIPTIONS or attachname == "trains" or attachname == "blu_spell":
                 found = True
 
             for fate in self.hunt_manager.getfatesinfo().keys():
@@ -1120,7 +1123,7 @@ class Hunts(commands.Cog):
         Allowed categories: EW_A, EW_S, SHB_A, SHB_S, SB_A, SB_S, HW_A, HW_S, ARR_A, ARR_S, FATE, TRAINS
         Allowed conditions: FINDS, DEATHS, OPENINGS
         """
-        message = await self.hunt_manager.subscribe(ctx.channel.id, world, category, conditions)
+        message = await self.subscriptions.subscribe(ctx.channel.id, world, category, conditions)
         if message:
             await ctx.send(message, delete_after=10.0)
         await ctx.message.delete()
@@ -1134,7 +1137,7 @@ class Hunts(commands.Cog):
         Allowed categories: EW_A, EW_S, SHB_A, SHB_S, SB_A, SB_S, HW_A, HW_S, ARR_A, ARR_S, FATE, TRAINS
         Allowed conditions: FINDS, DEATHS, OPENINGS
         """
-        message = await self.hunt_manager.subscribe_all(datacenter, ctx.channel.id, category, conditions)
+        message = await self.subscriptions.subscribe_all(datacenter, ctx.channel.id, category, conditions)
         if message:
             await ctx.send(message, delete_after=10.0)
         await ctx.message.delete()
@@ -1146,7 +1149,7 @@ class Hunts(commands.Cog):
         Unsubscribe the channel from hunt and fate events
         Allowed categories: EW_A, EW_S, SHB_A, SHB_S, SB_A, SB_S, HW_A, HW_S, ARR_A, ARR_S, FATE, TRAINS
         """
-        message = await self.hunt_manager.unsubscribe(ctx.channel.id, world, category)
+        message = await self.subscriptions.unsubscribe(ctx.channel.id, world, category)
         if message:
             await ctx.send(message, delete_after=10.0)
         await ctx.message.delete()
@@ -1157,7 +1160,7 @@ class Hunts(commands.Cog):
         """
         List all enabled subscriptions for this channel
         """
-        subs = await self.hunt_manager.get_subscriptions(ctx.channel.id)
+        subs = await self.subscriptions.get(ctx.channel.id)
 
         if not subs:
             await ctx.channel.reply("No subscriptions have been specified for this channel")
@@ -1184,7 +1187,7 @@ class Hunts(commands.Cog):
         Clear all enabled subscriptions for this channel
         """
         try:
-            await self.hunt_manager.clear_subscriptions(ctx.channel.id)
+            await self.subscriptions.clear(ctx.channel.id)
         except KeyError as e:
             self._log.info(e)
             await ctx.reply("No subscriptions have been specified for this channel")

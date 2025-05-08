@@ -14,7 +14,7 @@ from discord import app_commands
 from discord import Locale
 from filobot.utilities import parse_name
 from filobot.utilities.embeds import hunt_info_embed, fate_info_embed
-from filobot.utilities.manager import HuntManager
+from filobot.manager import HuntManager
 from filobot.utilities.worlds import Worlds
 
 class Hunts(commands.Cog):

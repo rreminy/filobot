@@ -3,7 +3,7 @@ import logging
 import discord
 import git
 from discord.ext import commands
-from filobot.utilities.manager import HuntManager
+from filobot.manager import HuntManager
 
 class Misc(commands.Cog):
 

@@ -20,6 +20,7 @@ from filobot.database.models import KillLog, Subscriptions, SubscriptionsMeta
 from filobot.utilities.embeds import hunt_report_embed, fate_report_embed
 from filobot.utilities.horus import HorusHunt, Horus
 from filobot.utilities.worlds import Worlds
+from filobot.utilities import parse_name
 from filobot.utilities.time_utils import RemainingTime
 from filobot.utilities.static_data import marks_info, fates_info
 from filobot.subscriptions import SubscriptionManager
@@ -86,7 +87,7 @@ class HuntManager:
         """
         Get data on the requested hunt
         """
-        _key = f"{hunt_name.lower().strip()}_{instance}"
+        _key = f"{parse_name(hunt_name)}_{instance}"
         return self._hunts[world]['horus'][_key]
 
     def getExpansion(self, name: dict) -> str:
@@ -148,7 +149,7 @@ class HuntManager:
         self._changed[world] = {}
         self._found[world] = {}
 
-        key = f"{name.strip().lower()}_{instance}"
+        key = f"{parse_name(name)}_{instance}"
 
         job_list = list()
         if key in self._hunts[world]['horus'] and hunt.status != self._hunts[world]['horus'][key].status and hunt.open_date > self._hunts[world]['horus'][key].open_date:
@@ -249,7 +250,7 @@ class HuntManager:
         FATE progress event handler
         """
 
-        _key = f"{name.strip().lower()}_{instance}"
+        _key = f"{parse_name(name)}_{instance}"
 
         fate = self._fates_info[name.lower()]
         subs = Subscriptions.select().where(
@@ -427,7 +428,7 @@ class HuntManager:
                     except:
                         self._log.exception("Exception thrown");
 
-            _key = f"{new.name.strip().lower()}_{new.instance}"
+            _key = f"{parse_name(new.name)}_{new.instance}"
             if _key in self._hunts[world]['xivhunt']:
                 self._hunts[world]['xivhunt'].remove(_key)
 
@@ -527,7 +528,7 @@ class HuntManager:
         if world not in self._hunts:
             self._hunts[world] = {'horus': {}, 'xivhunt': []}
 
-        _key = f"{name.strip().lower()}_{instance}"
+        _key = f"{parse_name(name)}_{instance}"
 
         if name.lower() in self._marks_info.keys():
             hunt = self._marks_info[name.lower()]

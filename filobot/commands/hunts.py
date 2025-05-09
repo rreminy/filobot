@@ -112,10 +112,7 @@ class Hunts(commands.Cog):
         Return information on the specified hunt or fate target
         """
         try:
-            try:
-                hunt_name = parse_name(name)
-            except KeyError:
-                hunt_name = name.lower().strip()
+            hunt_name = parse_name(name)
 
             try:
                 embed = hunt_info_embed(name)
@@ -136,10 +133,7 @@ class Hunts(commands.Cog):
         Return information on the specified hunt or fate target
         """
         try:
-            try:
-                hunt_name = parse_name(name)
-            except KeyError:
-                hunt_name = name.lower().strip()
+            hunt_name = parse_name(name)
 
             try:
                 embed = hunt_info_embed(name)
@@ -1008,10 +1002,7 @@ class Hunts(commands.Cog):
         """
         # Make sure the world is properly formatted
         world = world.strip().lower().title()
-        try:
-            hunt_name = parse_name(hunt_name)
-        except KeyError:
-            hunt_name = hunt_name.lower().strip()
+        hunt_name = parse_name(hunt_name)
 
         if instance < 1 or instance > 3:
             await ctx.reply("Invalid instance provided - please use a number between 1 and 3")

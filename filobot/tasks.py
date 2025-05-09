@@ -18,6 +18,7 @@ from filobot.filobot import config, bot, GAMES, hunt_manager, log
 from filobot.database.models import Player
 from filobot.utilities.horus import HorusHunt
 from filobot.utilities.static_data import achievementfates_info
+from filobot.utilities import parse_name
 
 logger = logging.getLogger(__name__)
 
@@ -232,7 +233,7 @@ async def _process_hunt(source, data):
            if xivhunt['players'] < 9 and xivhunt['zone_id'] >= 962:
               return
 
-        key = f"{world}_{hunt['Name'].strip().lower()}_{i}"
+        key = f"{world}_{parse_name(hunt['Name'])}_{i}"
 
         #if xivhunt['players'] == 0 and hunt['Rank'] == "S":
            #print(f"{hunt['Name']} on {world} has {xivhunt['players']} players")
@@ -246,7 +247,7 @@ async def _process_hunt(source, data):
            #if xivhunt['players'] > 1:
               #print(f"{time.time()} :  {hunt['Name']} on {world} only has {xivhunt['players']} players")
            if datacenter != "Primal" and datacenter != "Dynamis" and datacenter != "Crystal" and datacenter != "Chaos":
-              key = f"{world}_{hunt['Name'].strip().lower()}_{i}"
+              key = f"{world}_{parse_name(hunt['Name'])}_{i}"
               if key not in huntQueue:
                  if hunt['WaitTime'] != 0 and hunt['WaitTime'] != 1560:
                     huntQueue[key] = [data, xivhunt]

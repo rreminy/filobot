@@ -10,12 +10,14 @@ import socketio
 import aiohttp
 import filobot.constants.zones as ZONES
 import filobot.constants.datacenters as DATACENTERS
+import filobot.utilities.worlds as worlds
+import filobot.utilities.zones as zones
+import logging
 from aiohttp import web
 from filobot.filobot import config, bot, GAMES, hunt_manager, log
 from filobot.database.models import Player
-import filobot.utilities.worlds as worlds
 from filobot.utilities.horus import HorusHunt
-import logging
+from filobot.utilities.static_data import achievementfates_info
 
 logger = logging.getLogger(__name__)
 
@@ -137,7 +139,7 @@ async def bear_handler(self, data):
                         'y': 1,
                         'i': instance,
                         'lastReported': datetime.datetime.fromtimestamp(int((f"{data['lastDeath']}").split('.')[0][:-3]), datetime.timezone.utc).isoformat(),
-                        'zoneID': f"{hunt_manager.get_zone_id(hunt_manager.horus.fates_info[data['fateId']]['ZoneName'])}"
+                        'zoneID': f"{zones.id(hunt_manager.horus.fates_info[data['fateId']]['ZoneName'])}"
                     }
 
                     await _process_data('FeedListener2', fateStruct, None)
@@ -216,7 +218,7 @@ async def _process_hunt(source, data):
         }
 
         # A hack to get the correct zone name
-        zone = hunt_manager.get_zone(data["zoneID"])
+        zone = zones.name(data["zoneID"])
         hunt_manager._marks_info[hunt['Name'].lower()]['ZoneName'] = zone
         hunt_manager._marks_info[hunt['Name'].lower()]['ZoneID'] = int(data["zoneID"])
 
@@ -307,7 +309,7 @@ async def _process_chaoshunt(source, data, message):
 
         # A hack to get the correct zone name
         hunt_manager._marks_info[hunt['Name'].lower()]['ZoneName'] = zone
-        hunt_manager._marks_info[hunt['Name'].lower()]['ZoneID'] = hunt_manager.get_zone_id(zone)
+        hunt_manager._marks_info[hunt['Name'].lower()]['ZoneID'] = zones.id(zone)
         xivhunt["zone_id"] = hunt_manager._marks_info[hunt['Name'].lower()]['ZoneID']
 
         if not alive:
@@ -375,7 +377,7 @@ async def _process_fate(source, data):
             if key in fate_progress and fate_progress[key] == progress:
                 return
 
-        if str(fate['ID']) in hunt_manager._achievementfates_info and (key not in fate_start or fate_start[key] != startTimeEpoch):
+        if str(fate['ID']) in achievementfates_info and (key not in fate_start or fate_start[key] != startTimeEpoch):
             #if progress <= 4 or progress > 40 or int(time_left / 60) < 8 or xivhunt['players'] < 1:
             if progress > 40 or int(time_left / 60) < 8 or (progress <= 11 and 'IgnoreProgress' in fate and fate['IgnoreProgress'] == False):
                 return
@@ -386,7 +388,7 @@ async def _process_fate(source, data):
         fate_progress[key] = progress
 
         # A hack to get the correct zone name (each fate id is in a unique zone and position, so this should work)
-        zone = hunt_manager.get_zone(data["zoneID"])
+        zone = zones.name(data["zoneID"])
         fate_info['ZoneName'] = zone
         fate_info['ZoneID'] = int(data["zoneID"])
 

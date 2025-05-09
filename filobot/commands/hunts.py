@@ -8,6 +8,7 @@ import asyncio
 import aiohttp
 import discord
 import collections
+import filobot.utilities.zones as zones
 import filobot.constants.subscriptions as SUBS
 from discord.ext import commands
 from discord.utils import get
@@ -203,7 +204,7 @@ class Hunts(commands.Cog):
                                 'zone_id': int(data["zoneID"]),
                             }
 
-                            self.hunt_manager._marks_info[hunt['Name'].lower()]['ZoneName'] = self.hunt_manager.get_zone(data["zoneID"])
+                            self.hunt_manager._marks_info[hunt['Name'].lower()]['ZoneName'] = zones.name(data["zoneID"])
                             self.hunt_manager._marks_info[hunt['Name'].lower()]['ZoneID'] = int(data["zoneID"])
 
                             await hunt_manager.on_find(world, hunt['Name'], xivhunt, 1)

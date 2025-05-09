@@ -12,6 +12,7 @@ import filobot.constants.subscriptions as SUB
 import filobot.constants.conditions as COND
 import filobot.constants.zones as ZONES
 import filobot.constants.datacenters as DATACENTERS
+import filobot.utilities.zones as zones
 from discord.ext.commands import Bot
 from peewee import fn
 from filobot.utilities import *
@@ -20,6 +21,7 @@ from filobot.utilities.embeds import hunt_report_embed, fate_report_embed
 from filobot.utilities.horus import HorusHunt, Horus
 from filobot.utilities.worlds import Worlds
 from filobot.utilities.time_utils import RemainingTime
+from filobot.utilities.static_data import marks_info, fates_info
 from filobot.subscriptions import SubscriptionManager
 
 class HuntManager:
@@ -29,23 +31,49 @@ class HuntManager:
         self._log = logging.getLogger(__name__)
         self.bot = bot
         self.subscriptions = subscriptions
-
         self.horus = Horus(bot)
 
         self._marks_info = {}
+
+        for _id, mark in marks_info.copy().items():
+            key = mark['Name'].lower()
+            self._marks_info[key] = mark
+
+            if mark['ZoneName'] in ZONES.ARR and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
+                channel = getattr(SUB, f"""ARR_{mark['Rank'][0:1]}""")
+                self._marks_info[key]['Channel'] = channel
+            elif mark['ZoneName'] in ZONES.HW and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
+                channel = getattr(SUB, f"""HW_{mark['Rank'][0:1]}""")
+                self._marks_info[key]['Channel'] = channel
+            elif mark['ZoneName'] in ZONES.SB and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
+                channel = getattr(SUB, f"""SB_{mark['Rank'][0:1]}""")
+                self._marks_info[key]['Channel'] = channel
+            elif mark['ZoneName'] in ZONES.SHB and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
+                channel = getattr(SUB, f"""SHB_{mark['Rank'][0:1]}""")
+                self._marks_info[key]['Channel'] = channel
+            elif mark['ZoneName'] in ZONES.EW and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
+                channel = getattr(SUB, f"""EW_{mark['Rank'][0:1]}""")
+                self._marks_info[key]['Channel'] = channel
+            elif mark['ZoneName'] in ZONES.DT and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
+                channel = getattr(SUB, f"""DT_{mark['Rank'][0:1]}""")
+                self._marks_info[key]['Channel'] = channel
+            else:
+                self._log.info(f"""Not binding hunt {mark['Name']} to a subscription channel""")
+                self._log.info(f"{str(mark)} => {mark['ZoneName'] in ZONES.EW}")
+
         self._fates_info = {}
-        self._achievementfates_info = {}
-        self._zones_info = {}
-        self._load_marks()
-        self._load_fates()
-        self._load_zones()
+
+        for _id, fate in fates_info.items():
+            key = fate['Name'].lower()
+            self._fates_info[key] = fate
+            channel = getattr(SUB, f"""FATE""")
+            self._fates_info[key]['Channel'] = channel
 
         self._hunts = {}
         self._changed = {}
         self._found = {}
         self._timers = {}
         self._fate_timers = {}
-
         self._recent_fates = {}
 
         # Logged notifications for editing later
@@ -215,7 +243,6 @@ class HuntManager:
 
     def get_expired_text(self, seconds, is_jp):
         return f"""**Expired {"期限切れ" if is_jp else ""}**""" #  *(after {RemainingTime(seconds).to_verbose()}{"後" if is_jp else ""})*
-
 
     async def on_progress(self, world: str, name: str, xivhunt: dict, instance=1):
         """
@@ -426,7 +453,6 @@ class HuntManager:
                 if time_between > 40 and time_between < 240:  # More than 40 seconds, less than 4 minutes between deaths?
                     await self.on_train(world, new.name, None, False, new.instance)  # It's a train then
 
-
     async def on_train(self, world: str, name: str, xivhunt: dict, complete: bool, instance=1):
         """
         Train event handler
@@ -446,7 +472,7 @@ class HuntManager:
             role_mention = meta['notifier'] if 'notifier' in meta else None
 
             if not complete:
-                zone_name = f"""{hunt['ZoneName']} {self._zones_info[str(hunt['ZoneID'])]['name_ja']} """ if Worlds.get_world_datacenter(world) in DATACENTERS.JA else f"""{hunt['ZoneName']} """
+                zone_name = f"""{hunt['ZoneName']} {zones.get(str(hunt['ZoneID']))['name_ja']} """ if Worlds.get_world_datacenter(world) in DATACENTERS.JA else f"""{hunt['ZoneName']} """
 
                 if xivhunt is not None:
                     content = f"""[{world}] {zone_name}({xivhunt['coords']}) {instancesymbol}"""
@@ -659,8 +685,8 @@ class HuntManager:
 
             content = f"""[{world}] {hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol}"""
 
-            en_zone_name, ja_zone_name = hunt['ZoneName'], self._zones_info[str(hunt['ZoneID'])]['name_ja']
-            fr_zone_name, de_zone_name = self._zones_info[str(hunt['ZoneID'])]['name_fr'], self._zones_info[str(hunt['ZoneID'])]['name_de']
+            en_zone_name, ja_zone_name = hunt['ZoneName'], zones.get(str(hunt['ZoneID']))['name_ja']
+            fr_zone_name, de_zone_name = zones.get(str(hunt['ZoneID']))['name_fr'], zones.get(str(hunt['ZoneID']))['name_de']
 
             if Worlds.get_world_datacenter(world) in DATACENTERS.JA:
                 content = f"""[{world}] {ja_zone_name} {hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol}"""
@@ -780,78 +806,14 @@ class HuntManager:
             return None
             raise IndexError(f'No world with the ID {id} could be found')
 
-    def get_zone(self, id: int):
-        try:
-            return self._zones_info[id]['name']
-        except:
-            raise IndexError(f'No zone with the ID {id} could be found')
-
-    def get_zone_id(self, name: str):
-        try:
-            for zone in self._zones_info.values():
-                if zone['name'].lower() == name.lower():
-                    return zone['id']
-        except:
-            raise IndexError(f'No zone with the name {name} could be found')
-
     def _reload(self):
         """
         Save configuration changes
         """
         self._subscriptions_meta = list(SubscriptionsMeta.select())
 
-    def _load_marks(self):
-        with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'marks_info.json'), 'r', encoding='utf-8') as json_file:
-            marks = json.load(json_file)
-
-            for _id, mark in marks.items():
-                key = mark['Name'].lower()
-                self._marks_info[key] = mark
-
-                if mark['ZoneName'] in ZONES.ARR and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
-                    channel = getattr(SUB, f"""ARR_{mark['Rank'][0:1]}""")
-                    self._marks_info[key]['Channel'] = channel
-                elif mark['ZoneName'] in ZONES.HW and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
-                    channel = getattr(SUB, f"""HW_{mark['Rank'][0:1]}""")
-                    self._marks_info[key]['Channel'] = channel
-                elif mark['ZoneName'] in ZONES.SB and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
-                    channel = getattr(SUB, f"""SB_{mark['Rank'][0:1]}""")
-                    self._marks_info[key]['Channel'] = channel
-                elif mark['ZoneName'] in ZONES.SHB and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
-                    channel = getattr(SUB, f"""SHB_{mark['Rank'][0:1]}""")
-                    self._marks_info[key]['Channel'] = channel
-                elif mark['ZoneName'] in ZONES.EW and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
-                    channel = getattr(SUB, f"""EW_{mark['Rank'][0:1]}""")
-                    self._marks_info[key]['Channel'] = channel
-                elif mark['ZoneName'] in ZONES.DT and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
-                    channel = getattr(SUB, f"""DT_{mark['Rank'][0:1]}""")
-                    self._marks_info[key]['Channel'] = channel
-                else:
-                    self._log.info(f"""Not binding hunt {mark['Name']} to a subscription channel""")
-                    self._log.info(f"{str(mark)} => {mark['ZoneName'] in ZONES.EW}")
-
-    def _load_fates(self):
-        with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'fates_info.json'), 'r', encoding='utf-8') as json_file:
-            fates = json.load(json_file)
-        with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'achievementfates_info.json'), 'r', encoding='utf-8') as json_file:
-            self._achievementfates_info = json.load(json_file)
-            fates.update(self._achievementfates_info)
-
-            for _id, fate in fates.items():
-                key = fate['Name'].lower()
-                self._fates_info[key] = fate
-                channel = getattr(SUB, f"""FATE""")
-                self._fates_info[key]['Channel'] = channel
-
-    def _load_zones(self):
-        with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'zones_info.json'), 'r', encoding='utf-8') as json_file:
-            self._zones_info = json.load(json_file)
-
     def getmarksinfo(self):
         return self._marks_info
 
     def getfatesinfo(self):
         return self._fates_info
-
-    def getzonesinfo(self):
-        return self._zones_info

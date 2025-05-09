@@ -315,7 +315,11 @@ class Worlds:
 
     @staticmethod
     def get_world_by_id(id: int):
-        return worlds['id_to_world'][id]
+        try:
+            return worlds['id_to_world'][id]
+        except:
+            return None
+            raise IndexError(f'No world with the ID {id} could be found')
 
     @staticmethod
     def get_world_datacenter(world: str):

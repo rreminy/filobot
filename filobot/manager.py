@@ -800,21 +800,14 @@ class HuntManager:
 
         return None
 
-    def get_world(self, id: int):
-        try:
-            return Worlds.get_world_by_id(id)
-        except:
-            return None
-            raise IndexError(f'No world with the ID {id} could be found')
-
     def _reload(self):
         """
         Save configuration changes
         """
         self._subscriptions_meta = list(SubscriptionsMeta.select())
 
-    def getmarksinfo(self):
+    def get_marks_info(self):
         return self._marks_info
 
-    def getfatesinfo(self):
+    def get_fates_info(self):
         return self._fates_info

@@ -19,6 +19,7 @@ from filobot.database.models import Player
 from filobot.utilities.horus import HorusHunt
 from filobot.utilities.static_data import achievementfates_info
 from filobot.utilities import parse_name
+from filobot.utilities.worlds import Worlds
 
 logger = logging.getLogger(__name__)
 
@@ -117,11 +118,11 @@ async def bear_handler(self, data):
                 instance = int(data['huntName'][-1]) if data['huntName'][-2] == " " and data['huntName'][-1].isdigit() else 0
                 huntName = data['huntName'] if instance else data['huntName'][:-2]
 
-                if huntName.lower() in hunt_manager.getmarksinfo() and 'lastDeathTime' in data and 'expectMinTime' in data:
+                if huntName.lower() in hunt_manager.get_marks_info() and 'lastDeathTime' in data and 'expectMinTime' in data:
                     lastAlive = False if int(data['lastDeathTime']) > int(data['expectMinTime']) else True
 
                     if lastAlive:
-                        horusHunt = await hunt_manager.horus.update_bear(data, hunt_manager.getmarksinfo()[huntName.lower()], huntName, instance)
+                        horusHunt = await hunt_manager.horus.update_bear(data, hunt_manager.get_marks_info()[huntName.lower()], huntName, instance)
 
                         if horusHunt is not None:
                             await hunt_manager.recheck_trackers('FeedListener2', huntName, horusHunt, instance)
@@ -192,7 +193,7 @@ async def _process_data(source, data, message):
 async def _process_hunt(source, data):
     try:
         alive   = data['lastAlive'] == 'True'
-        world   = hunt_manager.get_world(int(data['wId']))
+        world   = Worlds.get_world_by_id(int(data['wId']))
         if world is None:
             return
         hunt    = hunt_manager.horus.id_to_hunt(data['id'])
@@ -220,8 +221,8 @@ async def _process_hunt(source, data):
 
         # A hack to get the correct zone name
         zone = zones.name(data["zoneID"])
-        hunt_manager._marks_info[hunt['Name'].lower()]['ZoneName'] = zone
-        hunt_manager._marks_info[hunt['Name'].lower()]['ZoneID'] = int(data["zoneID"])
+        hunt_manager.get_marks_info()[hunt['Name'].lower()]['ZoneName'] = zone
+        hunt_manager.get_marks_info()[hunt['Name'].lower()]['ZoneID'] = int(data["zoneID"])
 
         if not alive:
             # TODO: Deaths
@@ -284,7 +285,7 @@ async def _process_chaoshunt(source, data, message):
         zone    = message.content.split("rank ")[1].split(",")[0].strip()
         hunt    = None
         logger.debug(f"Searching for S Rank at: {zone}")
-        for mark in hunt_manager._marks_info.values():
+        for mark in hunt_manager.get_marks_info().values():
             if mark['ZoneName'].lower() == zone.lower() and mark['Rank'] == "S":
                 logger.debug(f"Found: {mark}")
                 hunt = mark
@@ -309,9 +310,9 @@ async def _process_chaoshunt(source, data, message):
         }
 
         # A hack to get the correct zone name
-        hunt_manager._marks_info[hunt['Name'].lower()]['ZoneName'] = zone
-        hunt_manager._marks_info[hunt['Name'].lower()]['ZoneID'] = zones.id(zone)
-        xivhunt["zone_id"] = hunt_manager._marks_info[hunt['Name'].lower()]['ZoneID']
+        hunt_manager.get_marks_info()[hunt['Name'].lower()]['ZoneName'] = zone
+        hunt_manager.get_marks_info()[hunt['Name'].lower()]['ZoneID'] = zones.id(zone)
+        xivhunt["zone_id"] = hunt_manager.get_marks_info()[hunt['Name'].lower()]['ZoneID']
 
         if not alive:
             # TODO: Deaths
@@ -330,7 +331,7 @@ async def _process_fate(source, data):
         if (int(data['state']) == 255):
             return
 
-        world   = data['world'] if 'world' in data and data['world'] is not None else hunt_manager.get_world(int(data[config.get(source, 'wId')]))
+        world   = data['world'] if 'world' in data and data['world'] is not None else Worlds.get_world_by_id(int(data[config.get(source, 'wId')]))
         if world is None:
             return
         fate    = hunt_manager.horus.id_to_fate(data[config.get(source, 'id')])
@@ -361,7 +362,7 @@ async def _process_fate(source, data):
 
         # Fate key
         key = f"{world}_{fate}_{i}"
-        fate_info = hunt_manager._fates_info[fate['Name'].lower()]
+        fate_info = hunt_manager.get_fates_info()[fate['Name'].lower()]
 
         # Update interval
         progressUpdateInterval = 5
@@ -394,8 +395,8 @@ async def _process_fate(source, data):
         fate_info['ZoneID'] = int(data["zoneID"])
 
         # Add missing duration to the fate information
-        if (not 'Duration' in fate_info) or duration > hunt_manager._fates_info[fate['Name'].lower()]['Duration']:
-            hunt_manager._fates_info[fate['Name'].lower()]['Duration'] = duration
+        if (not 'Duration' in fate_info) or duration > hunt_manager.get_fates_info()[fate['Name'].lower()]['Duration']:
+            hunt_manager.get_fates_info()[fate['Name'].lower()]['Duration'] = duration
 
     except:
         log.exception('Exception thrown') # for testing fates stuff

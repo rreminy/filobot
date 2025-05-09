@@ -37,7 +37,7 @@ class Hunts(commands.Cog):
         self.shbSRanks = []
         self.ewSRanks = []
 
-        for key, hunt in hunt_manager._marks_info.items():
+        for key, hunt in hunt_manager.get_marks_info().items():
             if hunt['ID'] < 4350 and hunt['Rank'] == 'S':
                 self.arrSRanks.append(discord.SelectOption(label=hunt['Name'], value=hunt['ID']))
             elif hunt['ID'] < 5984 and hunt['Rank'] == 'S':
@@ -79,7 +79,7 @@ class Hunts(commands.Cog):
                 instance = 2 if message.content.find("②") > -1 else (3 if message.content.find("③") > -1 else 1)
                 x, z = message.content.split("(")[1].split(")")[0].strip().split(",")
                 if message.embeds[0].title.startswith("Rank"):
-                     hunt = self.hunt_manager.getmarksinfo()[message.embeds[0].title[(message.embeds[0].title.find(":") + 2):].lower()]
+                     hunt = self.hunt_manager.get_marks_info()[message.embeds[0].title[(message.embeds[0].title.find(":") + 2):].lower()]
                      payload = {
                          "Timestamp": int(time.time() * 1000),
                          "X": x,
@@ -98,7 +98,7 @@ class Hunts(commands.Cog):
                 else:
                      #disable due to error
                      await message.edit(content=(f"~~{message.content}~~"), embed=message.embeds[0])
-                     #for fate in self.hunt_manager.getfatesinfo():
+                     #for fate in self.hunt_manager.get_fates_info():
                          #if message.embeds[0].title.find(fate['Name']) > -1:
                              #print(f"https://api.ffxivsonar.com/hint/killed/{'fate'}/{worldId}_{fate['ID']}_{instance}")
                              #await send_report("fate", worldId, fate['ID'], instance, x, z)
@@ -177,7 +177,7 @@ class Hunts(commands.Cog):
         """
         debuginfo = ""
         try:
-            for hunt in self.hunt_manager.getmarksinfo().values():
+            for hunt in self.hunt_manager.get_marks_info().values():
                 debuginfo = "in for loop"
                 if hunt['Zone'] in str(paste):
                     debuginfo = "in if statement"
@@ -198,8 +198,8 @@ class Hunts(commands.Cog):
                                 'zone_id': int(data["zoneID"]),
                             }
 
-                            self.hunt_manager._marks_info[hunt['Name'].lower()]['ZoneName'] = zones.name(data["zoneID"])
-                            self.hunt_manager._marks_info[hunt['Name'].lower()]['ZoneID'] = int(data["zoneID"])
+                            self.hunt_manager.get_marks_info()[hunt['Name'].lower()]['ZoneName'] = zones.name(data["zoneID"])
+                            self.hunt_manager.get_marks_info()[hunt['Name'].lower()]['ZoneID'] = int(data["zoneID"])
 
                             await hunt_manager.on_find(world, hunt['Name'], xivhunt, 1)
         except Exception as e:
@@ -213,7 +213,7 @@ class Hunts(commands.Cog):
         Relay a FATE via paste
         """
         try:
-            for fate in self.hunt_manager.getfatesinfo():
+            for fate in self.hunt_manager.get_fates_info():
                 if paste.find(fate['Zone']) > -1:
                     x, y = paste.split("(")[1].split(")")[0].strip().split(",")
                     for world in Worlds.get_worlds():
@@ -1044,12 +1044,12 @@ class Hunts(commands.Cog):
             if attachname in SUBS.HUNT_SUBSCRIPTIONS or attachname == "trains":
                 found = True
 
-            for fate in self.hunt_manager.getfatesinfo().keys():
+            for fate in self.hunt_manager.get_fates_info().keys():
                 if fate.find(attachname) > -1:
                     attachname = fate
                     found = True
                     break
-            for hunt in self.hunt_manager.getmarksinfo().keys():
+            for hunt in self.hunt_manager.get_marks_info().keys():
                 if hunt.find(attachname) > -1:
                     attachname = hunt
                     found = True
@@ -1089,12 +1089,12 @@ class Hunts(commands.Cog):
             if attachname in SUBS.HUNT_SUBSCRIPTIONS or attachname == "trains" or attachname == "blu_spell":
                 found = True
 
-            for fate in self.hunt_manager.getfatesinfo().keys():
+            for fate in self.hunt_manager.get_fates_info().keys():
                 if fate.find(attachname) > -1:
                     attachname = fate
                     found = True
                     break
-            for hunt in self.hunt_manager.getmarksinfo().keys():
+            for hunt in self.hunt_manager.get_marks_info().keys():
                 if hunt.find(attachname) > -1:
                     attachname = hunt
                     found = True

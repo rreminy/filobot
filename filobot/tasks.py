@@ -8,14 +8,14 @@ import json
 import discord
 import socketio
 import aiohttp
+import filobot.constants.zones as ZONES
 from aiohttp import web
-
 from filobot.filobot import config, bot, GAMES, hunt_manager, log
 from filobot.database.models import Player
 import filobot.utilities.worlds as worlds
 from filobot.utilities.horus import HorusHunt
-
 import logging
+
 logger = logging.getLogger(__name__)
 
 huntQueue = {}
@@ -192,7 +192,7 @@ async def _process_hunt(source, data):
         if world is None:
             return
         hunt    = hunt_manager.horus.id_to_hunt(data['id'])
-        _plus   = 22.5 if hunt['ZoneName'] in hunt_manager.HW_ZONES else 21.5
+        _plus   = 22.5 if hunt['ZoneName'] in ZONES.HW else 21.5
         if config.get(source, 'x') == config.get(source, 'y'): # Some JSON structs use an array for X and Y
             data[config.get(source, 'x')] = data[config.get(source, 'x')]['x']
             data[config.get(source, 'y')] = data[config.get(source, 'y')]['y']
@@ -330,7 +330,7 @@ async def _process_fate(source, data):
         if world is None:
             return
         fate    = hunt_manager.horus.id_to_fate(data[config.get(source, 'id')])
-        _plus   = 22.5 if fate['ZoneName'] in hunt_manager.HW_ZONES else 21.5
+        _plus   = 22.5 if fate['ZoneName'] in ZONES.HW else 21.5
         if config.get(source, 'x') == config.get(source, 'y'): # Some JSON structs use an array for X and Y
             data[config.get(source, 'x')] = data[config.get(source, 'x')]['x']
             data[config.get(source, 'y')] = data[config.get(source, 'y')]['y']

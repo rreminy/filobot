@@ -10,6 +10,7 @@ import arrow
 import discord
 import filobot.constants.subscriptions as SUB
 import filobot.constants.conditions as COND
+import filobot.constants.zones as ZONES
 from discord.ext.commands import Bot
 from peewee import fn
 from filobot.utilities import *
@@ -25,21 +26,6 @@ class HuntManager:
     EU_DATACENTERS = ['Light', 'Chaos']
     NA_DATACENTERS = ['Primal', 'Aether', 'Crystal', 'Dynamis']
     OC_DATACENTERS = ['Materia']
-
-    ARR_ZONES = ('Central Shroud', 'East Shroud', 'South Shroud', 'North Shroud', 'Western Thanalan',
-                 'Central Thanalan', 'Eastern Thanalan', 'Southern Thanalan', 'Northern Thanalan', 'Middle La Noscea',
-                 'Lower La Noscea', 'Eastern La Noscea', 'Western La Noscea', 'Upper La Noscea', 'Outer La Noscea',
-                 'Mor Dhona', 'Coerthas Central Highlands')
-
-    HW_ZONES = ('Coerthas Western Highlands', 'The Dravanian Forelands', 'The Dravanian Hinterlands', 'The Churning Mists', 'The Sea of Clouds', 'Azys Lla')
-
-    SB_ZONES = ('The Ruby Sea', 'Yanxia', 'The Azim Steppe', 'The Fringes', 'The Peaks', 'The Lochs')
-
-    SHB_ZONES = ('Il Mheg', "The Rak'tika Greatwood", 'The Tempest', 'Amh Araeng', 'Lakeland', 'Kholusia')
-
-    EW_ZONES = ('Labyrinthos', "Thavnair", 'Garlemald', 'Mare Lamentorum', 'Elpis', 'Ultima Thule')
-
-    DT_ZONES = ("Kozama'uka", "Yak T'el", "Urqopacha", "Shaaloani", "Heritage Found", "Living Memory")
 
     lock = asyncio.Lock()
 
@@ -423,11 +409,11 @@ class HuntManager:
                 self._hunts[world]['xivhunt'].remove(_key)
 
         # Check if all A ranks are dead yet so we can end the train
-        if hunt['Rank'] == 'A' and hunt['ZoneName'] in self.EW_ZONES and self._hunts[world]['horus'] is not None and new.status == new.STATUS_DIED:
+        if hunt['Rank'] == 'A' and hunt['ZoneName'] in ZONES.EW and self._hunts[world]['horus'] is not None and new.status == new.STATUS_DIED:
             hunts_living, previous_death = False, 0
 
             for key, horusHunt in self._hunts[world]['horus'].items():
-                if horusHunt.rank == 'A' and horusHunt.zone in self.EW_ZONES and horusHunt.name != new.name:
+                if horusHunt.rank == 'A' and horusHunt.zone in ZONES.EW and horusHunt.name != new.name:
                     if horusHunt.status != horusHunt.STATUS_DIED:
                         hunts_living = True
                     if horusHunt.status == horusHunt.STATUS_DIED and int(horusHunt.last_alive) / 1000 > previous_death:
@@ -526,10 +512,10 @@ class HuntManager:
 
             if hunt['Rank'] in ('A', 'S', 'SS', 'SS Minion'):
 
-                if hunt['Rank'] == 'A' and hunt['ZoneName'] in self.EW_ZONES and self._hunts[world]['horus'] is not None:
+                if hunt['Rank'] == 'A' and hunt['ZoneName'] in ZONES.EW and self._hunts[world]['horus'] is not None:
                     #self._log.info("Endwalker A rank - checking for train...")
                     for key, horusHunt in self._hunts[world]['horus'].items():
-                        if horusHunt.rank == 'A' and horusHunt.zone in self.EW_ZONES:
+                        if horusHunt.rank == 'A' and horusHunt.zone in ZONES.EW:
                             if horusHunt.status == horusHunt.STATUS_DIED and int(time.time()) - (int(horusHunt.last_alive) / 1000) <= 120:
                                 #self._log.info("Train detected")
                                 await self.on_train(world, name, xivhunt, False, instance)
@@ -651,17 +637,17 @@ class HuntManager:
 
             attachcategory = hunt["Name"].lower()
 
-            if hunt['ZoneName'] in self.ARR_ZONES:
+            if hunt['ZoneName'] in ZONES.ARR:
                 attachcategory = "ARR"
-            if hunt['ZoneName'] in self.HW_ZONES:
+            if hunt['ZoneName'] in ZONES.HW:
                 attachcategory = "HW"
-            if hunt['ZoneName'] in self.SB_ZONES:
+            if hunt['ZoneName'] in ZONES.SB:
                 attachcategory = "SB"
-            if hunt['ZoneName'] in self.SHB_ZONES:
+            if hunt['ZoneName'] in ZONES.SHB:
                 attachcategory = "SHB"
-            if hunt['ZoneName'] in self.EW_ZONES:
+            if hunt['ZoneName'] in ZONES.EW:
                 attachcategory = "EW"
-            if hunt['ZoneName'] in self.DT_ZONES:
+            if hunt['ZoneName'] in ZONES.DT:
                 attachcategory = "DT"
             if 'Rank' in hunt and hunt['Rank']:
                 attachcategory = '_'.join((attachcategory, hunt['Rank'][0:1])).lower()
@@ -826,27 +812,27 @@ class HuntManager:
                 key = mark['Name'].lower()
                 self._marks_info[key] = mark
 
-                if mark['ZoneName'] in self.ARR_ZONES and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
+                if mark['ZoneName'] in ZONES.ARR and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
                     channel = getattr(SUB, f"""ARR_{mark['Rank'][0:1]}""")
                     self._marks_info[key]['Channel'] = channel
-                elif mark['ZoneName'] in self.HW_ZONES and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
+                elif mark['ZoneName'] in ZONES.HW and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
                     channel = getattr(SUB, f"""HW_{mark['Rank'][0:1]}""")
                     self._marks_info[key]['Channel'] = channel
-                elif mark['ZoneName'] in self.SB_ZONES and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
+                elif mark['ZoneName'] in ZONES.SB and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
                     channel = getattr(SUB, f"""SB_{mark['Rank'][0:1]}""")
                     self._marks_info[key]['Channel'] = channel
-                elif mark['ZoneName'] in self.SHB_ZONES and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
+                elif mark['ZoneName'] in ZONES.SHB and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
                     channel = getattr(SUB, f"""SHB_{mark['Rank'][0:1]}""")
                     self._marks_info[key]['Channel'] = channel
-                elif mark['ZoneName'] in self.EW_ZONES and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
+                elif mark['ZoneName'] in ZONES.EW and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
                     channel = getattr(SUB, f"""EW_{mark['Rank'][0:1]}""")
                     self._marks_info[key]['Channel'] = channel
-                elif mark['ZoneName'] in self.DT_ZONES and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
+                elif mark['ZoneName'] in ZONES.DT and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
                     channel = getattr(SUB, f"""DT_{mark['Rank'][0:1]}""")
                     self._marks_info[key]['Channel'] = channel
                 else:
                     self._log.info(f"""Not binding hunt {mark['Name']} to a subscription channel""")
-                    self._log.info(f"{str(mark)} => {mark['ZoneName'] in self.EW_ZONES}")
+                    self._log.info(f"{str(mark)} => {mark['ZoneName'] in ZONES.EW}")
 
     def _load_fates(self):
         with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'fates_info.json'), 'r', encoding='utf-8') as json_file:

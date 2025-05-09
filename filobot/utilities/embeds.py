@@ -4,7 +4,6 @@ import typing
 from filobot.utilities.static_data import marks_info
 from filobot.utilities.static_data import fates_info
 from filobot.utilities.worlds import Worlds
-from filobot.utilities.map_utils import SS_MINIONS_MAPS
 from filobot.utilities import parse_name
 
 COLOR_A = 0xFB6107
@@ -54,8 +53,8 @@ def hunt_report_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: ty
             if xivhunt is not None:
                 #if 'players' in xivhunt:
                     #embed.title += f" Players: {xivhunt['players']}"
-                if mark['Rank'] == 'SS Minion' and 'zone_id' in xivhunt and xivhunt['zone_id'] in SS_MINIONS_MAPS:
-                    embed.set_image(url=SS_MINIONS_MAPS[xivhunt['zone_id']])
+                if mark['Rank'] == 'SS Minion' and 'zone_id' in xivhunt and xivhunt['zone_id'] <= 961:
+                    embed.set_image(url=f"https://assets.ffxivsonar.com/ssminions/{xivhunt['zone_id']}.jpg")
                 else:
                     embed.set_image(url=f"https://api.ffxivsonar.com/render/map?zoneid={xivhunt['zone_id']}&flagx={xivhunt['x']}&flagy={xivhunt['y']}")
 

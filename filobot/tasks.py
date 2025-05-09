@@ -9,6 +9,7 @@ import discord
 import socketio
 import aiohttp
 import filobot.constants.zones as ZONES
+import filobot.constants.datacenters as DATACENTERS
 from aiohttp import web
 from filobot.filobot import config, bot, GAMES, hunt_manager, log
 from filobot.database.models import Player
@@ -46,7 +47,7 @@ async def feed_listener(source):
 
     if 'bear' in address:
         try:
-            dataCenters = hunt_manager.NA_DATACENTERS + hunt_manager.EU_DATACENTERS + hunt_manager.OC_DATACENTERS + hunt_manager.JA_DATACENTERS
+            dataCenters = DATACENTERS.ALL
 
             session = socketio.AsyncClient()
             await session.connect(address, namespaces='/HuntUpdate', socketio_path='/socket', retry=True)

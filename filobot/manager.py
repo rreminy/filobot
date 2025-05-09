@@ -11,6 +11,7 @@ import discord
 import filobot.constants.subscriptions as SUB
 import filobot.constants.conditions as COND
 import filobot.constants.zones as ZONES
+import filobot.constants.datacenters as DATACENTERS
 from discord.ext.commands import Bot
 from peewee import fn
 from filobot.utilities import *
@@ -22,11 +23,6 @@ from filobot.utilities.time_utils import RemainingTime
 from filobot.subscriptions import SubscriptionManager
 
 class HuntManager:
-    JA_DATACENTERS = ['Elemental', 'Gaia', 'Mana', 'Meteor']
-    EU_DATACENTERS = ['Light', 'Chaos']
-    NA_DATACENTERS = ['Primal', 'Aether', 'Crystal', 'Dynamis']
-    OC_DATACENTERS = ['Materia']
-
     lock = asyncio.Lock()
 
     def __init__(self, bot: Bot, subscriptions: SubscriptionManager):
@@ -257,7 +253,7 @@ class HuntManager:
                         ja_seconds = ""
                         ja_minutes = ""
 
-                        if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS:
+                        if Worlds.get_world_datacenter(world) in DATACENTERS.JA:
                             ja_seconds, ja_minutes = "秒", "分"
 
                         kill_time = RemainingTime(seconds)
@@ -270,7 +266,7 @@ class HuntManager:
                         #beg = content.find(f"[{world}]")
                         #content = content[beg:]
 
-                        is_jp = Worlds.get_world_datacenter(world) in self.JA_DATACENTERS
+                        is_jp = Worlds.get_world_datacenter(world) in DATACENTERS.JA
 
                         if time_left:
                             self._log.debug(f"FATE {name} on world {world} instance {instance} killed [1]\n{repr(xivhunt)}")
@@ -311,9 +307,9 @@ class HuntManager:
                         if (info['Duration'] > 0):
                             duration_str = f" / {RemainingTime(info['Duration']).to_simple()}"
 
-                        if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS:
+                        if Worlds.get_world_datacenter(world) in DATACENTERS.JA:
                             embed.set_footer(text=f"""残り{remaining_str}{duration_str} remaining""")
-                        elif Worlds.get_world_datacenter(world) in self.EU_DATACENTERS:
+                        elif Worlds.get_world_datacenter(world) in DATACENTERS.EU:
                             embed.set_footer(text=f"""{remaining_str}{duration_str} remaining / restant""")
                         else:
                             embed.set_footer(text=f"""{remaining_str}{duration_str} remaining""")
@@ -371,7 +367,7 @@ class HuntManager:
                     ja_seconds = ""
                     ja_minutes = ""
 
-                    if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS:
+                    if Worlds.get_world_datacenter(world) in DATACENTERS.JA:
                         ja_seconds, ja_minutes = "秒", "分"
 
                     log.killed = killed
@@ -395,7 +391,7 @@ class HuntManager:
                                 pass
 
                             # Add dead timing to message
-                            content = f"~~{content}~~ {self.get_killed_text(seconds, Worlds.get_world_datacenter(world) in self.JA_DATACENTERS)}"
+                            content = f"~~{content}~~ {self.get_killed_text(seconds, Worlds.get_world_datacenter(world) in DATACENTERS.JA)}"
 
                             # Edit the message
                             await notification.edit(content=content, embed=embed)
@@ -450,7 +446,7 @@ class HuntManager:
             role_mention = meta['notifier'] if 'notifier' in meta else None
 
             if not complete:
-                zone_name = f"""{hunt['ZoneName']} {self._zones_info[str(hunt['ZoneID'])]['name_ja']} """ if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS else f"""{hunt['ZoneName']} """
+                zone_name = f"""{hunt['ZoneName']} {self._zones_info[str(hunt['ZoneID'])]['name_ja']} """ if Worlds.get_world_datacenter(world) in DATACENTERS.JA else f"""{hunt['ZoneName']} """
 
                 if xivhunt is not None:
                     content = f"""[{world}] {zone_name}({xivhunt['coords']}) {instancesymbol}"""
@@ -463,7 +459,7 @@ class HuntManager:
                 if role_mention:
                     content = f"""{role_mention} {content}"""
             else:
-                content = f"""[{world}]狩ツアコンプリートComplete""" if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS else f"""[{world}] Complete"""
+                content = f"""[{world}]狩ツアコンプリートComplete""" if Worlds.get_world_datacenter(world) in DATACENTERS.JA else f"""[{world}] Complete"""
 
             # Attempt to edit an existing message first
             notification = await self.get_notification(sub.channel_id, world, SUB.TRAINS, 1, complete)
@@ -666,11 +662,11 @@ class HuntManager:
             en_zone_name, ja_zone_name = hunt['ZoneName'], self._zones_info[str(hunt['ZoneID'])]['name_ja']
             fr_zone_name, de_zone_name = self._zones_info[str(hunt['ZoneID'])]['name_fr'], self._zones_info[str(hunt['ZoneID'])]['name_de']
 
-            if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS:
+            if Worlds.get_world_datacenter(world) in DATACENTERS.JA:
                 content = f"""[{world}] {ja_zone_name} {hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol}"""
                 ja_description = f"""[{world}] {ja_zone_name} ({xivhunt['coords']}) {instancesymbol}"""
                 embed.description = f"""{ja_description}\n{hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol}"""
-            elif Worlds.get_world_datacenter(world) in self.EU_DATACENTERS:
+            elif Worlds.get_world_datacenter(world) in DATACENTERS.EU:
                 fr_description = f"""\n{fr_zone_name} ({xivhunt['coords']}) {instancesymbol}""" if fr_zone_name != en_zone_name and fr_zone_name != de_zone_name else ""
                 de_description = f"""\n{de_zone_name} ({xivhunt['coords']}) {instancesymbol}""" if de_zone_name != en_zone_name else ""
                 embed.description = f"""{content}{fr_description}{de_description}"""
@@ -686,12 +682,12 @@ class HuntManager:
                 if (fate['Duration'] > 0):
                     duration_str = f" / {RemainingTime(fate['Duration']).to_simple()}"
 
-                if Worlds.get_world_datacenter(world) in self.JA_DATACENTERS:
+                if Worlds.get_world_datacenter(world) in DATACENTERS.JA:
                     embed.description = f"""{xivhunt['status']}% {ja_zone_name} {en_zone_name} ({xivhunt['coords']}) {instancesymbol}"""
 
                     if time_left > 0:
                         embed.set_footer(text=f"""残り{remaining_str}{duration_str} remaining""")
-                elif Worlds.get_world_datacenter(world) in self.EU_DATACENTERS:
+                elif Worlds.get_world_datacenter(world) in DATACENTERS.EU:
                     en_description = f"""{xivhunt['status']}% {en_zone_name} ({xivhunt['coords']}) {instancesymbol}"""
                     fr_description = f"""\n{fr_zone_name} ({xivhunt['coords']}) {instancesymbol}""" if fr_zone_name != en_zone_name and fr_zone_name != de_zone_name else ""
                     de_description = f"""\n{de_zone_name} ({xivhunt['coords']}) {instancesymbol}""" if de_zone_name != en_zone_name else ""

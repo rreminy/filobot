@@ -8,14 +8,14 @@ from discord.ext.commands import Bot
 from filobot.database.models import Subscriptions
 from filobot.utilities.worlds import Worlds
 from filobot.utilities import *
+from filobot.filobot import bot
 
 class SubscriptionManager:
 
-    def __init__(self, bot: Bot):
+    def __init__(self):
         self.log = logging.getLogger(__name__)
         self.subscriptions = list(Subscriptions.select())
         self.lock = asyncio.Lock()
-        self.bot = bot
 
     async def subscribe_all(self, datacenter: str, channel: int, subscription: str, conditions: typing.Optional[str] = 'all'):
         try:
@@ -139,12 +139,15 @@ class SubscriptionManager:
 
     async def send_message(self, message, embed: discord.Embed, sub: Subscriptions) -> typing.Optional[discord.Message]:
         try:
-            return await self.bot.get_channel(sub.channel_id).send(message, embed=embed)
+            return await bot.get_channel(sub.channel_id).send(message, embed=embed)
         except AttributeError:
             self.log.warning(f"Subscription channel is no longer active; removing channel {sub.channel_id}")
+            print("It's about to delete the subscriptions...")
 
             async with self.lock:
                 #Subscriptions.delete().where(Subscriptions.channel_id == sub.channel_id).execute()
                 self.reload()
         except discord.errors.Forbidden:
             self.log.warning(f"No permission to send to channel {sub.channel_id}")
+
+subscriptions = SubscriptionManager()

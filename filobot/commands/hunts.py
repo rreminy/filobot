@@ -18,16 +18,15 @@ from filobot.utilities import parse_name
 from filobot.utilities.embeds import hunt_info_embed, fate_info_embed
 from filobot.manager import HuntManager
 from filobot.utilities.worlds import Worlds
-from filobot.subscriptions import SubscriptionManager
+from filobot.subscriptions import subscriptions
 
 class Hunts(commands.Cog):
 
-    def __init__(self, bot: discord.ext.commands.Bot, hunt_manager: HuntManager, subscriptions: SubscriptionManager):
+    def __init__(self, bot: discord.ext.commands.Bot, hunt_manager: HuntManager):
         self._log = logging.getLogger(__name__)
         self.bot = bot
 
         self.hunt_manager = hunt_manager
-        self.subscriptions = subscriptions
 
         self.srankPosts = {}
 
@@ -1115,7 +1114,7 @@ class Hunts(commands.Cog):
         Allowed categories: EW_A, EW_S, SHB_A, SHB_S, SB_A, SB_S, HW_A, HW_S, ARR_A, ARR_S, FATE, TRAINS
         Allowed conditions: FINDS, DEATHS, OPENINGS
         """
-        message = await self.subscriptions.subscribe(ctx.channel.id, world, category, conditions)
+        message = await subscriptions.subscribe(ctx.channel.id, world, category, conditions)
         if message:
             await ctx.send(message, delete_after=10.0)
         await ctx.message.delete()
@@ -1129,7 +1128,7 @@ class Hunts(commands.Cog):
         Allowed categories: EW_A, EW_S, SHB_A, SHB_S, SB_A, SB_S, HW_A, HW_S, ARR_A, ARR_S, FATE, TRAINS
         Allowed conditions: FINDS, DEATHS, OPENINGS
         """
-        message = await self.subscriptions.subscribe_all(datacenter, ctx.channel.id, category, conditions)
+        message = await subscriptions.subscribe_all(datacenter, ctx.channel.id, category, conditions)
         if message:
             await ctx.send(message, delete_after=10.0)
         await ctx.message.delete()
@@ -1141,7 +1140,7 @@ class Hunts(commands.Cog):
         Unsubscribe the channel from hunt and fate events
         Allowed categories: EW_A, EW_S, SHB_A, SHB_S, SB_A, SB_S, HW_A, HW_S, ARR_A, ARR_S, FATE, TRAINS
         """
-        message = await self.subscriptions.unsubscribe(ctx.channel.id, world, category)
+        message = await subscriptions.unsubscribe(ctx.channel.id, world, category)
         if message:
             await ctx.send(message, delete_after=10.0)
         await ctx.message.delete()
@@ -1152,7 +1151,7 @@ class Hunts(commands.Cog):
         """
         List all enabled subscriptions for this channel
         """
-        subs = await self.subscriptions.get(ctx.channel.id)
+        subs = await subscriptions.get(ctx.channel.id)
 
         if not subs:
             await ctx.channel.reply("No subscriptions have been specified for this channel")
@@ -1179,7 +1178,7 @@ class Hunts(commands.Cog):
         Clear all enabled subscriptions for this channel
         """
         try:
-            await self.subscriptions.clear(ctx.channel.id)
+            await subscriptions.clear(ctx.channel.id)
         except KeyError as e:
             self._log.info(e)
             await ctx.reply("No subscriptions have been specified for this channel")

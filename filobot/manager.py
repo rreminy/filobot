@@ -23,16 +23,15 @@ from filobot.utilities.worlds import Worlds
 from filobot.utilities import parse_name
 from filobot.utilities.time_utils import RemainingTime
 from filobot.utilities.static_data import marks_info, fates_info
-from filobot.subscriptions import SubscriptionManager
+from filobot.subscriptions import subscriptions
 from filobot.notifications import NotificationManager
 
 class HuntManager:
     lock = asyncio.Lock()
 
-    def __init__(self, bot: Bot, subscriptions: SubscriptionManager, notifications: NotificationManager):
+    def __init__(self, bot: Bot, notifications: NotificationManager):
         self._log = logging.getLogger(__name__)
         self.bot = bot
-        self.subscriptions = subscriptions
         self.notifications = notifications
         self.horus = Horus(bot)
 
@@ -343,11 +342,11 @@ class HuntManager:
 
         for sub in subs:  # type: Subscriptions
             if new.status == new.STATUS_OPENED and COND.OPEN == sub.event:
-                await self.subscriptions.send_message(f"A hunt has opened on **{world}** (**Instance {new.instance}**)!", embed, sub)
+                await subscriptions.send_message(f"A hunt has opened on **{world}** (**Instance {new.instance}**)!", embed, sub)
                 continue
 
             if new.status == new.STATUS_MAXED and COND.OPEN == sub.event:
-                await self.subscriptions.send_message(f"A hunts maximum spawn window has been reached on **{world}** (**Instance {new.instance}**)!", embed, sub)
+                await subscriptions.send_message(f"A hunts maximum spawn window has been reached on **{world}** (**Instance {new.instance}**)!", embed, sub)
                 continue
 
             if new.status == new.STATUS_DIED and COND.DEAD == sub.event:
@@ -479,7 +478,7 @@ class HuntManager:
 
             if not complete or COND.DEAD == sub.event:
                 # Sending a new message
-                message = await self.subscriptions.send_message(content, None, sub)
+                message = await subscriptions.send_message(content, None, sub)
 
                 if not message:
                     continue
@@ -725,7 +724,7 @@ class HuntManager:
                 if 'notifier' in meta:
                     content = f"""{content} {meta['notifier']}"""
 
-            message = await self.subscriptions.send_message(content, embed, sub)
+            message = await subscriptions.send_message(content, embed, sub)
             if not message:
                 continue
 

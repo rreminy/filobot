@@ -12,7 +12,6 @@ from filobot.commands.misc import Misc
 from filobot.database import db
 from filobot.database.models import GuildSettings, KillLog, Player, ScoutingHunts, ScoutingSessions, Subscriptions, SubscriptionsMeta, Blacklist
 from filobot.manager import HuntManager
-from filobot.subscriptions import SubscriptionManager
 from filobot.notifications import NotificationManager
 
 # Load our configuration
@@ -38,9 +37,8 @@ intents = discord.Intents.default()
 intents.message_content = True
 
 bot = commands.Bot(command_prefix='g.', intents=intents)
-subscriptions = SubscriptionManager(bot)
 notifications = NotificationManager()
-hunt_manager = HuntManager(bot, subscriptions, notifications)
+hunt_manager = HuntManager(bot, notifications)
 asyncio.run(bot.add_cog(Hunts(bot, hunt_manager, subscriptions)))
 asyncio.run(bot.add_cog(Admin(bot)))
 asyncio.run(bot.add_cog(Misc(bot, hunt_manager)))

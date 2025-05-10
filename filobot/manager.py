@@ -41,25 +41,25 @@ class HuntManager:
             self._marks_info[key] = mark
 
             if mark['ZoneName'] in ZONES.ARR and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
-                channel = getattr(SUB, f"""ARR_{mark['Rank'][0:1]}""")
-                self._marks_info[key]['Channel'] = channel
+                category = getattr(SUB, f"""ARR_{mark['Rank'][0:1]}""")
+                self._marks_info[key]['Category'] = category
             elif mark['ZoneName'] in ZONES.HW and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
-                channel = getattr(SUB, f"""HW_{mark['Rank'][0:1]}""")
-                self._marks_info[key]['Channel'] = channel
+                category = getattr(SUB, f"""HW_{mark['Rank'][0:1]}""")
+                self._marks_info[key]['Category'] = category
             elif mark['ZoneName'] in ZONES.SB and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
-                channel = getattr(SUB, f"""SB_{mark['Rank'][0:1]}""")
-                self._marks_info[key]['Channel'] = channel
+                category = getattr(SUB, f"""SB_{mark['Rank'][0:1]}""")
+                self._marks_info[key]['Category'] = category
             elif mark['ZoneName'] in ZONES.SHB and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
-                channel = getattr(SUB, f"""SHB_{mark['Rank'][0:1]}""")
-                self._marks_info[key]['Channel'] = channel
+                category = getattr(SUB, f"""SHB_{mark['Rank'][0:1]}""")
+                self._marks_info[key]['Category'] = category
             elif mark['ZoneName'] in ZONES.EW and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
-                channel = getattr(SUB, f"""EW_{mark['Rank'][0:1]}""")
-                self._marks_info[key]['Channel'] = channel
+                category = getattr(SUB, f"""EW_{mark['Rank'][0:1]}""")
+                self._marks_info[key]['Category'] = category
             elif mark['ZoneName'] in ZONES.DT and (mark['Rank'][0:1] == 'A' or mark['Rank'][0:1] == 'S'):
-                channel = getattr(SUB, f"""DT_{mark['Rank'][0:1]}""")
-                self._marks_info[key]['Channel'] = channel
+                category = getattr(SUB, f"""DT_{mark['Rank'][0:1]}""")
+                self._marks_info[key]['Category'] = category
             else:
-                self._log.info(f"""Not binding hunt {mark['Name']} to a subscription channel""")
+                self._log.info(f"""Not binding hunt {mark['Name']} to a subscription category""")
                 self._log.info(f"{str(mark)} => {mark['ZoneName'] in ZONES.EW}")
 
         self._fates_info = {}
@@ -67,8 +67,8 @@ class HuntManager:
         for _id, fate in fates_info.items():
             key = fate['Name'].lower()
             self._fates_info[key] = fate
-            channel = getattr(SUB, f"""FATE""")
-            self._fates_info[key]['Channel'] = channel
+            category = getattr(SUB, f"""FATE""")
+            self._fates_info[key]['Category'] = category
 
         self._hunts = {}
         self._changed = {}
@@ -218,10 +218,7 @@ class HuntManager:
         _key = f"{parse_name(name)}_{instance}"
 
         fate = self._fates_info[name.lower()]
-        subs = Subscriptions.select().where(
-                (Subscriptions.world == world)
-                & (Subscriptions.category == fate['Channel'])
-        )
+        subs = subscriptions.get(None, world, fate['Category'])
         embed = fate_report_embed(name, xivhunt)
 
         info = self._fates_info[name.lower()]
@@ -308,7 +305,7 @@ class HuntManager:
 
                     # Edit the message
                     await notification.edit(content=content, embed=embed)
-                    #  await self.log_notification(notification, sub.channel_id, world, fate['Channel'], instance) #  I think this isn't needed and it'll break another thing
+                    #  await self.log_notification(notification, sub.channel_id, world, fate['Category'], instance) #  I think this isn't needed and it'll break another thing
             except discord.NotFound:
                 self._log.warning(f"Notification message for FATE {name} on world {world} has been deleted")
 
@@ -326,13 +323,10 @@ class HuntManager:
         Hunt status change event handler
         """
         hunt = self._marks_info[old.name.lower()]
-        if 'Channel' not in hunt:
+        if 'Category' not in hunt:
             return
         try:
-            subs = Subscriptions.select().where(
-                    (Subscriptions.world == world)
-                    & (Subscriptions.category == hunt['Channel'])
-            )
+            subs = subscriptions.get(None, world, hunt['Category'])
             embed = hunt_report_embed(new.name, new)
         except:
             # self._log.warning(f"""{hunt['Name']}""")
@@ -425,10 +419,7 @@ class HuntManager:
         """
         hunt = self._marks_info[name.lower()]
 
-        subs = Subscriptions.select().where(
-                (Subscriptions.world == world)
-                & (Subscriptions.category == getattr(SUB, "TRAINS"))
-        )
+        subs = subscriptions.get(None, world, getattr(SUB, "TRAINS"))
 
         instancesymbol = "①" if instance == 1 else "②" if instance == 2 else "③" if instance == 3 else instance
 
@@ -524,10 +515,7 @@ class HuntManager:
 
                 self._log.info(f"A hunt has been found on world {world} (Instance {instance}) :: {name}, Rank {xivhunt['rank']}")
 
-                subs = Subscriptions.select().where(
-                        (Subscriptions.world == world)
-                        & (Subscriptions.category == hunt['Channel'])
-                )
+                subs = subscriptions.get(None, world, hunt['Category'])
                 embed = hunt_report_embed(name, xivhunt=xivhunt)
 
                 #  Checks if another hunt from the same world and expansion has been reported since this one.
@@ -602,10 +590,7 @@ class HuntManager:
             hunt = self._fates_info[name.lower()]
             self._log.info(f"A FATE has been found on world {world} (Instance {instance}) :: {name}")
 
-            subs = Subscriptions.select().where(
-                (Subscriptions.world == world)
-                & (Subscriptions.category == hunt['Channel'])
-            )
+            subs = subscriptions.get(None, world, hunt['Category'])
             embed = fate_report_embed(name, xivhunt=xivhunt)
 
         else:

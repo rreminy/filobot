@@ -100,9 +100,13 @@ class SubscriptionManager:
         message = f"""Subscribed channel to {str(sub).replace('_', ' ').title()} on {world}"""
         return message
 
-    async def get(self, channel: int) -> typing.List[Subscriptions]:
+    #async def get(self, channel: int) -> typing.List[Subscriptions]:
+    async def get(self, channel: int = None, world: str = None, category = None):
         async with self.lock:
-            subscription_list = list(Subscriptions.select().where(Subscriptions.channel_id == channel))
+            if channel is None and world and category:
+                subscription_list = Subscriptions.select().where((Subscriptions.world == world) & (Subscriptions.category == category))
+            else:
+                subscription_list = list(Subscriptions.select().where(Subscriptions.channel_id == channel))
         return subscription_list
 
     async def unsubscribe(self, channel: int, world: str, subscription: str):

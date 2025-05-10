@@ -6,31 +6,22 @@ import filobot.utilities.worlds as worlds
 asyncio.run(worlds.init())
 
 async def main():
-    # Start the bot
     await bot.login(config.get('Bot', 'Token'))
+
     asyncio.create_task(update_hunts())
     asyncio.create_task(update_fates())
     asyncio.create_task(update_game())
     asyncio.create_task(update_worlds())
     asyncio.create_task(auto_restart())
-    if config.get('WebhookServer1', 'Enabled') == 'TRUE':
-        asyncio.create_task(start_server('WebhookServer1'))
-    if config.get('WebhookServer2', 'Enabled') == 'TRUE':
-        asyncio.create_task(start_server('WebhookServer2'))
-    if config.get('WebhookServer3', 'Enabled') == 'TRUE':
-        asyncio.create_task(start_server('WebhookServer3'))
-    if config.get('WebhookDiscord1', 'Enabled') == 'TRUE':
-        asyncio.create_task(discord_listener('WebhookDiscord1'))
-    if config.get('WebhookDiscord2', 'Enabled') == 'TRUE':
-        asyncio.create_task(discord_listener('WebhookDiscord2'))
-    if config.get('WebhookDiscord3', 'Enabled') == 'TRUE':
-        asyncio.create_task(discord_listener('WebhookDiscord3'))
-    if config.get('FeedListener1', 'Enabled') == 'TRUE':
-        asyncio.create_task(feed_listener('FeedListener1'))
-    if config.get('FeedListener2', 'Enabled') == 'TRUE':
-        asyncio.create_task(feed_listener('FeedListener2'))
-    if config.get('FeedListener3', 'Enabled') == 'TRUE':
-        asyncio.create_task(feed_listener('FeedListener3'))
+
+    for i in range(1, 4):
+        if config.get(f'WebhookServer{i}', 'Enabled') == 'TRUE':
+            asyncio.create_task(start_server(f'WebhookServer{i}'))
+        if config.get(f'WebhookDiscord{i}', 'Enabled') == 'TRUE':
+            asyncio.create_task(discord_listener(f'WebhookDiscord{i}'))
+        if config.get(f'FeedListener{i}', 'Enabled') == 'TRUE':
+            asyncio.create_task(feed_listener(f'FeedListener{i}'))
+
     await bot.connect()
 
 asyncio.run(main())

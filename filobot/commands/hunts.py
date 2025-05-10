@@ -1025,7 +1025,7 @@ class Hunts(commands.Cog):
         Adds a role to mention when something is found in this channel
         """
         if not role:
-            await self.hunt_manager.remove_notifier(ctx.channel.id)
+            await self.hunt_manager.notifications.remove(ctx.channel.id)
             await ctx.reply("Channel notifiers cleared.")
             return
 
@@ -1058,7 +1058,7 @@ class Hunts(commands.Cog):
                 await ctx.send("Cannot find hunt or fate name.")
                 return
 
-        await self.hunt_manager.set_notifier(ctx.channel.id, role, attachname)
+        await self.hunt_manager.notifications.set(ctx.channel.id, role, attachname)
 
         await ctx.reply(f"Members of this role will now be notified whenever {'something' if not attachname else attachname.title()} is found in this channel. To undo this, run the notify command again without any arguments")
 
@@ -1070,7 +1070,7 @@ class Hunts(commands.Cog):
         """
 
         if not role:
-            await self.hunt_manager.remove_notifier(ctx.channel.id)
+            await self.hunt_manager.notifications.remove(ctx.channel.id)
             await ctx.reply("Channel notifiers cleared.")
             return
 
@@ -1103,7 +1103,7 @@ class Hunts(commands.Cog):
                 await ctx.reply("Cannot find hunt or fate name.")
                 return
 
-        await self.hunt_manager.set_notifier(ctx.channel.id, role, attachname)
+        await self.hunt_manager.notifications.set(ctx.channel.id, role, attachname)
 
         await ctx.reply(f"Members of this role will now be notified whenever {'something' if not attachname else attachname.title()} is found in this channel. To undo this, run the notify command again without any arguments")
 

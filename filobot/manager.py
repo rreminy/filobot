@@ -131,7 +131,9 @@ class HuntManager:
                     self._log.info(f"""Hunt status for {hunt.name} on {world} (Instance {hunt.instance}) changed - {self._hunts[world]['horus'][key].status.title()} => {hunt.status.title()}""")
                     self._changed[world][key] = hunt
                     job_list.append(self.on_change(world, self._hunts[world]['horus'][key], hunt))
-            await asyncio.gather(*job_list)
+            result = await asyncio.gather(*job_list, return_exceptions=True)
+            if isinstance(result, Exception):
+                self._log.exception("Job failed with exception", exc_info=result)
 
             self._hunts[world]['horus'] = horus
 
@@ -155,7 +157,10 @@ class HuntManager:
             self._log.info(f"""Hunt status for {name} on {world} (Instance {hunt.instance}) changed - {self._hunts[world]['horus'][key].status.title()} => {hunt.status.title()}""")
             self._changed[world][key] = hunt
             job_list.append(self.on_change(world, self._hunts[world]['horus'][key], hunt))
-        await asyncio.gather(*job_list)
+        result = await asyncio.gather(*job_list, return_exceptions=True)
+        if isinstance(result, Exception):
+            self._log.exception("Job failed with exception", exc_info=result)
+
 
     async def check_fates(self):
         self._log.debug(f"""Checking FATES""")
@@ -197,7 +202,9 @@ class HuntManager:
                                 #  Strikethrough the fate!
                                 # self._log.info(f"""Expiring? Fate: {self._fates_info[name]['Name']} ({world})\n{time.time()} >= {int(message_time.replace(tzinfo=datetime.timezone.utc).timestamp())} + {seconds_left} ({int(message_time.replace(tzinfo=datetime.timezone.utc).timestamp()) + seconds_left})""")
                                 job_list.append(self.on_progress(world, self._fates_info[name]['Name'], None, int(key.rsplit("_")[1])))
-            await asyncio.gather(*job_list)
+            result = await asyncio.gather(*job_list, return_exceptions=True)
+            if isinstance(result, Exception):
+                self._log.exception("Job failed with exception", exc_info=result)
 
     def get_killed_text(self, seconds, is_jp):
         return f"""**Killed {"殺された" if is_jp else ""}**""" #  *(after {RemainingTime(seconds).to_verbose()}{"後" if is_jp else ""})*
@@ -547,7 +554,7 @@ class HuntManager:
                                 sorted
                                 (
                                     # Order the list of notifications, putting any "None" values to the back (there should not be a list though)
-                                    (lambda n : [notifications[c][world][_key] for c in n])
+                                    (lambda n : [(notifications[c][world][_key] if world in notifications[c] and _key in notifications[c][world] else None) for c in n])
                                     (notifications.keys()), # Pass list of notifications keys to n
                                     key=lambda e: e is None # If the previous lamda function returned None, push it to the back of the list
                                 )
@@ -564,7 +571,7 @@ class HuntManager:
                                 for n_key in notifications[n_channel][world]:
                                     n_name = n_key.rsplit("_")[0]
 
-                                    if self._marks_info[n_name]['Rank'] == 'A':
+                                    if n_name in self._marks_info and self._marks_info[n_name]['Rank'] == 'A':
                                         if self.getExpansion(self._marks_info[n_name]) == self.getExpansion(hunt):  # Same expansion?
                                             if notifications[n_channel][world][n_key]:
                                                 message = notifications[n_channel][world][n_key][0]

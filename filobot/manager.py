@@ -424,9 +424,7 @@ class HuntManager:
         instancesymbol = "①" if instance == 1 else "②" if instance == 2 else "③" if instance == 3 else instance
 
         for sub in subs:
-            _meta = SubscriptionsMeta.select().where((SubscriptionsMeta.channel_id == sub.channel_id) & (SubscriptionsMeta.attachName == "trains"))
-            meta  = {m.name : m.value for m in _meta}
-            role_mention = meta['notifier'] if 'notifier' in meta else None
+            role_mention = notifications.role(sub.channel_id, "trains")
 
             # Attempt to edit an existing message first
             notification = await notifications.get(sub.channel_id, world, SUB.TRAINS, 1)
@@ -701,12 +699,10 @@ class HuntManager:
             if "BlueMageSpells" in hunt and hunt['BlueMageSpells']:
                 embed.description = f"""{embed.description}\nBlue Mage Spells: **{hunt['BlueMageSpells']}**"""
 
-                _meta = SubscriptionsMeta.select().where((SubscriptionsMeta.channel_id == sub.channel_id)
-                & (SubscriptionsMeta.attachName == "blu_spell"))
-                meta  = {m.name : m.value for m in _meta}
+                role = notifications.role(sub.channel_id, "blu_spell")
 
-                if 'notifier' in meta:
-                    content = f"""{content} {meta['notifier']}"""
+                if role:
+                    content = f"""{content} {role}"""
 
             message = await subscriptions.send_message(content, embed, sub)
             if not message:

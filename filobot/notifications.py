@@ -30,6 +30,11 @@ class NotificationManager:
 
         self.reload()
 
+    async def role(self, channel: int, category: str):
+        _meta = SubscriptionsMeta.select().where((SubscriptionsMeta.channel_id == channel) & (SubscriptionsMeta.attachName == category))
+        meta  = {m.name : m.value for m in _meta}
+        return meta['notifier'] if 'notifier' in meta else None
+
     async def remove(self, channel: int) -> None:
         SubscriptionsMeta.delete().where(
                 (SubscriptionsMeta.channel_id == channel)

@@ -451,7 +451,7 @@ async def track_stats():
     await bot.wait_until_ready()
 
     while not bot.is_closed():
-        a_count, s_count = await hunt_manager.count()
+        a_count, s_count = await hunt_manager.notifications.count()
         a_count = "{:,}".format(a_count)
         s_count = "{:,}".format(s_count)
         player_count = Player.select().where(Player.status == Player.STATUS_VERIFIED).count()

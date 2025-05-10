@@ -42,7 +42,7 @@ class Misc(commands.Cog):
         """
         Get some miscellaneous bot statistics
         """
-        a_count, s_count = await self._hunt_manager.count()
+        a_count, s_count = await self._hunt_manager.notifications.count()
         player_count = Player.select().where(Player.status == Player.STATUS_VERIFIED).count()
 
         # Git build hash

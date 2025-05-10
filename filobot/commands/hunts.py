@@ -19,6 +19,7 @@ from filobot.utilities.embeds import hunt_info_embed, fate_info_embed
 from filobot.manager import HuntManager
 from filobot.utilities.worlds import Worlds
 from filobot.subscriptions import subscriptions
+from filobot.notifications import notifications
 
 class Hunts(commands.Cog):
 
@@ -1024,7 +1025,7 @@ class Hunts(commands.Cog):
         Adds a role to mention when something is found in this channel
         """
         if not role:
-            await self.hunt_manager.notifications.remove(ctx.channel.id)
+            await notifications.remove(ctx.channel.id)
             await ctx.reply("Channel notifiers cleared.")
             return
 
@@ -1057,7 +1058,7 @@ class Hunts(commands.Cog):
                 await ctx.send("Cannot find hunt or fate name.")
                 return
 
-        await self.hunt_manager.notifications.set(ctx.channel.id, role, attachname)
+        await notifications.set(ctx.channel.id, role, attachname)
 
         await ctx.reply(f"Members of this role will now be notified whenever {'something' if not attachname else attachname.title()} is found in this channel. To undo this, run the notify command again without any arguments")
 
@@ -1069,7 +1070,7 @@ class Hunts(commands.Cog):
         """
 
         if not role:
-            await self.hunt_manager.notifications.remove(ctx.channel.id)
+            await notifications.remove(ctx.channel.id)
             await ctx.reply("Channel notifiers cleared.")
             return
 
@@ -1102,7 +1103,7 @@ class Hunts(commands.Cog):
                 await ctx.reply("Cannot find hunt or fate name.")
                 return
 
-        await self.hunt_manager.notifications.set(ctx.channel.id, role, attachname)
+        await notifications.set(ctx.channel.id, role, attachname)
 
         await ctx.reply(f"Members of this role will now be notified whenever {'something' if not attachname else attachname.title()} is found in this channel. To undo this, run the notify command again without any arguments")
 

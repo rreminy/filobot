@@ -20,6 +20,7 @@ from filobot.utilities.horus import HorusHunt
 from filobot.utilities.static_data import achievementfates_info
 from filobot.utilities import parse_name
 from filobot.utilities.worlds import Worlds
+from filobot.notifications import notifications
 
 logger = logging.getLogger(__name__)
 
@@ -451,7 +452,7 @@ async def track_stats():
     await bot.wait_until_ready()
 
     while not bot.is_closed():
-        a_count, s_count = await hunt_manager.notifications.count()
+        a_count, s_count = await notifications.count()
         a_count = "{:,}".format(a_count)
         s_count = "{:,}".format(s_count)
         player_count = Player.select().where(Player.status == Player.STATUS_VERIFIED).count()

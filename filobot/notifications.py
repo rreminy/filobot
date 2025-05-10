@@ -98,3 +98,5 @@ class NotificationManager:
 
     def reload(self):
         self.subscriptions_meta = list(SubscriptionsMeta.select())
+
+notifications = NotificationManager()

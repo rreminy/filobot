@@ -24,15 +24,14 @@ from filobot.utilities import parse_name
 from filobot.utilities.time_utils import RemainingTime
 from filobot.utilities.static_data import marks_info, fates_info
 from filobot.subscriptions import subscriptions
-from filobot.notifications import NotificationManager
+from filobot.notifications import notifications
 
 class HuntManager:
     lock = asyncio.Lock()
 
-    def __init__(self, bot: Bot, notifications: NotificationManager):
+    def __init__(self, bot: Bot):
         self._log = logging.getLogger(__name__)
         self.bot = bot
-        self.notifications = notifications
         self.horus = Horus(bot)
 
         self._marks_info = {}
@@ -173,7 +172,7 @@ class HuntManager:
                         if recent_fate in self._hunts[world]['xivhunt']:
                             self._hunts[world]['xivhunt'].remove(recent_fate)
 
-            notifications_list = await self.notifications.list()
+            notifications_list = await notifications.list()
             job_list = list()
             for channel in notifications_list:
                 for world in notifications_list[channel]:
@@ -230,7 +229,7 @@ class HuntManager:
         for sub in subs:  # type: Subscriptions
             try:
                 # If we previously sent a notification that the fate was found, edit that message instead of sending a new one
-                notification = await self.notifications.get(sub.channel_id, world, name, instance)
+                notification = await notifications.get(sub.channel_id, world, name, instance)
 
                 if notification:
                     notification, log = notification
@@ -276,10 +275,10 @@ class HuntManager:
                             self._log.debug(f"FATE {name} on world {world} instance {instance} expired [2]\n{repr(xivhunt)}")
                             content = f"~~{content}~~ {self.get_expired_text(seconds, is_jp)}"
 
-                        if await self.notifications.get(sub.channel_id, world, name, instance) is None:
+                        if await notifications.get(sub.channel_id, world, name, instance) is None:
                             return
 
-                        await self.notifications.delete(sub.channel_id, world, name, instance)
+                        await notifications.delete(sub.channel_id, world, name, instance)
 
                     # if not notification.author.bot:
                     #     continue
@@ -352,8 +351,8 @@ class HuntManager:
             if new.status == new.STATUS_DIED and COND.DEAD == sub.event:
                 # If we previously sent a notification that the hunt was found, edit that message instead of
                 # sending a new one
-                notification = await self.notifications.get(sub.channel_id, world, new.name, new.instance)
-                await self.notifications.delete(sub.channel_id, world, new.name, new.instance)
+                notification = await notifications.get(sub.channel_id, world, new.name, new.instance)
+                await notifications.delete(sub.channel_id, world, new.name, new.instance)
                 if notification:
                     notification, log = notification
                     killed  = arrow.get(int(new.last_mark / 1000)).timestamp()
@@ -439,7 +438,7 @@ class HuntManager:
             role_mention = meta['notifier'] if 'notifier' in meta else None
 
             # Attempt to edit an existing message first
-            notification = await self.notifications.get(sub.channel_id, world, SUB.TRAINS, 1)
+            notification = await notifications.get(sub.channel_id, world, SUB.TRAINS, 1)
 
             if not complete:
                 zone_name = f"""{hunt['ZoneName']} {zones.get(str(hunt['ZoneID']))['name_ja']} """ if Worlds.get_world_datacenter(world) in DATACENTERS.JA else f"""{hunt['ZoneName']} """
@@ -456,7 +455,7 @@ class HuntManager:
                     content = f"""{role_mention} {content}"""
             else:
                 content = f"""[{world}]狩ツアコンプリートComplete""" if Worlds.get_world_datacenter(world) in DATACENTERS.JA else f"""[{world}] Complete"""
-                await self.notifications.delete(sub.channel_id, world, SUB.TRAINS, 1)
+                await notifications.delete(sub.channel_id, world, SUB.TRAINS, 1)
 
             if notification:
                 notification, log = notification
@@ -466,15 +465,15 @@ class HuntManager:
                         try:
                             if notification.content != content:
                                 await notification.edit(content=content) #  Edit the message
-                                await self.notifications.log(notification, sub.channel_id, world, SUB.TRAINS, 1)
+                                await notifications.log(notification, sub.channel_id, world, SUB.TRAINS, 1)
                             continue
                         except discord.NotFound:
                             self._log.warning(f"Train announcement was deleted for {world}.")
                         except:
                             self._log.exception("Exception thrown")
                 else:
-                    if not complete and f"{SUB.TRAINS.lower()}_1" in self._notifications[sub.channel_id][world]:
-                        await self.notifications.delete(sub.channel_id, world, SUB.TRAINS, 1)
+                    if not complete:
+                        await notifications.delete(sub.channel_id, world, SUB.TRAINS, 1)
 
             if not complete or COND.DEAD == sub.event:
                 # Sending a new message
@@ -483,7 +482,7 @@ class HuntManager:
                 if not message:
                     continue
 
-                await self.notifications.log(message, sub.channel_id, world, SUB.TRAINS, 1)
+                await notifications.log(message, sub.channel_id, world, SUB.TRAINS, 1)
 
     async def on_find(self, world: str, name: str, xivhunt: dict, instance=1):
         """
@@ -535,7 +534,7 @@ class HuntManager:
                 #  If so, report as a new discord message instead of editing.
                 #  Fixes the issue of someone scouting hunts in advance and then them not being re-reported when the actual train happens
                 if _key in self._hunts[world]['xivhunt']:
-                    notifications = await self.notifications.list()
+                    notifications_list = await notifications.list()
 
                     lastNotificationTime = None
 
@@ -553,8 +552,8 @@ class HuntManager:
                                 sorted
                                 (
                                     # Order the list of notifications, putting any "None" values to the back (there should not be a list though)
-                                    (lambda n : [(notifications[c][world][_key] if world in notifications[c] and _key in notifications[c][world] else None) for c in n])
-                                    (notifications.keys()), # Pass list of notifications keys to n
+                                    (lambda n : [(notifications_list[c][world][_key] if world in notifications_list[c] and _key in notifications_list[c][world] else None) for c in n])
+                                    (notifications_list.keys()), # Pass list of notifications keys to n
                                     key=lambda e: e is None # If the previous lamda function returned None, push it to the back of the list
                                 )
                             )
@@ -565,15 +564,15 @@ class HuntManager:
                     lastNotificationName = name
 
                     if hunt['Rank'] == 'A':
-                        for n_channel in notifications:
-                            if world in notifications[n_channel]:  # Same world?
-                                for n_key in notifications[n_channel][world]:
+                        for n_channel in notifications_list:
+                            if world in notifications_list[n_channel]:  # Same world?
+                                for n_key in notifications_list[n_channel][world]:
                                     n_name = n_key.rsplit("_")[0]
 
                                     if n_name in self._marks_info and self._marks_info[n_name]['Rank'] == 'A':
                                         if self.getExpansion(self._marks_info[n_name]) == self.getExpansion(hunt):  # Same expansion?
-                                            if notifications[n_channel][world][n_key]:
-                                                message = notifications[n_channel][world][n_key][0]
+                                            if notifications_list[n_channel][world][n_key]:
+                                                message = notifications_list[n_channel][world][n_key][0]
                                                 if int(message.created_at.replace(tzinfo=datetime.timezone.utc).timestamp()) > lastNotificationTime:
                                                     lastNotificationTime = int(message.created_at.replace(tzinfo=datetime.timezone.utc).timestamp())
                                                     lastNotificationName = n_name
@@ -582,7 +581,7 @@ class HuntManager:
                         self._log.debug(f"{name} on instance {instance} already logged")
                         return
                     else:  # Delete the notification from memory so it sends a new one instead of editing it
-                        await self.notifications.delete(n_channel, world, name, instance)
+                        await notifications.delete(n_channel, world, name, instance)
             else:
                 # self._log.debug(f"""Ignoring notifications for {hunt['Rank']} rank hunts""")
                 return
@@ -728,7 +727,7 @@ class HuntManager:
             if not message:
                 continue
 
-            await self.notifications.log(message, sub.channel_id, world, name, instance)
+            await notifications.log(message, sub.channel_id, world, name, instance)
 
         if subs or not (name.lower() in self._fates_info.keys()):
             self._hunts[world]['xivhunt'].append(_key)

@@ -4,6 +4,7 @@ import discord
 import git
 from discord.ext import commands
 from filobot.manager import HuntManager
+from filobot.notifications import notifications
 
 class Misc(commands.Cog):
 
@@ -42,7 +43,7 @@ class Misc(commands.Cog):
         """
         Get some miscellaneous bot statistics
         """
-        a_count, s_count = await self._hunt_manager.notifications.count()
+        a_count, s_count = await notifications.count()
         player_count = Player.select().where(Player.status == Player.STATUS_VERIFIED).count()
 
         # Git build hash

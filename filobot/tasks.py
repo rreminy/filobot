@@ -16,7 +16,7 @@ import logging
 from aiohttp import web
 from filobot.filobot import config, bot, GAMES, hunt_manager, log
 from filobot.database.models import Player
-from filobot.utilities.horus import HorusHunt
+from filobot.utilities.bear import BearHunt
 from filobot.utilities.static_data import achievementfates_info
 from filobot.utilities import parse_name
 from filobot.utilities.worlds import Worlds
@@ -123,14 +123,14 @@ async def bear_handler(self, data):
                     lastAlive = False if int(data['lastDeathTime']) > int(data['expectMinTime']) else True
 
                     if lastAlive:
-                        horusHunt = await hunt_manager.horus.update_bear(data, hunt_manager.get_marks_info()[huntName.lower()], huntName, instance)
+                        bearHunt = await hunt_manager.bear.update_bear(data, hunt_manager.get_marks_info()[huntName.lower()], huntName, instance)
 
-                        if horusHunt is not None:
-                            await hunt_manager.recheck_trackers('FeedListener2', huntName, horusHunt, instance)
+                        if bearHunt is not None:
+                            await hunt_manager.recheck_trackers('FeedListener2', huntName, bearHunt, instance)
             if 'fateName' in data and 'completed' in data:
                 progress = 100 if data['completed'] else 0
                 instance = int(data['fateName'][-1]) if data['fateName'][-2] == " " and data['fateName'][-1].isdigit() else 1
-                if progress == 100 and data['fateId'] in hunt_manager.horus.fates_info:
+                if progress == 100 and data['fateId'] in hunt_manager.bear.fates_info:
                     fateStruct = {
                         'progress': 100,
                         'duration': 0,
@@ -142,7 +142,7 @@ async def bear_handler(self, data):
                         'y': 1,
                         'i': instance,
                         'lastReported': datetime.datetime.fromtimestamp(int((f"{data['lastDeath']}").split('.')[0][:-3]), datetime.timezone.utc).isoformat(),
-                        'zoneID': f"{zones.id(hunt_manager.horus.fates_info[data['fateId']]['ZoneName'])}"
+                        'zoneID': f"{zones.id(hunt_manager.bear.fates_info[data['fateId']]['ZoneName'])}"
                     }
 
                     await _process_data('FeedListener2', fateStruct, None)
@@ -164,8 +164,8 @@ async def update_game():
         await asyncio.sleep(60.0)
 
 async def _process_data(source, data, message):
-    marks_info = hunt_manager.horus.marks_info
-    fates_info = hunt_manager.horus.fates_info
+    marks_info = hunt_manager.bear.marks_info
+    fates_info = hunt_manager.bear.fates_info
 
     try:
         if 'id' in data:
@@ -197,7 +197,7 @@ async def _process_hunt(source, data):
         world   = Worlds.get_world_by_id(int(data['wId']))
         if world is None:
             return
-        hunt    = hunt_manager.horus.id_to_hunt(data['id'])
+        hunt    = hunt_manager.bear.id_to_hunt(data['id'])
         _plus   = 22.5 if hunt['ZoneName'] in ZONES.HW else 21.5
         if config.get(source, 'x') == config.get(source, 'y'): # Some JSON structs use an array for X and Y
             data[config.get(source, 'x')] = data[config.get(source, 'x')]['x']
@@ -335,7 +335,7 @@ async def _process_fate(source, data):
         world   = data['world'] if 'world' in data and data['world'] is not None else Worlds.get_world_by_id(int(data[config.get(source, 'wId')]))
         if world is None:
             return
-        fate    = hunt_manager.horus.id_to_fate(data[config.get(source, 'id')])
+        fate    = hunt_manager.bear.id_to_fate(data[config.get(source, 'id')])
         _plus   = 22.5 if fate['ZoneName'] in ZONES.HW else 21.5
         if config.get(source, 'x') == config.get(source, 'y'): # Some JSON structs use an array for X and Y
             data[config.get(source, 'x')] = data[config.get(source, 'x')]['x']

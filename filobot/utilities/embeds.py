@@ -15,20 +15,20 @@ COLOR_MAXED = 0x275DAD
 COLOR_DIED = 0xFB6107
 COLOR_CLOSED = 0x5B616A
 
-def hunt_report_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: typing.Optional = None) -> discord.Embed:
+def hunt_report_embed(hunt_name: str, bear: typing.Optional = None, xivhunt: typing.Optional = None) -> discord.Embed:
     for _id, mark in marks_info.items():
         if parse_name(hunt_name) == mark['Name'].lower():
             embed = discord.Embed()
 
             world = xivhunt['world'] if xivhunt else None
-            world = horus.world if horus else world
+            world = bear.world if bear else world
 
             if world and Worlds.get_world_datacenter(world) in ('Elemental', 'Gaia', 'Mana', 'Meteor'):
                 embed.title = f"Rankランク{mark['Rank']}: {mark['Name']}"
             else:
                 embed.title = f"Rank {mark['Rank']}: {mark['Name']}"
 
-            # Default rank-based colors (overwritten if horus status is provided)
+            # Default rank-based colors (overwritten if bear status is provided)
             if mark['Rank'] == 'A':
                 embed.colour = COLOR_A
             elif mark['Rank'] == 'S' or mark['Rank'] == 'SS' or mark['Rank'] == 'SS Minion':
@@ -36,12 +36,12 @@ def hunt_report_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: ty
             elif mark['Rank'] == 'B':
                 embed.colour = COLOR_B
 
-            if horus is not None:
-                if horus.status == horus.STATUS_OPENED:
+            if bear is not None:
+                if bear.status == bear.STATUS_OPENED:
                     embed.colour = COLOR_OPEN
-                elif horus.status == horus.STATUS_MAXED:
+                elif bear.status == bear.STATUS_MAXED:
                     embed.colour = COLOR_MAXED
-                elif horus.status == horus.STATUS_DIED:
+                elif bear.status == bear.STATUS_DIED:
                     embed.colour = COLOR_DIED
                     embed.title += " デッド " if world and Worlds.get_world_datacenter(world) in ('Elemental', 'Gaia', 'Mana') else " "
                     embed.title += "DEAD"
@@ -88,13 +88,13 @@ def fate_report_embed(fate_name: str, xivhunt: typing.Optional = None) -> discor
 
             return embed
 
-def hunt_info_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: typing.Optional = None) -> discord.Embed:
+def hunt_info_embed(hunt_name: str, bear: typing.Optional = None, xivhunt: typing.Optional = None) -> discord.Embed:
     for _id, mark in marks_info.items():
         if parse_name(hunt_name) == mark['Name'].lower():
             embed = discord.Embed(title=mark['Name'], description=f"""Rank {mark['Rank']}""")
             embed.set_thumbnail(url=mark['Image'])
 
-            # Default rank-based colors (overwritten if horus status is provided)
+            # Default rank-based colors (overwritten if bear status is provided)
             if mark['Rank'] == 'A':
                 embed.colour = COLOR_A
             elif mark['Rank'] == 'S':
@@ -106,7 +106,7 @@ def hunt_info_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: typi
             embed.add_field(name='Region', value=mark['RegionName'])
 
             # Only display spawning tips if the hunt is open
-            if horus is None or horus.status in (horus.STATUS_OPENED, horus.STATUS_MAXED):
+            if bear is None or bear.status in (bear.STATUS_OPENED, bear.STATUS_MAXED):
                 if mark['SpawnTrigger']:
                     embed.add_field(name='Spawn trigger', value=mark['SpawnTrigger'])
 
@@ -118,24 +118,24 @@ def hunt_info_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: typi
                     if hunt_name.title() in MAPS:
                         embed.set_image(url=MAPS[hunt_name.title()])
 
-            if horus is not None:
-                # Horus status based color-coding
-                if horus.status == horus.STATUS_OPENED:
+            if bear is not None:
+                # Bear status based color-coding
+                if bear.status == bear.STATUS_OPENED:
                     embed.colour = COLOR_OPEN
-                elif horus.status == horus.STATUS_MAXED:
+                elif bear.status == bear.STATUS_MAXED:
                     embed.colour = COLOR_MAXED
-                elif horus.status == horus.STATUS_DIED:
+                elif bear.status == bear.STATUS_DIED:
                     embed.colour = COLOR_DIED
                 else:
                     embed.colour = COLOR_CLOSED
 
-                embed.add_field(name='Status', value=horus.status.title(), inline=False)
+                embed.add_field(name='Status', value=bear.status.title(), inline=False)
 
-                if horus.last_mark:
-                    last_mark = arrow.get(horus.last_mark / 1000).format("MMM Do, H:mma ZZZ")
+                if bear.last_mark:
+                    last_mark = arrow.get(bear.last_mark / 1000).format("MMM Do, H:mma ZZZ")
                     footer = f"""Marked {last_mark}"""
-                    if horus.last_try_user != 'N/A':
-                        footer = footer + f""" by {horus.last_try_user}"""
+                    if bear.last_try_user != 'N/A':
+                        footer = footer + f""" by {bear.last_try_user}"""
                     embed.set_footer(text=footer)
 
             return embed

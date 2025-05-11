@@ -1009,8 +1009,8 @@ class Hunts(commands.Cog):
             return
 
         try:
-            horus = self.hunt_manager.get(world, hunt_name, instance)
-            embed = hunt_info_embed(hunt_name, horus)
+            bear = self.hunt_manager.get(world, hunt_name, instance)
+            embed = hunt_info_embed(hunt_name, bear)
         except KeyError as e:
             self._log.info(e)
             await ctx.reply("No world or hunt by that name found - please check your spelling and try again")

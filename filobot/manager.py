@@ -18,7 +18,7 @@ from peewee import fn
 from filobot.utilities import *
 from filobot.database.models import KillLog, Subscriptions, SubscriptionsMeta
 from filobot.utilities.embeds import hunt_report_embed, fate_report_embed
-from filobot.utilities.horus import HorusHunt, Horus
+from filobot.utilities.bear import BearHunt, Bear
 from filobot.utilities.worlds import Worlds
 from filobot.utilities import parse_name
 from filobot.utilities.time_utils import RemainingTime
@@ -32,7 +32,7 @@ class HuntManager:
     def __init__(self, bot: Bot):
         self._log = logging.getLogger(__name__)
         self.bot = bot
-        self.horus = Horus(bot)
+        self.bear = Bear(bot)
 
         self._marks_info = {}
 
@@ -80,12 +80,12 @@ class HuntManager:
         # Minions tracker
         self.minions = dict()
 
-    def get(self, world: str, hunt_name: str, instance=1) -> HorusHunt:
+    def get(self, world: str, hunt_name: str, instance=1) -> BearHunt:
         """
         Get data on the requested hunt
         """
         _key = f"{parse_name(hunt_name)}_{instance}"
-        return self._hunts[world]['horus'][_key]
+        return self._hunts[world]['bear'][_key]
 
     def getExpansion(self, name: dict) -> str:
         zone_id = int(name['ZoneID'])
@@ -105,37 +105,35 @@ class HuntManager:
 
     async def recheck(self):
         """
-        Check and update hunt data from XIVHunt and Horus
+        Check and update hunt data
         Calls on_change and on_find events respectively
         """
-        # Update Horus
-        await self.horus.update_horus()
+        await self.bear.update()
 
         for world in Worlds.get_worlds():
             if world not in self._hunts:
-                self._hunts[world] = {'horus': {}, 'xivhunt': []}
+                self._hunts[world] = {'bear': {}, 'xivhunt': []}
 
             self._changed[world] = {}
             self._found[world] = {}
 
-            horus = await self.horus.load(world)
-            if horus is None:
+            bear = await self.bear.load(world)
+            if bear is None:
                 continue
 
-            # Look for updated Horus entries
             job_list = list()
-            for key, hunt in horus.items():  # type: str, HorusHunt
-                if key in self._hunts[world]['horus'] and hunt.status != self._hunts[world]['horus'][key].status:
-                    self._log.info(f"""Hunt status for {hunt.name} on {world} (Instance {hunt.instance}) changed - {self._hunts[world]['horus'][key].status.title()} => {hunt.status.title()}""")
+            for key, hunt in bear.items():  # type: str, BearHunt
+                if key in self._hunts[world]['bear'] and hunt.status != self._hunts[world]['bear'][key].status:
+                    self._log.info(f"""Hunt status for {hunt.name} on {world} (Instance {hunt.instance}) changed - {self._hunts[world]['bear'][key].status.title()} => {hunt.status.title()}""")
                     self._changed[world][key] = hunt
-                    job_list.append(self.on_change(world, self._hunts[world]['horus'][key], hunt))
+                    job_list.append(self.on_change(world, self._hunts[world]['bear'][key], hunt))
             result = await asyncio.gather(*job_list, return_exceptions=True)
             if isinstance(result, Exception):
                 self._log.exception("Job failed with exception", exc_info=result)
 
-            self._hunts[world]['horus'] = horus
+            self._hunts[world]['bear'] = bear
 
-    async def recheck_trackers(self, source: str, name: str, hunt: HorusHunt, instance: int):
+    async def recheck_trackers(self, source: str, name: str, hunt: BearHunt, instance: int):
         """
         Acknowledge hunt data from Beartracker
         Calls on_change and on_find events respectively
@@ -143,7 +141,7 @@ class HuntManager:
         world = hunt.world
 
         if world not in self._hunts:
-            self._hunts[world] = {'horus': {}, 'xivhunt': []}
+            self._hunts[world] = {'bear': {}, 'xivhunt': []}
 
         self._changed[world] = {}
         self._found[world] = {}
@@ -151,10 +149,10 @@ class HuntManager:
         key = f"{parse_name(name)}_{instance}"
 
         job_list = list()
-        if key in self._hunts[world]['horus'] and hunt.status != self._hunts[world]['horus'][key].status and hunt.open_date > self._hunts[world]['horus'][key].open_date:
-            self._log.info(f"""Hunt status for {name} on {world} (Instance {hunt.instance}) changed - {self._hunts[world]['horus'][key].status.title()} => {hunt.status.title()}""")
+        if key in self._hunts[world]['bear'] and hunt.status != self._hunts[world]['bear'][key].status and hunt.open_date > self._hunts[world]['bear'][key].open_date:
+            self._log.info(f"""Hunt status for {name} on {world} (Instance {hunt.instance}) changed - {self._hunts[world]['bear'][key].status.title()} => {hunt.status.title()}""")
             self._changed[world][key] = hunt
-            job_list.append(self.on_change(world, self._hunts[world]['horus'][key], hunt))
+            job_list.append(self.on_change(world, self._hunts[world]['bear'][key], hunt))
         result = await asyncio.gather(*job_list, return_exceptions=True)
         if isinstance(result, Exception):
             self._log.exception("Job failed with exception", exc_info=result)
@@ -318,7 +316,7 @@ class HuntManager:
                 if _key not in self._recent_fates[world]:
                     self._recent_fates[world][_key] = int(time.time())
 
-    async def on_change(self, world: str, old: HorusHunt, new: HorusHunt):
+    async def on_change(self, world: str, old: BearHunt, new: BearHunt):
         """
         Hunt status change event handler
         """
@@ -392,15 +390,15 @@ class HuntManager:
                 self._hunts[world]['xivhunt'].remove(_key)
 
         # Check if all A ranks are dead yet so we can end the train
-        if hunt['Rank'] == 'A' and hunt['ZoneName'] in ZONES.EW and self._hunts[world]['horus'] is not None and new.status == new.STATUS_DIED:
+        if hunt['Rank'] == 'A' and hunt['ZoneName'] in ZONES.EW and self._hunts[world]['bear'] is not None and new.status == new.STATUS_DIED:
             hunts_living, previous_death = False, 0
 
-            for key, horusHunt in self._hunts[world]['horus'].items():
-                if horusHunt.rank == 'A' and horusHunt.zone in ZONES.EW and horusHunt.name != new.name:
-                    if horusHunt.status != horusHunt.STATUS_DIED:
+            for key, bearHunt in self._hunts[world]['bear'].items():
+                if bearHunt.rank == 'A' and bearHunt.zone in ZONES.EW and bearHunt.name != new.name:
+                    if bearHunt.status != bearHunt.STATUS_DIED:
                         hunts_living = True
-                    if horusHunt.status == horusHunt.STATUS_DIED and int(horusHunt.last_alive) / 1000 > previous_death:
-                        previous_death = int(horusHunt.last_alive) / 1000
+                    if bearHunt.status == bearHunt.STATUS_DIED and int(bearHunt.last_alive) / 1000 > previous_death:
+                        previous_death = int(bearHunt.last_alive) / 1000
 
             if not hunts_living and int(time.time()) - (int(new.last_alive) / 1000) < 60:  # If last death report is retroactive, don't send a random "Complete" message
                 # All A ranks are dead, alter the train message
@@ -480,7 +478,7 @@ class HuntManager:
         self._log.debug(f"on_find: World = {world} | name = {name} | xivhunt = {xivhunt} | instance = {instance}")
 
         if world not in self._hunts:
-            self._hunts[world] = {'horus': {}, 'xivhunt': []}
+            self._hunts[world] = {'bear': {}, 'xivhunt': []}
 
         _key = f"{parse_name(name)}_{instance}"
 
@@ -489,18 +487,18 @@ class HuntManager:
 
             if hunt['Rank'] in ('A', 'S', 'SS', 'SS Minion'):
 
-                if hunt['Rank'] == 'A' and hunt['ZoneName'] in ZONES.EW and self._hunts[world]['horus'] is not None:
+                if hunt['Rank'] == 'A' and hunt['ZoneName'] in ZONES.EW and self._hunts[world]['bear'] is not None:
                     #self._log.info("Endwalker A rank - checking for train...")
-                    for key, horusHunt in self._hunts[world]['horus'].items():
-                        if horusHunt.rank == 'A' and horusHunt.zone in ZONES.EW:
-                            if horusHunt.status == horusHunt.STATUS_DIED and int(time.time()) - (int(horusHunt.last_alive) / 1000) <= 120:
+                    for key, bearHunt in self._hunts[world]['bear'].items():
+                        if bearHunt.rank == 'A' and bearHunt.zone in ZONES.EW:
+                            if bearHunt.status == bearHunt.STATUS_DIED and int(time.time()) - (int(bearHunt.last_alive) / 1000) <= 120:
                                 #self._log.info("Train detected")
                                 await self.on_train(world, name, xivhunt, False, instance)
                                 #self._log.info("On train call successful")
                                 break
 
-                if _key in self._hunts[world]['horus'].keys():
-                    if int(time.time()) - (int(self._hunts[world]['horus'][_key].last_alive) / 1000) <= 3600:
+                if _key in self._hunts[world]['bear'].keys():
+                    if int(time.time()) - (int(self._hunts[world]['bear'][_key].last_alive) / 1000) <= 3600:
                         #self._log.info(f"A hunt was found that just died! Laggy computer? World: {world} (Instance {instance}) :: {name}, Rank {xivhunt['rank']}")
                         return  # Trying to report a hunt that already died in the last 5 minutes. Someone's laggy computer?
 

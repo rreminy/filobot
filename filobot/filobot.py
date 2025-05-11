@@ -44,7 +44,7 @@ GAMES = ("with moogles", "in Totomo Omo's estate", "in the Izakaya Pub",
          "pranks on Joel Cleveland'", "with the hunt tracker", "Diabolos", "with hunts",
          "Marriage", "boredom", "with Sum", "with Eorzea", "Ascians", "Zodiark",
          "Hydaelyn", "Final Fantasy XIV", "FFXIV", "Centurio Hunts", "the Moon",
-         "the Sun", "Zenos", "Hades", "Python", "XIVAPI", "Horus", "with Tora",)
+         "the Sun", "Zenos", "Hades", "Python", "XIVAPI", "Bear", "with Tora",)
 
 @bot.event
 async def on_ready():

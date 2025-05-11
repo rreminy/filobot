@@ -11,6 +11,8 @@ import discord.ext
 import filobot.constants.zones as ZONES
 from filobot.utilities.worlds import Worlds
 from filobot.filobot import hunt_manager, log
+from filobot.manager import _process_data
+from filobot.utilities.static_data import marks_info, fates_info
 
 # noinspection PyBroadException
 async def bear_handler(self, data):
@@ -73,19 +75,10 @@ class Bear:
     def __init__(self, bot: discord.ext.commands.Bot):
         self._log = logging.getLogger(__name__)
         self._bot = bot
-
-        with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'marks_info.json'), 'r', encoding='utf-8') as json_file:
-            self.marks_info = json.load(json_file)
-
-        with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'fates_info.json'), 'r', encoding='utf-8') as json_file:
-            self.fates_info = json.load(json_file)
-
-        with open(os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep + os.path.join('data', 'achievementfates_info.json'), 'r', encoding='utf-8') as json_file:
-            self.fates_info.update(json.load(json_file))
-
+        self.marks_info = marks_info
+        self.fates_info = fates_info
         self._cached_response = {}
         self._cached_time = 0
-
         self._bear = {}
 
     async def update_bear(self, data, hunt_data, huntName, instance):

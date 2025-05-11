@@ -16,7 +16,7 @@ import logging
 from aiohttp import web
 from filobot.filobot import config, bot, GAMES, hunt_manager, log
 from filobot.database.models import Player
-from filobot.utilities.bear import BearHunt
+from filobot.utilities.bear import BearHunt, bear_handler
 from filobot.utilities.static_data import achievementfates_info
 from filobot.utilities import parse_name
 from filobot.utilities.worlds import Worlds
@@ -83,73 +83,20 @@ async def feed_listener(source):
                     for key, value in huntQueueCopy.items():
                         try:
                             if not isinstance(value, list) or len(value) < 2 or value[0] == None or value[1] == None:
-                                #timestring = time.strftime("%H:%M:%S")
-                                #print(f"{timestring} Removing hunt due to malformed data")
                                 huntQueue.pop(key)
                                 continue
                             data = value[0]
                             hunt = value[1]
                             if (int(time.time()) - hunt['last_seen']) > 240:
-                                #timestring = time.strftime("%H:%M:%S")
-                                #print(f"{timestring} Removing hunt due to being more than 4 minutes")
                                 huntQueue.pop(key)
                                 continue
                             if (int(time.time()) - hunt['last_seen']) >= 0:
-                                #timestring = time.strftime("%H:%M:%S")
-                                #print(f"{timestring} Releasing hunt due to reaching elapsed time")
                                 await _process_data(source, data, None)
                         except Exception as e:
-                            #print(f"Exception: {e}")
                             pass
                 except Exception as e:
-                    #timestring = time.strftime("%H:%M:%S")
-                    #print(f"{timestring} Exception: {e}")
                     log.exception(f"Exception occurred in feed listener associated with {address}")
                     pass # TODO: Logging
-
-# noinspection PyBroadException
-async def bear_handler(self, data):
-    try:
-        if data is not None and type(data) == dict and len(data) > 1:
-            if 'Notification' in data and data['Notification'] == "FoundReport" and 'Reporter' in data and data['Reporter'] != "" and 'World' in data:
-                instance = int(data['Hunt'][-1]) if data['Hunt'][-2] == " " and data['Hunt'][-1].isdigit() else 0
-                huntName = data['huntName'] if instance else data['huntName'][:-2]
-                world = data['World']                
-            if 'huntName' in data:
-                instance = int(data['huntName'][-1]) if data['huntName'][-2] == " " and data['huntName'][-1].isdigit() else 0
-                huntName = data['huntName'] if instance else data['huntName'][:-2]
-
-                if huntName.lower() in hunt_manager.get_marks_info() and 'lastDeathTime' in data and 'expectMinTime' in data:
-                    lastAlive = False if int(data['lastDeathTime']) > int(data['expectMinTime']) else True
-
-                    if lastAlive:
-                        bearHunt = await hunt_manager.bear.update_bear(data, hunt_manager.get_marks_info()[huntName.lower()], huntName, instance)
-
-                        if bearHunt is not None:
-                            await hunt_manager.recheck_trackers('FeedListener2', huntName, bearHunt, instance)
-            if 'fateName' in data and 'completed' in data:
-                progress = 100 if data['completed'] else 0
-                instance = int(data['fateName'][-1]) if data['fateName'][-2] == " " and data['fateName'][-1].isdigit() else 1
-                if progress == 100 and data['fateId'] in hunt_manager.bear.fates_info:
-                    fateStruct = {
-                        'progress': 100,
-                        'duration': 0,
-                        'startTimeEpoch': 0,
-                        'world': data['worldName'],
-                        'id': data['fateId'],
-                        'state': 1,
-                        'x': 1,
-                        'y': 1,
-                        'i': instance,
-                        'lastReported': datetime.datetime.fromtimestamp(int((f"{data['lastDeath']}").split('.')[0][:-3]), datetime.timezone.utc).isoformat(),
-                        'zoneID': f"{zones.id(hunt_manager.bear.fates_info[data['fateId']]['ZoneName'])}"
-                    }
-
-                    await _process_data('FeedListener2', fateStruct, None)
-    except:
-        log.exception(data)
-        log.exception("Exception occurred in feed listener associated with bear while processing last message")
-        pass
 
 # noinspection PyBroadException
 async def update_game():

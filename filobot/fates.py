@@ -1,30 +1,23 @@
-import json
 import logging
-import os
-import sys
-import typing
 import time
 import datetime
 import asyncio
-import arrow
 import discord
 import filobot.constants.subscriptions as SUB
 import filobot.constants.conditions as COND
 import filobot.constants.zones as ZONES
 import filobot.constants.datacenters as DATACENTERS
 import filobot.utilities.zones as zones
-from peewee import fn
 from filobot.utilities import *
-from filobot.database.models import KillLog, Subscriptions, SubscriptionsMeta
-from filobot.utilities.embeds import hunt_report_embed, fate_report_embed
-from filobot.utilities.bear import BearHunt, Bear, bear
+from filobot.database.models import SubscriptionsMeta
+from filobot.utilities.embeds import fate_report_embed
+from filobot.tracker import tracker
 from filobot.utilities.worlds import Worlds
-from filobot.utilities import parse_name
 from filobot.utilities.time_utils import RemainingTime
-from filobot.utilities.static_data import marks_info, fates_info
+from filobot.utilities.static_data import fates_info
 from filobot.subscriptions import subscriptions
 from filobot.notifications import notifications
-from filobot.filobot import bot, config, log
+from filobot.filobot import bot, config, log as _log
 from filobot.filobot import hunts
 
 class FateManager:
@@ -32,7 +25,7 @@ class FateManager:
     lock = asyncio.Lock()
 
     def __init__(self):
-        self._log = log
+        self._log = _log
 
         self._fates_info = {}
 
@@ -71,7 +64,7 @@ class FateManager:
             startTimeEpoch = int(data['startTimeEpoch']) if 'startTimeEpoch' in data and data['startTimeEpoch'] and data['startTimeEpoch'].isnumeric() else 0
             duration = int(data['duration']) if 'duration' in data and data['duration'] and data['duration'].isnumeric() else 0
             time_left = (duration - (last_seen - startTimeEpoch)) if duration else -1
-            log.debug(f"time_left is {time_left}")
+            _log.debug(f"time_left is {time_left}")
             xivhunt = { # Using this struct because the alternative is compatibility issues and endless copy & paste
                 'rank': "F",
                 'i': i, # data['i'], Seeing as this isn't functional anywhere at the moment
@@ -123,7 +116,7 @@ class FateManager:
                 self.get_fates_info()[fate['Name'].lower()]['Duration'] = duration
 
         except:
-            log.exception('Exception thrown') # for testing fates stuff
+            _log.exception('Exception thrown') # for testing fates stuff
             return
 
         return await self.on_find(world, fate['Name'], xivhunt, int(i) or 1)
@@ -222,17 +215,17 @@ class FateManager:
 
                         if time_left:
                             self._log.debug(f"FATE {name} on world {world} instance {instance} killed [1]\n{repr(xivhunt)}")
-                            content = f"~~{content}~~ {self.get_killed_text(seconds, is_jp)}"
+                            content = f"~~{content}~~ {get_killed_text(seconds, is_jp)}"
                         elif (xivhunt is not None and int(xivhunt['status']) > 0):
                             if notification.edited_at is not None and (time.time() - notification.edited_at.timestamp()) > 120:
                                 self._log.debug(f"FATE {name} on world {world} instance {instance} killed [2]\n{repr(xivhunt)}")
-                                content = f"~~{content}~~ {self.get_killed_text(seconds, is_jp)}"
+                                content = f"~~{content}~~ {get_killed_text(seconds, is_jp)}"
                             else:
                                 self._log.debug(f"FATE {name} on world {world} instance {instance} expired [1]\n{repr(xivhunt)}")
-                                content = f"~~{content}~~ {self.get_expired_text(seconds, is_jp)}"
+                                content = f"~~{content}~~ {get_expired_text(seconds, is_jp)}"
                         else:
                             self._log.debug(f"FATE {name} on world {world} instance {instance} expired [2]\n{repr(xivhunt)}")
-                            content = f"~~{content}~~ {self.get_expired_text(seconds, is_jp)}"
+                            content = f"~~{content}~~ {get_expired_text(seconds, is_jp)}"
 
                         if await notifications.get(sub.channel_id, world, name, instance) is None:
                             return

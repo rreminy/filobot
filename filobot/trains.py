@@ -8,7 +8,7 @@ from filobot.utilities import *
 from filobot.utilities.worlds import Worlds
 from filobot.subscriptions import subscriptions
 from filobot.notifications import notifications
-from filobot.filobot import log
+from filobot.filobot import log as _log
 
 class TrainManager:
 
@@ -56,9 +56,9 @@ class TrainManager:
                                 await notifications.log(notification, sub.channel_id, world, SUB.TRAINS, 1)
                             continue
                         except discord.NotFound:
-                            log.warning(f"Train announcement was deleted for {world}.")
+                            _log.warning(f"Train announcement was deleted for {world}.")
                         except:
-                            log.exception("Exception thrown")
+                            _log.exception("Exception thrown")
                 else:
                     if not complete:
                         await notifications.delete(sub.channel_id, world, SUB.TRAINS, 1)

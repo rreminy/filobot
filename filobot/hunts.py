@@ -1,5 +1,4 @@
 import logging
-import sys
 import time
 import datetime
 import asyncio
@@ -13,7 +12,8 @@ import filobot.utilities.zones as zones
 from filobot.utilities import *
 from filobot.database.models import SubscriptionsMeta
 from filobot.utilities.embeds import hunt_report_embed
-from filobot.utilities.bear import BearHunt, Bear, bear
+from filobot.tracker import tracker
+from filobot.utilities.bear import BearHunt
 from filobot.utilities.worlds import Worlds
 from filobot.utilities.time_utils import RemainingTime
 from filobot.utilities.static_data import marks_info
@@ -108,7 +108,7 @@ class HuntManager:
                try:
                   datacenter = worlds.Worlds.get_world_datacenter(world)
                except:
-                  log.exception('Exception thrown obtaining datacenter')
+                  self._log.exception('Exception thrown obtaining datacenter')
 
                if datacenter != "Primal" and datacenter != "Dynamis" and datacenter != "Crystal" and datacenter != "Chaos":
                   key = f"{world}_{parse_name(hunt['Name'])}_{i}"
@@ -130,7 +130,7 @@ class HuntManager:
             return await self.on_find(world, hunt['Name'], xivhunt, int(i) or 1)
 
         except:
-            log.exception('Exception thrown') # for testing fates stuff
+            self._log.exception('Exception thrown') # for testing fates stuff
             return
 
     async def _process_chaos(self, source, data, message):
@@ -176,7 +176,7 @@ class HuntManager:
             return await self.on_find(world, hunt['Name'], xivhunt, int(i) or 1)
 
         except:
-            log.exception('Exception thrown') # for testing fates stuff
+            self._log.exception('Exception thrown') # for testing fates stuff
             return
 
     def get(self, world: str, hunt_name: str, instance=1) -> BearHunt:
@@ -294,7 +294,7 @@ class HuntManager:
                                 pass
 
                             # Add dead timing to message
-                            content = f"~~{content}~~ {self.get_killed_text(seconds, Worlds.get_world_datacenter(world) in DATACENTERS.JA)}"
+                            content = f"~~{content}~~ {get_killed_text(seconds, Worlds.get_world_datacenter(world) in DATACENTERS.JA)}"
 
                             # Edit the message
                             await notification.edit(content=content, embed=embed)

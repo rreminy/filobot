@@ -5,6 +5,7 @@ import datetime
 import aiohttp
 import async_timeout
 import discord.ext
+import filobot.utilities.zones as zones
 from filobot.utilities.worlds import Worlds
 from filobot.utilities.static_data import marks_info, fates_info
 from filobot.utilities.bear import BearHunt

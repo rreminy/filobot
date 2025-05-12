@@ -156,8 +156,8 @@ async def bear_handler(self, data):
                         'zoneID': f"{zones.id(tracker.fates_info[data['fateId']]['ZoneName'])}"
                     }
 
-                    await fates.process('FeedListener2', fateStruct, None)
-    except:
+                    await fates.process('FeedListener2', fateStruct)
+    except Exception:
         _log = logging.getLogger(__name__)
         _log.exception(data)
         _log.exception("Exception occurred in feed listener associated with Bear while processing last message")

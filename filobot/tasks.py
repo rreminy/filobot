@@ -31,7 +31,7 @@ async def update_fates():
 
     while not bot.is_closed():
         try:
-            await fates.check_fates()
+            await fates.check()
         except Exception:
             log.exception('Exception thrown while checking fates')
         await asyncio.sleep(60.0)
@@ -124,7 +124,7 @@ async def _process_data(source, data, message):
         else:
             pass
 
-    except:
+    except Exception:
         log.exception('Exception thrown') # for testing fates stuff
         return
 

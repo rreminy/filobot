@@ -130,7 +130,7 @@ class HuntManager:
             self._log.exception('Exception thrown') # for testing fates stuff
             return
 
-    async def _process_chaos(self, source, data, message):
+    async def process_chaos(self, source, data, message):
         try:
             alive   = True
             world   = message.content.split("[")[1].split("]")[0]

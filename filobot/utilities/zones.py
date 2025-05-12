@@ -33,7 +33,7 @@ def name(id: int):
     except:
         raise IndexError(f'No zone with the ID {id} could be found')
 
-def expansion(self, zone_id: int) -> str:
+def expansion(zone_id: int) -> str:
     expansions = [(211,"arr"),(354,"hw"),(494,"sb"),(956,"shb"),(962,"ew")]
     for threshold, expansion in expansions:
         if zone_id < threshold:

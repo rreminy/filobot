@@ -117,7 +117,7 @@ class FateManager:
 
         return await self.on_find(world, fate['Name'], xivhunt, int(i) or 1)
 
-    async def check_fates(self):
+    async def check(self):
         self._log.debug(f"""Checking FATES""")
 
         async with self.lock:

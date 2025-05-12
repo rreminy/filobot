@@ -74,8 +74,8 @@ class FateManager:
                 'players': int(data["players"] if 'players' in data else 0)
             }
 
-            # Fate key
             key = f"{world}_{fate}_{i}"
+
             fate_info = self.get_fates_info()[fate['Name'].lower()]
 
             # Update interval
@@ -83,7 +83,6 @@ class FateManager:
             if "ProgressUpdateInterval" in fate_info:
                 progressUpdateInterval = fate_info["ProgressUpdateInterval"]
 
-            # Variables
             startTimeEpoch = int(data['startTimeEpoch'])
             progress = int(int(data['progress']) / progressUpdateInterval) * progressUpdateInterval
             xivhunt["status"] = str(progress)
@@ -110,12 +109,138 @@ class FateManager:
             # Add missing duration to the fate information
             if (not 'Duration' in fate_info) or duration > self.get_fates_info()[fate['Name'].lower()]['Duration']:
                 self.get_fates_info()[fate['Name'].lower()]['Duration'] = duration
-
-        except:
+        except Exception:
             _log.exception('Exception thrown') # for testing fates stuff
             return
 
         return await self.on_find(world, fate['Name'], xivhunt, int(i) or 1)
+
+    async def on_find(self, world: str, name: str, xivhunt: dict, instance=1):
+        self._log.debug(f"fates.on_find: World = {world} | name = {name} | xivhunt = {xivhunt} | instance = {instance}")
+
+        if world not in self._hunts:
+            self._hunts[world] = {'tracker': {}, 'xivhunt': []}
+
+        _key = f"{parse_name(name)}_{instance}"
+
+        if name.lower() in self._fates_info.keys():
+            if _key in self._hunts[world]['xivhunt']:
+                self._log.debug(f"FATE {name} on {world} instance {instance} already logged, updating progress.")
+                async with self.lock:
+                    await self.on_progress(world, name, xivhunt, instance)
+                return
+
+            if f"{world}_{_key}" in self._fate_timers:
+                if int(time.time()) - (int(self._fate_timers[f"{world}_{_key}"]) / 1000) <= 3600:
+                    self._log.info(f"A FATE was found that just found! Laggy computer? World: {world} (Instance {instance}) :: {name}")
+                    return
+            self._fate_timers[f"{world}_{_key}"] = time.time() * 1000;
+
+            fate = self._fates_info[name.lower()]
+            self._log.info(f"A FATE has been found on world {world} (Instance {instance}) :: {name}")
+
+            subs = await subscriptions.get(None, world, fate['Category'])
+            embed = fate_report_embed(name, xivhunt=xivhunt)
+
+        else:
+            self._log.debug(f"""Ignoring notifications for {name}""")
+            return
+
+        for sub in subs:  # type: Subscriptions
+            if COND.FIND != sub.event:
+                continue
+
+            attach_category = fate["Name"].lower()
+
+            for prefix, zone_set in {'ARR':ZONES.ARR,'HW':ZONES.HW,'SB':ZONES.SB,'SHB':ZONES.SHB,'EW':ZONES.EW,'DT': ZONES.DT}.items():
+                if fate['ZoneName'] in zone_set:
+                    attach_category = prefix
+                    break
+
+            _meta = SubscriptionsMeta.select().where((SubscriptionsMeta.channel_id == sub.channel_id)
+            & ((SubscriptionsMeta.attachName == fate["Name"].lower()) | (SubscriptionsMeta.attachName == attach_category) | (SubscriptionsMeta.attachName is None)))
+            # Matches this FATE, FATE category or all's notifier (in that order)
+            meta  = {m.name : m.value for m in _meta}
+            role_mention = meta['notifier'] if 'notifier' in meta else None
+
+            instance_symbol = {1:"①",2:"②",3:"③",4:"④",5:"⑤",6:"⑥"}[instance]
+            content = f"""[{world}] {fate['ZoneName']} ({xivhunt['coords']}) {instance_symbol}"""
+
+            en_zone_name, ja_zone_name = fate['ZoneName'], zones.get(str(fate['ZoneID']))['name_ja']
+            fr_zone_name, de_zone_name = zones.get(str(fate['ZoneID']))['name_fr'], zones.get(str(fate['ZoneID']))['name_de']
+
+            if Worlds.get_world_datacenter(world) in DATACENTERS.JA:
+                content = f"""[{world}] {ja_zone_name} {fate['ZoneName']} ({xivhunt['coords']}) {instance_symbol}"""
+                ja_description = f"""[{world}] {ja_zone_name} ({xivhunt['coords']}) {instance_symbol}"""
+                embed.description = f"""{ja_description}\n{fate['ZoneName']} ({xivhunt['coords']}) {instance_symbol}"""
+            elif Worlds.get_world_datacenter(world) in DATACENTERS.EU:
+                fr_description = f"""\n{fr_zone_name} ({xivhunt['coords']}) {instance_symbol}""" if fr_zone_name != en_zone_name and fr_zone_name != de_zone_name else ""
+                de_description = f"""\n{de_zone_name} ({xivhunt['coords']}) {instance_symbol}""" if de_zone_name != en_zone_name else ""
+                embed.description = f"""{content}{fr_description}{de_description}"""
+            else:
+                embed.description = content
+
+            if name.lower() in self._fates_info.keys(): #  Displaying FATEs a little differently to absorb the information efficiently
+                time_left = xivhunt['last_seen']
+                remaining_str = RemainingTime(time_left).to_simple()
+
+                fate = self._fates_info[name.lower()]
+                duration_str = ""
+                if (fate['Duration'] > 0):
+                    duration_str = f" / {RemainingTime(fate['Duration']).to_simple()}"
+
+                if Worlds.get_world_datacenter(world) in DATACENTERS.JA:
+                    embed.description = f"""{xivhunt['status']}% {ja_zone_name} {en_zone_name} ({xivhunt['coords']}) {instance_symbol}"""
+
+                    if time_left > 0:
+                        embed.set_footer(text=f"""残り{remaining_str}{duration_str} remaining""")
+                elif Worlds.get_world_datacenter(world) in DATACENTERS.EU:
+                    en_description = f"""{xivhunt['status']}% {en_zone_name} ({xivhunt['coords']}) {instance_symbol}"""
+                    fr_description = f"""\n{fr_zone_name} ({xivhunt['coords']}) {instance_symbol}""" if fr_zone_name != en_zone_name and fr_zone_name != de_zone_name else ""
+                    de_description = f"""\n{de_zone_name} ({xivhunt['coords']}) {instance_symbol}""" if de_zone_name != en_zone_name else ""
+                    embed.description = f"""{en_description}{fr_description}{de_description}"""
+
+                    if time_left > 0:
+                        embed.set_footer(text=f"""{remaining_str}{duration_str} remaining / restant""")
+                else:
+                    embed.description = f"""{xivhunt['status']}% {fate['ZoneName']} ({xivhunt['coords']}) {instance_symbol}"""
+
+                    if time_left > 0:
+                        embed.set_footer(text=f"""{remaining_str}{duration_str} remaining""")
+
+            if role_mention:
+                mentionARole = True
+                if fate['ZoneID'] == 1237:
+                    if instance != 1 and f"{world}_{_key[:-1]}1" in self._fate_timers and (int(time.time()) - (int(self._fate_timers[f"{world}_{_key[:-1]}1"]) / 1000)) <= 2400:
+                        mentionARole = False
+                    if instance != 2 and f"{world}_{_key[:-1]}2" in self._fate_timers and (int(time.time()) - (int(self._fate_timers[f"{world}_{_key[:-1]}2"]) / 1000)) <= 2400:
+                        mentionARole = False
+                    if instance != 3 and f"{world}_{_key[:-1]}3" in self._fate_timers and (int(time.time()) - (int(self._fate_timers[f"{world}_{_key[:-1]}3"]) / 1000)) <= 2400:
+                        mentionARole = False
+                    if instance != 4 and f"{world}_{_key[:-1]}4" in self._fate_timers and (int(time.time()) - (int(self._fate_timers[f"{world}_{_key[:-1]}4"]) / 1000)) <= 2400:
+                        mentionARole = False
+                    if instance != 5 and f"{world}_{_key[:-1]}5" in self._fate_timers and (int(time.time()) - (int(self._fate_timers[f"{world}_{_key[:-1]}5"]) / 1000)) <= 2400:
+                        mentionARole = False
+                if mentionARole:
+                    content = f"""{role_mention} {content}"""
+
+            if "BlueMageSpells" in fate and fate['BlueMageSpells']:
+                embed.description = f"""{embed.description}\nBlue Mage Spells: **{fate['BlueMageSpells']}**"""
+
+                role = await notifications.role(sub.channel_id, "blu_spell")
+
+                if role:
+                    content = f"""{content} {role}"""
+
+            message = await subscriptions.send_message(content, embed, sub)
+
+            if not message:
+                continue
+
+            await notifications.log(message, sub.channel_id, world, name, instance)
+
+        if subs:
+            self._hunts[world]['xivhunt'].append(_key)
 
     async def check(self):
         self._log.debug(f"""Checking FATES""")
@@ -268,133 +393,6 @@ class FateManager:
                     self._recent_fates[world] = {}
                 if _key not in self._recent_fates[world]:
                     self._recent_fates[world][_key] = int(time.time())
-
-    async def on_find(self, world: str, name: str, xivhunt: dict, instance=1):
-        self._log.debug(f"fates.on_find: World = {world} | name = {name} | xivhunt = {xivhunt} | instance = {instance}")
-
-        if world not in self._hunts:
-            self._hunts[world] = {'tracker': {}, 'xivhunt': []}
-
-        _key = f"{parse_name(name)}_{instance}"
-
-        if name.lower() in self._fates_info.keys():
-            if _key in self._hunts[world]['xivhunt']:
-                self._log.debug(f"FATE {name} on {world} instance {instance} already logged, updating progress.")
-                async with self.lock:
-                    await self.on_progress(world, name, xivhunt, instance)
-                return
-
-            if f"{world}_{_key}" in self._fate_timers:
-                if int(time.time()) - (int(self._fate_timers[f"{world}_{_key}"]) / 1000) <= 3600:
-                    self._log.info(f"A FATE was found that just found! Laggy computer? World: {world} (Instance {instance}) :: {name}")
-                    return
-            self._fate_timers[f"{world}_{_key}"] = time.time() * 1000;
-
-            fate = self._fates_info[name.lower()]
-            self._log.info(f"A FATE has been found on world {world} (Instance {instance}) :: {name}")
-
-            subs = await subscriptions.get(None, world, fate['Category'])
-            embed = fate_report_embed(name, xivhunt=xivhunt)
-
-        else:
-            self._log.debug(f"""Ignoring notifications for {name}""")
-            return
-
-        for sub in subs:  # type: Subscriptions
-            if COND.FIND != sub.event:
-                continue
-
-            attach_category = fate["Name"].lower()
-
-            for prefix, zone_set in {'ARR':ZONES.ARR,'HW':ZONES.HW,'SB':ZONES.SB,'SHB':ZONES.SHB,'EW':ZONES.EW,'DT': ZONES.DT}.items():
-                if fate['ZoneName'] in zone_set:
-                    attach_category = prefix
-                    break
-
-            _meta = SubscriptionsMeta.select().where((SubscriptionsMeta.channel_id == sub.channel_id)
-            & ((SubscriptionsMeta.attachName == fate["Name"].lower()) | (SubscriptionsMeta.attachName == attach_category) | (SubscriptionsMeta.attachName is None)))
-            # Matches this FATE, FATE category or all's notifier (in that order)
-            meta  = {m.name : m.value for m in _meta}
-            role_mention = meta['notifier'] if 'notifier' in meta else None
-
-            instance_symbol = {1:"①",2:"②",3:"③",4:"④",5:"⑤",6:"⑥"}[instance]
-            content = f"""[{world}] {fate['ZoneName']} ({xivhunt['coords']}) {instance_symbol}"""
-
-            en_zone_name, ja_zone_name = fate['ZoneName'], zones.get(str(fate['ZoneID']))['name_ja']
-            fr_zone_name, de_zone_name = zones.get(str(fate['ZoneID']))['name_fr'], zones.get(str(fate['ZoneID']))['name_de']
-
-            if Worlds.get_world_datacenter(world) in DATACENTERS.JA:
-                content = f"""[{world}] {ja_zone_name} {fate['ZoneName']} ({xivhunt['coords']}) {instance_symbol}"""
-                ja_description = f"""[{world}] {ja_zone_name} ({xivhunt['coords']}) {instance_symbol}"""
-                embed.description = f"""{ja_description}\n{fate['ZoneName']} ({xivhunt['coords']}) {instance_symbol}"""
-            elif Worlds.get_world_datacenter(world) in DATACENTERS.EU:
-                fr_description = f"""\n{fr_zone_name} ({xivhunt['coords']}) {instance_symbol}""" if fr_zone_name != en_zone_name and fr_zone_name != de_zone_name else ""
-                de_description = f"""\n{de_zone_name} ({xivhunt['coords']}) {instance_symbol}""" if de_zone_name != en_zone_name else ""
-                embed.description = f"""{content}{fr_description}{de_description}"""
-            else:
-                embed.description = content
-
-            if name.lower() in self._fates_info.keys(): #  Displaying FATEs a little differently to absorb the information efficiently
-                time_left = xivhunt['last_seen']
-                remaining_str = RemainingTime(time_left).to_simple()
-
-                fate = self._fates_info[name.lower()]
-                duration_str = ""
-                if (fate['Duration'] > 0):
-                    duration_str = f" / {RemainingTime(fate['Duration']).to_simple()}"
-
-                if Worlds.get_world_datacenter(world) in DATACENTERS.JA:
-                    embed.description = f"""{xivhunt['status']}% {ja_zone_name} {en_zone_name} ({xivhunt['coords']}) {instance_symbol}"""
-
-                    if time_left > 0:
-                        embed.set_footer(text=f"""残り{remaining_str}{duration_str} remaining""")
-                elif Worlds.get_world_datacenter(world) in DATACENTERS.EU:
-                    en_description = f"""{xivhunt['status']}% {en_zone_name} ({xivhunt['coords']}) {instance_symbol}"""
-                    fr_description = f"""\n{fr_zone_name} ({xivhunt['coords']}) {instance_symbol}""" if fr_zone_name != en_zone_name and fr_zone_name != de_zone_name else ""
-                    de_description = f"""\n{de_zone_name} ({xivhunt['coords']}) {instance_symbol}""" if de_zone_name != en_zone_name else ""
-                    embed.description = f"""{en_description}{fr_description}{de_description}"""
-
-                    if time_left > 0:
-                        embed.set_footer(text=f"""{remaining_str}{duration_str} remaining / restant""")
-                else:
-                    embed.description = f"""{xivhunt['status']}% {fate['ZoneName']} ({xivhunt['coords']}) {instance_symbol}"""
-
-                    if time_left > 0:
-                        embed.set_footer(text=f"""{remaining_str}{duration_str} remaining""")
-
-            if role_mention:
-                mentionARole = True
-                if fate['ZoneID'] == 1237:
-                    if instance != 1 and f"{world}_{_key[:-1]}1" in self._fate_timers and (int(time.time()) - (int(self._fate_timers[f"{world}_{_key[:-1]}1"]) / 1000)) <= 2400:
-                        mentionARole = False
-                    if instance != 2 and f"{world}_{_key[:-1]}2" in self._fate_timers and (int(time.time()) - (int(self._fate_timers[f"{world}_{_key[:-1]}2"]) / 1000)) <= 2400:
-                        mentionARole = False
-                    if instance != 3 and f"{world}_{_key[:-1]}3" in self._fate_timers and (int(time.time()) - (int(self._fate_timers[f"{world}_{_key[:-1]}3"]) / 1000)) <= 2400:
-                        mentionARole = False
-                    if instance != 4 and f"{world}_{_key[:-1]}4" in self._fate_timers and (int(time.time()) - (int(self._fate_timers[f"{world}_{_key[:-1]}4"]) / 1000)) <= 2400:
-                        mentionARole = False
-                    if instance != 5 and f"{world}_{_key[:-1]}5" in self._fate_timers and (int(time.time()) - (int(self._fate_timers[f"{world}_{_key[:-1]}5"]) / 1000)) <= 2400:
-                        mentionARole = False
-                if mentionARole:
-                    content = f"""{role_mention} {content}"""
-
-            if "BlueMageSpells" in fate and fate['BlueMageSpells']:
-                embed.description = f"""{embed.description}\nBlue Mage Spells: **{fate['BlueMageSpells']}**"""
-
-                role = await notifications.role(sub.channel_id, "blu_spell")
-
-                if role:
-                    content = f"""{content} {role}"""
-
-            message = await subscriptions.send_message(content, embed, sub)
-
-            if not message:
-                continue
-
-            await notifications.log(message, sub.channel_id, world, name, instance)
-
-        if subs:
-            self._hunts[world]['xivhunt'].append(_key)
 
     def get_fates_info(self):
         return self._fates_info

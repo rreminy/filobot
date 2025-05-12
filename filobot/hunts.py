@@ -172,143 +172,6 @@ class HuntManager:
             self._log.exception('Exception thrown') # for testing fates stuff
             return
 
-    def get(self, world: str, hunt_name: str, instance=1) -> BearHunt:
-        _key = f"{parse_name(hunt_name)}_{instance}"
-        return self._hunts[world]['tracker'][f"{parse_name(hunt_name)}_{instance}"]
-
-    async def recheck(self, source: str = None, name: str = None, hunt: BearHunt = None, instance: int = None):
-        """
-        Check and update tracker data
-        Calls on_change and on_find events respectively
-        """
-        if source is None:
-            await tracker.update()
-
-            for world in Worlds.get_worlds():
-                if world not in self._hunts:
-                    self._hunts[world] = {'tracker': {}, 'xivhunt': []}
-
-                self._changed[world] = {}
-                self._found[world] = {}
-
-                tracked_list = await tracker.load(world)
-
-                if tracked_list is None:
-                    continue
-
-                job_list = list()
-                for key, hunt in tracked_list.items():  # type: str, BearHunt
-                    if key in self._hunts[world]['tracker'] and hunt.status != self._hunts[world]['tracker'][key].status:
-                        self._log.info(f"""Hunt status for {hunt.name} on {world} (Instance {hunt.instance}) changed - {self._hunts[world]['tracker'][key].status.title()} => {hunt.status.title()}""")
-                        self._changed[world][key] = hunt
-                        job_list.append(self.on_change(world, self._hunts[world]['tracker'][key], hunt))
-                result = await asyncio.gather(*job_list, return_exceptions=True)
-                if isinstance(result, Exception):
-                    self._log.exception("Job failed with exception", exc_info=result)
-
-                self._hunts[world]['tracker'] = tracked_list
-        else:
-            world = hunt.world
-
-            if world not in self._hunts:
-                self._hunts[world] = {'tracker': {}, 'xivhunt': []}
-
-            self._changed[world] = {}
-            self._found[world] = {}
-
-            key = f"{parse_name(name)}_{instance}"
-
-            job_list = list()
-            if key in self._hunts[world]['tracker'] and hunt.status != self._hunts[world]['tracker'][key].status and hunt.open_date > self._hunts[world]['tracker'][key].open_date:
-                self._log.info(f"""Hunt status for {name} on {world} (Instance {hunt.instance}) changed - {self._hunts[world]['tracker'][key].status.title()} => {hunt.status.title()}""")
-                self._changed[world][key] = hunt
-                job_list.append(self.on_change(world, self._hunts[world]['tracker'][key], hunt))
-            result = await asyncio.gather(*job_list, return_exceptions=True)
-            if isinstance(result, Exception):
-                self._log.exception("Job failed with exception", exc_info=result)
-
-    async def on_change(self, world: str, old: BearHunt, new: BearHunt):
-        hunt = self._marks_info[old.name.lower()]
-
-        if 'Category' not in hunt:
-            return
-
-        subs = await subscriptions.get(None, world, hunt['Category'])
-        embed = hunt_report_embed(new.name, new)
-
-        for sub in subs:
-            if new.status == new.STATUS_OPENED and COND.OPEN == sub.event:
-                await subscriptions.send_message(f"A hunt has opened on **{world}** (**Instance {new.instance}**)!", embed, sub)
-                continue
-
-            if new.status == new.STATUS_MAXED and COND.OPEN == sub.event:
-                await subscriptions.send_message(f"A hunts maximum spawn window has been reached on **{world}** (**Instance {new.instance}**)!", embed, sub)
-                continue
-
-            if new.status == new.STATUS_DIED and COND.DEAD == sub.event:
-                # If we previously sent a notification that the hunt was found, edit that message instead of sending a new one
-                notification = await notifications.get(sub.channel_id, world, new.name, new.instance)
-                await notifications.delete(sub.channel_id, world, new.name, new.instance)
-
-                if notification:
-                    notification, log = notification
-                    killed  = arrow.get(int(new.last_mark / 1000)).timestamp()
-                    seconds = killed - log.found
-                    ja_seconds = ""
-                    ja_minutes = ""
-
-                    if Worlds.get_world_datacenter(world) in DATACENTERS.JA:
-                        ja_seconds, ja_minutes = "秒", "分"
-
-                    log.killed = killed
-                    log.kill_time = seconds
-                    log.save()
-
-                    try:
-                        if notification.author.bot:
-                            content = notification.content # Get the original content
-
-                            try:
-                                embed.description = f"~~{notification.embeds[0].description}~~" if notification.embeds[0].description else ""
-                                embed.set_image(url=discord.Embed.Empty) # This might be giving a secret error, we may want to use None instead
-                            except:
-                                pass
-
-                            content = f"~~{content}~~ {get_killed_text(seconds, Worlds.get_world_datacenter(world) in DATACENTERS.JA)}" # Add dead timing
-
-                            await notification.edit(content=content, embed=embed)
-                    except discord.NotFound:
-                        self._log.warning(f"Notification message for hunt {new.name} on world {world} has been deleted")
-                    except:
-                        self._log.exception("Exception thrown");
-
-            _key = f"{parse_name(new.name)}_{new.instance}"
-
-            if _key in self._hunts[world]['xivhunt']:
-                self._hunts[world]['xivhunt'].remove(_key)
-
-        # Check if all A ranks are dead yet so we can end the train
-        if hunt['Rank'] == 'A' and hunt['ZoneName'] in ZONES.EW and self._hunts[world]['tracker'] is not None and new.status == new.STATUS_DIED:
-            hunts_living, previous_death = False, 0
-
-            for key, trackerHunt in self._hunts[world]['tracker'].items():
-                if trackerHunt.rank == 'A' and trackerHunt.zone in ZONES.EW and trackerHunt.name != new.name:
-                    if trackerHunt.status != trackerHunt.STATUS_DIED:
-                        hunts_living = True
-                    if trackerHunt.status == trackerHunt.STATUS_DIED and int(trackerHunt.last_alive) / 1000 > previous_death:
-                        previous_death = int(trackerHunt.last_alive) / 1000
-
-            if not hunts_living and int(time.time()) - (int(new.last_alive) / 1000) < 60:  # If last death report is retroactive, don't send a random "Complete" message
-                # All A ranks are dead, alter the train message
-                await self.trains.on_train(world, new.name, None, True, new.instance)
-                return
-
-            if previous_death and int(int(new.last_alive) / 1000) == int(int(new.last_mark) / 1000): # Don't report a train if it's a retroactive mark
-                time_between = (int(new.last_alive) / 1000) - previous_death
-
-                if time_between > 40 and time_between < 240:  # More than 40 seconds, less than 4 minutes between deaths?
-                    await self.trains.on_train(world, new.name, None, False, new.instance)  # It's a train then
-
     async def on_find(self, world: str, name: str, xivhunt: dict, instance=1):
         """
         Hunt and fate found event handler
@@ -492,6 +355,143 @@ class HuntManager:
 
         if subs or name.lower() in self._marks_info.keys():
             self._hunts[world]['xivhunt'].append(_key)
+
+    def get(self, world: str, hunt_name: str, instance=1) -> BearHunt:
+        _key = f"{parse_name(hunt_name)}_{instance}"
+        return self._hunts[world]['tracker'][f"{parse_name(hunt_name)}_{instance}"]
+
+    async def recheck(self, source: str = None, name: str = None, hunt: BearHunt = None, instance: int = None):
+        """
+        Check and update tracker data
+        Calls on_change and on_find events respectively
+        """
+        if source is None:
+            await tracker.update()
+
+            for world in Worlds.get_worlds():
+                if world not in self._hunts:
+                    self._hunts[world] = {'tracker': {}, 'xivhunt': []}
+
+                self._changed[world] = {}
+                self._found[world] = {}
+
+                tracked_list = await tracker.load(world)
+
+                if tracked_list is None:
+                    continue
+
+                job_list = list()
+                for key, hunt in tracked_list.items():  # type: str, BearHunt
+                    if key in self._hunts[world]['tracker'] and hunt.status != self._hunts[world]['tracker'][key].status:
+                        self._log.info(f"""Hunt status for {hunt.name} on {world} (Instance {hunt.instance}) changed - {self._hunts[world]['tracker'][key].status.title()} => {hunt.status.title()}""")
+                        self._changed[world][key] = hunt
+                        job_list.append(self.on_change(world, self._hunts[world]['tracker'][key], hunt))
+                result = await asyncio.gather(*job_list, return_exceptions=True)
+                if isinstance(result, Exception):
+                    self._log.exception("Job failed with exception", exc_info=result)
+
+                self._hunts[world]['tracker'] = tracked_list
+        else:
+            world = hunt.world
+
+            if world not in self._hunts:
+                self._hunts[world] = {'tracker': {}, 'xivhunt': []}
+
+            self._changed[world] = {}
+            self._found[world] = {}
+
+            key = f"{parse_name(name)}_{instance}"
+
+            job_list = list()
+            if key in self._hunts[world]['tracker'] and hunt.status != self._hunts[world]['tracker'][key].status and hunt.open_date > self._hunts[world]['tracker'][key].open_date:
+                self._log.info(f"""Hunt status for {name} on {world} (Instance {hunt.instance}) changed - {self._hunts[world]['tracker'][key].status.title()} => {hunt.status.title()}""")
+                self._changed[world][key] = hunt
+                job_list.append(self.on_change(world, self._hunts[world]['tracker'][key], hunt))
+            result = await asyncio.gather(*job_list, return_exceptions=True)
+            if isinstance(result, Exception):
+                self._log.exception("Job failed with exception", exc_info=result)
+
+    async def on_change(self, world: str, old: BearHunt, new: BearHunt):
+        hunt = self._marks_info[old.name.lower()]
+
+        if 'Category' not in hunt:
+            return
+
+        subs = await subscriptions.get(None, world, hunt['Category'])
+        embed = hunt_report_embed(new.name, new)
+
+        for sub in subs:
+            if new.status == new.STATUS_OPENED and COND.OPEN == sub.event:
+                await subscriptions.send_message(f"A hunt has opened on **{world}** (**Instance {new.instance}**)!", embed, sub)
+                continue
+
+            if new.status == new.STATUS_MAXED and COND.OPEN == sub.event:
+                await subscriptions.send_message(f"A hunts maximum spawn window has been reached on **{world}** (**Instance {new.instance}**)!", embed, sub)
+                continue
+
+            if new.status == new.STATUS_DIED and COND.DEAD == sub.event:
+                # If we previously sent a notification that the hunt was found, edit that message instead of sending a new one
+                notification = await notifications.get(sub.channel_id, world, new.name, new.instance)
+                await notifications.delete(sub.channel_id, world, new.name, new.instance)
+
+                if notification:
+                    notification, log = notification
+                    killed  = arrow.get(int(new.last_mark / 1000)).timestamp()
+                    seconds = killed - log.found
+                    ja_seconds = ""
+                    ja_minutes = ""
+
+                    if Worlds.get_world_datacenter(world) in DATACENTERS.JA:
+                        ja_seconds, ja_minutes = "秒", "分"
+
+                    log.killed = killed
+                    log.kill_time = seconds
+                    log.save()
+
+                    try:
+                        if notification.author.bot:
+                            content = notification.content # Get the original content
+
+                            try:
+                                embed.description = f"~~{notification.embeds[0].description}~~" if notification.embeds[0].description else ""
+                                embed.set_image(url=discord.Embed.Empty) # This might be giving a secret error, we may want to use None instead
+                            except:
+                                pass
+
+                            content = f"~~{content}~~ {get_killed_text(seconds, Worlds.get_world_datacenter(world) in DATACENTERS.JA)}" # Add dead timing
+
+                            await notification.edit(content=content, embed=embed)
+                    except discord.NotFound:
+                        self._log.warning(f"Notification message for hunt {new.name} on world {world} has been deleted")
+                    except:
+                        self._log.exception("Exception thrown");
+
+            _key = f"{parse_name(new.name)}_{new.instance}"
+
+            if _key in self._hunts[world]['xivhunt']:
+                self._hunts[world]['xivhunt'].remove(_key)
+
+        # Check if all A ranks are dead yet so we can end the train
+        if hunt['Rank'] == 'A' and hunt['ZoneName'] in ZONES.EW and self._hunts[world]['tracker'] is not None and new.status == new.STATUS_DIED:
+            hunts_living, previous_death = False, 0
+
+            for key, trackerHunt in self._hunts[world]['tracker'].items():
+                if trackerHunt.rank == 'A' and trackerHunt.zone in ZONES.EW and trackerHunt.name != new.name:
+                    if trackerHunt.status != trackerHunt.STATUS_DIED:
+                        hunts_living = True
+                    if trackerHunt.status == trackerHunt.STATUS_DIED and int(trackerHunt.last_alive) / 1000 > previous_death:
+                        previous_death = int(trackerHunt.last_alive) / 1000
+
+            if not hunts_living and int(time.time()) - (int(new.last_alive) / 1000) < 60:  # If last death report is retroactive, don't send a random "Complete" message
+                # All A ranks are dead, alter the train message
+                await self.trains.on_train(world, new.name, None, True, new.instance)
+                return
+
+            if previous_death and int(int(new.last_alive) / 1000) == int(int(new.last_mark) / 1000): # Don't report a train if it's a retroactive mark
+                time_between = (int(new.last_alive) / 1000) - previous_death
+
+                if time_between > 40 and time_between < 240:  # More than 40 seconds, less than 4 minutes between deaths?
+                    await self.trains.on_train(world, new.name, None, False, new.instance)  # It's a train then
 
     def get_marks_info(self):
         return self._marks_info

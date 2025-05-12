@@ -35,23 +35,19 @@ class HuntManager:
             if mark['Rank'][:1] not in {'A', 'S'}:
                 continue
 
-            for prefix, zone_set in {'ARR':ZONES.ARR,'HW':ZONES.HW,'SB':ZONES.SB,'SHB':ZONES.SHB,'EW':ZONES.EW,'DT': ZONES.DT}.items():
+            for prefix, zone_set in ZONES.LIST.items():
                 if mark['ZoneName'] in zone_set:
                     self._marks_info[key]['Category'] = getattr(SUB, f"{prefix}_{mark['Rank'][:1]}")
                     break
                 else:
                     self._log.info(f"""Not binding hunt {mark['Name']} to a subscription category""")
-                    self._log.info(f"{str(mark)} => {mark['ZoneName'] in ZONES.EW}")
 
-        self._hunts = {}
+        self._hunts = tracker._tracked
         self._changed = {}
         self._found = {}
         self._timers = {}
-        self.hunt_queue = {}
-
-        # Minions tracker
+        self._hunt_queue = {}
         self.minions = dict()
-
         self.trains = TrainManager(self._marks_info)
 
     async def process(self, source, data):
@@ -109,17 +105,17 @@ class HuntManager:
 
                if datacenter != "Primal" and datacenter != "Dynamis" and datacenter != "Crystal" and datacenter != "Chaos":
                   key = f"{world}_{parse_name(hunt['Name'])}_{i}"
-                  if key not in self.hunt_queue:
+                  if key not in self._hunt_queue:
                      if hunt['WaitTime'] != 0 and hunt['WaitTime'] != 1560:
-                        self.hunt_queue[key] = [data, xivhunt]
-                        self.hunt_queue[key][1]['last_seen'] = (int(time.time()) + hunt['WaitTime'])
+                        self._hunt_queue[key] = [data, xivhunt]
+                        self._hunt_queue[key][1]['last_seen'] = (int(time.time()) + hunt['WaitTime'])
                      return
                   else:
-                     if (int(time.time()) - self.hunt_queue[key][1]['last_seen']) < 0 or (int(time.time()) - self.hunt_queue[key][1]['last_seen']) > 240:
+                     if (int(time.time()) - self._hunt_queue[key][1]['last_seen']) < 0 or (int(time.time()) - self._hunt_queue[key][1]['last_seen']) > 240:
                         return
 
-            if key in self.hunt_queue:
-               self.hunt_queue.pop(key)
+            if key in self._hunt_queue:
+               self._hunt_queue.pop(key)
 
             if hunt['Rank'] == "SS":
                return
@@ -232,21 +228,15 @@ class HuntManager:
                 self._log.exception("Job failed with exception", exc_info=result)
 
     async def on_change(self, world: str, old: BearHunt, new: BearHunt):
-        """
-        Hunt status change event handler
-        """
         hunt = self._marks_info[old.name.lower()]
+
         if 'Category' not in hunt:
             return
-        try:
-            subs = await subscriptions.get(None, world, hunt['Category'])
-            embed = hunt_report_embed(new.name, new)
-        except:
-            # self._log.warning(f"""{hunt['Name']}""")
-            # raise
-            return
 
-        for sub in subs:  # type: Subscriptions
+        subs = await subscriptions.get(None, world, hunt['Category'])
+        embed = hunt_report_embed(new.name, new)
+
+        for sub in subs:
             if new.status == new.STATUS_OPENED and COND.OPEN == sub.event:
                 await subscriptions.send_message(f"A hunt has opened on **{world}** (**Instance {new.instance}**)!", embed, sub)
                 continue
@@ -256,10 +246,10 @@ class HuntManager:
                 continue
 
             if new.status == new.STATUS_DIED and COND.DEAD == sub.event:
-                # If we previously sent a notification that the hunt was found, edit that message instead of
-                # sending a new one
+                # If we previously sent a notification that the hunt was found, edit that message instead of sending a new one
                 notification = await notifications.get(sub.channel_id, world, new.name, new.instance)
                 await notifications.delete(sub.channel_id, world, new.name, new.instance)
+
                 if notification:
                     notification, log = notification
                     killed  = arrow.get(int(new.last_mark / 1000)).timestamp()
@@ -276,24 +266,16 @@ class HuntManager:
 
                     try:
                         if notification.author.bot:
-                            # Get the original content
-                            content = notification.content
+                            content = notification.content # Get the original content
 
-                            # Remove the ping mention
-                            #beg = content.find(f"[{new.world}]")
-                            #content = content[beg:]
-
-                            # Set embed description
                             try:
                                 embed.description = f"~~{notification.embeds[0].description}~~" if notification.embeds[0].description else ""
                                 embed.set_image(url=discord.Embed.Empty) # This might be giving a secret error, we may want to use None instead
                             except:
                                 pass
 
-                            # Add dead timing to message
-                            content = f"~~{content}~~ {get_killed_text(seconds, Worlds.get_world_datacenter(world) in DATACENTERS.JA)}"
+                            content = f"~~{content}~~ {get_killed_text(seconds, Worlds.get_world_datacenter(world) in DATACENTERS.JA)}" # Add dead timing
 
-                            # Edit the message
                             await notification.edit(content=content, embed=embed)
                     except discord.NotFound:
                         self._log.warning(f"Notification message for hunt {new.name} on world {world} has been deleted")
@@ -301,6 +283,7 @@ class HuntManager:
                         self._log.exception("Exception thrown");
 
             _key = f"{parse_name(new.name)}_{new.instance}"
+
             if _key in self._hunts[world]['xivhunt']:
                 self._hunts[world]['xivhunt'].remove(_key)
 

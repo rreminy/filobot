@@ -32,6 +32,7 @@ class Tracker:
         self._cached_response = {}
         self._cached_time = 0
         self._tracker = {}
+        self._tracked = {}
 
     async def update_tracker(self, data, hunt_data, huntName, instance):
         world = data['worldName']

@@ -16,18 +16,17 @@ from discord import app_commands
 from discord import Locale
 from filobot.utilities import parse_name
 from filobot.utilities.embeds import hunt_info_embed, fate_info_embed
-from filobot.manager import HuntManager
+from filobot.hunts import hunt
+from filobot.fates import fate
 from filobot.utilities.worlds import Worlds
 from filobot.subscriptions import subscriptions
 from filobot.notifications import notifications
+from filobot.filobot import bot
 
 class Hunts(commands.Cog):
 
-    def __init__(self, bot: discord.ext.commands.Bot, hunt_manager: HuntManager):
+    def __init__(self):
         self._log = logging.getLogger(__name__)
-        self.bot = bot
-
-        self.hunt_manager = hunt_manager
 
         self.srankPosts = {}
 
@@ -37,7 +36,7 @@ class Hunts(commands.Cog):
         self.shbSRanks = []
         self.ewSRanks = []
 
-        for key, hunt in hunt_manager.get_marks_info().items():
+        for key, hunt in hunts.get_marks_info().items():
             if hunt['ID'] < 4350 and hunt['Rank'] == 'S':
                 self.arrSRanks.append(discord.SelectOption(label=hunt['Name'], value=hunt['ID']))
             elif hunt['ID'] < 5984 and hunt['Rank'] == 'S':
@@ -70,16 +69,16 @@ class Hunts(commands.Cog):
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
         try:
-            channel = await self.bot.fetch_channel(payload.channel_id)
+            channel = await bot.fetch_channel(payload.channel_id)
             message = await channel.fetch_message(payload.message_id)
-            user = await self.bot.fetch_user(payload.user_id)
+            user = await bot.fetch_user(payload.user_id)
             emoji = payload.emoji
-            if emoji.name == "DEAD" and message.author.id == self.bot.user.id and message.content.find("~~") < 0 and message.embeds[0]:
+            if emoji.name == "DEAD" and message.author.id == bot.user.id and message.content.find("~~") < 0 and message.embeds[0]:
                 worldId = Worlds.get_world_id(message.content[message.content.find("["):].split("]")[0].replace("[", ""))
                 instance = 2 if message.content.find("②") > -1 else (3 if message.content.find("③") > -1 else 1)
                 x, z = message.content.split("(")[1].split(")")[0].strip().split(",")
                 if message.embeds[0].title.startswith("Rank"):
-                     hunt = self.hunt_manager.get_marks_info()[message.embeds[0].title[(message.embeds[0].title.find(":") + 2):].lower()]
+                     hunt = hunts.get_marks_info()[message.embeds[0].title[(message.embeds[0].title.find(":") + 2):].lower()]
                      payload = {
                          "Timestamp": int(time.time() * 1000),
                          "X": x,
@@ -98,7 +97,7 @@ class Hunts(commands.Cog):
                 else:
                      #disable due to error
                      await message.edit(content=(f"~~{message.content}~~"), embed=message.embeds[0])
-                     #for fate in self.hunt_manager.get_fates_info():
+                     #for fate in fates.get_fates_info():
                          #if message.embeds[0].title.find(fate['Name']) > -1:
                              #print(f"https://api.ffxivsonar.com/hint/killed/{'fate'}/{worldId}_{fate['ID']}_{instance}")
                              #await send_report("fate", worldId, fate['ID'], instance, x, z)
@@ -177,7 +176,7 @@ class Hunts(commands.Cog):
         """
         debuginfo = ""
         try:
-            for hunt in self.hunt_manager.get_marks_info().values():
+            for hunt in hunts.get_marks_info().values():
                 debuginfo = "in for loop"
                 if hunt['Zone'] in str(paste):
                     debuginfo = "in if statement"
@@ -198,10 +197,10 @@ class Hunts(commands.Cog):
                                 'zone_id': int(data["zoneID"]),
                             }
 
-                            self.hunt_manager.get_marks_info()[hunt['Name'].lower()]['ZoneName'] = zones.name(data["zoneID"])
-                            self.hunt_manager.get_marks_info()[hunt['Name'].lower()]['ZoneID'] = int(data["zoneID"])
+                            hunts.get_marks_info()[hunt['Name'].lower()]['ZoneName'] = zones.name(data["zoneID"])
+                            hunts.get_marks_info()[hunt['Name'].lower()]['ZoneID'] = int(data["zoneID"])
 
-                            await hunt_manager.on_find(world, hunt['Name'], xivhunt, 1)
+                            await hunts.on_find(world, hunt['Name'], xivhunt, 1)
         except Exception as e:
             await ctx.response.send_message("Could not extract information. Try to include the following info (does not support instances): World Area Name ( X, Y )", ephemeral=True)
             print(e)
@@ -213,7 +212,7 @@ class Hunts(commands.Cog):
         Relay a FATE via paste
         """
         try:
-            for fate in self.hunt_manager.get_fates_info():
+            for fate in fates.get_fates_info():
                 if paste.find(fate['Zone']) > -1:
                     x, y = paste.split("(")[1].split(")")[0].strip().split(",")
                     for world in Worlds.get_worlds():
@@ -345,7 +344,7 @@ class Hunts(commands.Cog):
         Announce a map party
         """
         try:
-            #self.hunt_manager.mapParty(world, type.value, rules.value, firstname, lastname)
+            #hunts.mapParty(world, type.value, rules.value, firstname, lastname)
             #print("Not implemented yet.")
             #plan to do it via subscriptions, so that it restricts it to the right DC channel
             await ctx.response.send_message("Not yet implemented.", ephemeral=True)
@@ -369,7 +368,7 @@ class Hunts(commands.Cog):
         """
         try:
             #check area actually exists
-            #self.hunt_manager.farmParty(world, area, purpose.value, firstname, lastname)
+            #hunts.farmParty(world, area, purpose.value, firstname, lastname)
             #plan to do it via subscriptions, so that it restricts it to the right DC channel
             await ctx.response.send_message("Not yet implemented.", ephemeral=True)
         except Exception as e:
@@ -1009,7 +1008,7 @@ class Hunts(commands.Cog):
             return
 
         try:
-            bear = self.hunt_manager.get(world, hunt_name, instance)
+            bear = hunts.get(world, hunt_name, instance)
             embed = hunt_info_embed(hunt_name, bear)
         except KeyError as e:
             self._log.info(e)
@@ -1044,12 +1043,12 @@ class Hunts(commands.Cog):
             if attachname in SUBS.HUNT_SUBSCRIPTIONS or attachname == "trains":
                 found = True
 
-            for fate in self.hunt_manager.get_fates_info().keys():
+            for fate in fates.get_fates_info().keys():
                 if fate.find(attachname) > -1:
                     attachname = fate
                     found = True
                     break
-            for hunt in self.hunt_manager.get_marks_info().keys():
+            for hunt in hunts.get_marks_info().keys():
                 if hunt.find(attachname) > -1:
                     attachname = hunt
                     found = True
@@ -1089,12 +1088,12 @@ class Hunts(commands.Cog):
             if attachname in SUBS.HUNT_SUBSCRIPTIONS or attachname == "trains" or attachname == "blu_spell":
                 found = True
 
-            for fate in self.hunt_manager.get_fates_info().keys():
+            for fate in fates.get_fates_info().keys():
                 if fate.find(attachname) > -1:
                     attachname = fate
                     found = True
                     break
-            for hunt in self.hunt_manager.get_marks_info().keys():
+            for hunt in hunts.get_marks_info().keys():
                 if hunt.find(attachname) > -1:
                     attachname = hunt
                     found = True

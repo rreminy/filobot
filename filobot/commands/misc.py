@@ -3,15 +3,13 @@ import logging
 import discord
 import git
 from discord.ext import commands
-from filobot.manager import HuntManager
 from filobot.notifications import notifications
+from filobot.filobot import bot
 
 class Misc(commands.Cog):
 
-    def __init__(self, bot: discord.ext.commands.Bot, hunt_manager: HuntManager):
+    def __init__(self):
         self._log = logging.getLogger(__name__)
-        self.bot = bot
-        self._hunt_manager = hunt_manager
         self.start_time = 0
 
     @commands.command()
@@ -28,7 +26,7 @@ class Misc(commands.Cog):
         word = False  # is the bird the word?
 
         async for message in ctx.channel.history(limit=10, oldest_first=False):  # type: discord.Message
-            if message.author.id == self.bot.user.id:
+            if message.author.id == bot.user.id:
                 continue
 
             if word:

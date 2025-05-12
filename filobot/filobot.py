@@ -11,7 +11,8 @@ from filobot.commands.admin import Admin
 from filobot.commands.misc import Misc
 from filobot.database import db
 from filobot.database.models import GuildSettings, KillLog, Player, ScoutingHunts, ScoutingSessions, Subscriptions, SubscriptionsMeta, Blacklist
-from filobot.manager import HuntManager
+from filobot.hunts import hunts
+from filobot.fates import fates
 
 # Load our configuration
 config = ConfigParser()
@@ -36,10 +37,9 @@ intents = discord.Intents.default()
 intents.message_content = True
 
 bot = commands.Bot(command_prefix='g.', intents=intents)
-hunt_manager = HuntManager(bot)
-asyncio.run(bot.add_cog(Hunts(bot, hunt_manager)))
-asyncio.run(bot.add_cog(Admin(bot)))
-asyncio.run(bot.add_cog(Misc(bot, hunt_manager)))
+asyncio.run(bot.add_cog(Hunts()))
+asyncio.run(bot.add_cog(Admin()))
+asyncio.run(bot.add_cog(Misc()))
 GAMES = ("with moogles", "in Totomo Omo's estate", "in the Izakaya Pub",
          "pranks on Joel Cleveland'", "with the hunt tracker", "Diabolos", "with hunts",
          "Marriage", "boredom", "with Sum", "with Eorzea", "Ascians", "Zodiark",

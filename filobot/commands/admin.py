@@ -6,11 +6,11 @@ import peewee
 from discord import Guild
 from discord.ext import commands
 from filobot.database.models import Player, Blacklist
+from filobot.filobot import bot
 
 class Admin(commands.Cog):
-    def __init__(self, bot: discord.ext.commands.Bot):
+    def __init__(self):
         self._log = logging.getLogger(__name__)
-        self.bot = bot
 
     @commands.command(hidden=True)
     @commands.has_permissions(administrator=True)
@@ -18,7 +18,7 @@ class Admin(commands.Cog):
         """
         Syncs commands
         """
-        await self.bot.tree.sync()
+        await bot.tree.sync()
         await ctx.reply("Sync'd app commands! You may need to CTRL+R", ephemeral=True)
 
     @commands.command(hidden=True)
@@ -35,7 +35,7 @@ class Admin(commands.Cog):
             return
 
         notice_sent = False
-        for guild in self.bot.guilds:  # type: discord.Guild
+        for guild in bot.guilds:  # type: discord.Guild
             member = guild.get_member(id)  # type: discord.Member
             if member:
                 if not notice_sent:
@@ -66,7 +66,7 @@ class Admin(commands.Cog):
         except peewee.DoesNotExist:
             Blacklist.create(guild_id=guild_id)
 
-        for guild in self.bot.guilds:  # type: Guild
+        for guild in bot.guilds:  # type: Guild
             if guild.id == guild_id:
                 self._log.warning(f"Left server {guild_id}")
                 await guild.owner.send(f"This server bas been blacklisted from accessing Filo. For more information, please contact Totomo Omo on Mateus")
@@ -94,7 +94,7 @@ class Admin(commands.Cog):
         (Will also clear the message used to instantiate this command)
         """
         async for message in ctx.channel.history(limit=50):  # type: discord.Message
-            if message.author.id == self.bot.user.id:
+            if message.author.id == bot.user.id:
                 await message.delete()
 
         await ctx.message.delete()
@@ -105,7 +105,7 @@ class Admin(commands.Cog):
         output = ''
         counter = 0
         i = 0
-        for guild in self.bot.guilds:  # type: Guild
+        for guild in bot.guilds:  # type: Guild
             output = output + f"**{guild.name} ({guild.id})** - {guild.owner.name}#{guild.owner.discriminator}\n"
 
             i += 1
@@ -123,7 +123,7 @@ class Admin(commands.Cog):
     async def member_guilds(self, ctx: commands.context.Context, discord_id: int):
         guilds = []
 
-        for guild in self.bot.guilds:  # type: discord.Guild
+        for guild in bot.guilds:  # type: discord.Guild
             member = guild.get_member(discord_id)
             if member:
                 guilds.append((member, guild))
@@ -147,7 +147,7 @@ class Admin(commands.Cog):
     @commands.command(hidden=True)
     @commands.is_owner()
     async def leave(self, ctx: commands.context.Context, guild_id: int):
-        guild = self.bot.get_guild(guild_id)  # type: discord.Guild
+        guild = bot.get_guild(guild_id)  # type: discord.Guild
         if not guild:
             await ctx.send("I am not in any guild with that ID")
 
@@ -157,7 +157,7 @@ class Admin(commands.Cog):
     @commands.command(hidden=True)
     @commands.is_owner()
     async def server_announce(self, ctx: commands.context.Context, *, message: str):
-        for guild in self.bot.guilds:  # type: discord.Guild
+        for guild in bot.guilds:  # type: discord.Guild
             print(f"Sending announcement to {guild.name}")
             try:
                 await guild.owner.send(message)

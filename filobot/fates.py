@@ -52,7 +52,7 @@ class FateManager:
             world   = data['world'] if 'world' in data and data['world'] is not None else Worlds.get_world_by_id(int(data[config.get(source, 'wId')]))
             if world is None:
                 return
-            fate    = bear.id_to_fate(data[config.get(source, 'id')])
+            fate    = tracker.id_to_fate(data[config.get(source, 'id')])
             _plus   = 22.5 if fate['ZoneName'] in ZONES.HW else 21.5
             if config.get(source, 'x') == config.get(source, 'y'): # Some JSON structs use an array for X and Y
                 data[config.get(source, 'x')] = data[config.get(source, 'x')]['x']
@@ -277,7 +277,7 @@ class FateManager:
         self._log.debug(f"fates.on_find: World = {world} | name = {name} | xivhunt = {xivhunt} | instance = {instance}")
 
         if world not in self._hunts:
-            self._hunts[world] = {'bear': {}, 'xivhunt': []}
+            self._hunts[world] = {'tracker': {}, 'xivhunt': []}
 
         _key = f"{parse_name(name)}_{instance}"
 

@@ -1,25 +1,18 @@
 import asyncio
 import random
-import datetime
 import time
-import sys
 import os
 import json
 import discord
 import socketio
 import aiohttp
-import filobot.constants.zones as ZONES
 import filobot.constants.datacenters as DATACENTERS
 import filobot.utilities.worlds as worlds
-import filobot.utilities.zones as zones
 import logging
 from aiohttp import web
 from filobot.filobot import config, bot, GAMES, hunts, fates, log
 from filobot.database.models import Player
-from filobot.utilities.bear import BearHunt, bear_handler, bear
-from filobot.utilities.static_data import achievementfates_info
-from filobot.utilities import parse_name
-from filobot.utilities.worlds import Worlds
+from filobot.tracker import tracker, bear_handler
 from filobot.notifications import notifications
 
 logger = logging.getLogger(__name__)
@@ -109,8 +102,8 @@ async def update_game():
         await asyncio.sleep(60.0)
 
 async def _process_data(source, data, message):
-    marks_info = bear.marks_info
-    fates_info = bear.fates_info
+    marks_info = tracker.marks_info
+    fates_info = tracker.fates_info
 
     try:
         if 'id' in data:

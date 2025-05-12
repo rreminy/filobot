@@ -8,17 +8,13 @@ import filobot.constants.conditions as COND
 import filobot.constants.zones as ZONES
 import filobot.constants.datacenters as DATACENTERS
 import filobot.utilities.zones as zones
+from filobot.filobot import bot, subscriptions, notifications, hunts, tracker, config, log as _log
 from filobot.utilities import *
 from filobot.database.models import SubscriptionsMeta
 from filobot.utilities.embeds import fate_report_embed
-from filobot.tracker import tracker
 from filobot.utilities.worlds import Worlds
 from filobot.utilities.time_utils import RemainingTime
-from filobot.utilities.static_data import fates_info
-from filobot.subscriptions import subscriptions
-from filobot.notifications import notifications
-from filobot.filobot import bot, config, log as _log
-from filobot.filobot import hunts
+from filobot.utilities.static_data import fates_info, achievementfates_info
 
 class FateManager:
 
@@ -173,7 +169,7 @@ class FateManager:
         _key = f"{parse_name(name)}_{instance}"
 
         fate = self._fates_info[name.lower()]
-        subs = subscriptions.get(None, world, fate['Category'])
+        subs = await subscriptions.get(None, world, fate['Category'])
         embed = fate_report_embed(name, xivhunt)
 
         info = self._fates_info[name.lower()]
@@ -297,7 +293,7 @@ class FateManager:
             fate = self._fates_info[name.lower()]
             self._log.info(f"A FATE has been found on world {world} (Instance {instance}) :: {name}")
 
-            subs = subscriptions.get(None, world, fate['Category'])
+            subs = await subscriptions.get(None, world, fate['Category'])
             embed = fate_report_embed(name, xivhunt=xivhunt)
 
         else:
@@ -316,7 +312,7 @@ class FateManager:
                     break
 
             _meta = SubscriptionsMeta.select().where((SubscriptionsMeta.channel_id == sub.channel_id)
-            & ((SubscriptionsMeta.attachName == fate["Name"].lower()) | (SubscriptionsMeta.attachName == attach_category) | (SubscriptionsMeta.attach_Name is None)))
+            & ((SubscriptionsMeta.attachName == fate["Name"].lower()) | (SubscriptionsMeta.attachName == attach_category) | (SubscriptionsMeta.attachName is None)))
             # Matches this FATE, FATE category or all's notifier (in that order)
             meta  = {m.name : m.value for m in _meta}
             role_mention = meta['notifier'] if 'notifier' in meta else None
@@ -385,7 +381,7 @@ class FateManager:
             if "BlueMageSpells" in fate and fate['BlueMageSpells']:
                 embed.description = f"""{embed.description}\nBlue Mage Spells: **{fate['BlueMageSpells']}**"""
 
-                role = notifications.role(sub.channel_id, "blu_spell")
+                role = await notifications.role(sub.channel_id, "blu_spell")
 
                 if role:
                     content = f"""{content} {role}"""
@@ -402,5 +398,3 @@ class FateManager:
 
     def get_fates_info(self):
         return self._fates_info
-
-fates = FateManager(bot)

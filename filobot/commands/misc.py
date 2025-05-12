@@ -3,8 +3,7 @@ import logging
 import discord
 import git
 from discord.ext import commands
-from filobot.notifications import notifications
-from filobot.filobot import bot
+from filobot.filobot import bot, notifications
 
 class Misc(commands.Cog):
 

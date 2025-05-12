@@ -14,14 +14,10 @@ from discord.ext import commands
 from discord.utils import get
 from discord import app_commands
 from discord import Locale
+from filobot.filobot import bot, subscriptions, notifications, hunts, fates
 from filobot.utilities import parse_name
 from filobot.utilities.embeds import hunt_info_embed, fate_info_embed
-from filobot.hunts import hunt
-from filobot.fates import fate
 from filobot.utilities.worlds import Worlds
-from filobot.subscriptions import subscriptions
-from filobot.notifications import notifications
-from filobot.filobot import bot
 
 class Hunts(commands.Cog):
 

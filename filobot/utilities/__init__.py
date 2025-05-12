@@ -17,8 +17,8 @@ def parse_duration_string(start: float, end: float):
     duration.append(f"""{int(seconds)} seconds""")
     return ', '.join(duration)
 
-def get_killed_text(self, seconds, is_jp):
+def get_killed_text(seconds, is_jp):
     return f"""**Killed {"殺された" if is_jp else ""}**""" #  *(after {RemainingTime(seconds).to_verbose()}{"後" if is_jp else ""})*
 
-def get_expired_text(self, seconds, is_jp):
+def get_expired_text(seconds, is_jp):
     return f"""**Expired {"期限切れ" if is_jp else ""}**""" #  *(after {RemainingTime(seconds).to_verbose()}{"後" if is_jp else ""})*

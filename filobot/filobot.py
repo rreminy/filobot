@@ -6,13 +6,8 @@ import math
 from configparser import ConfigParser
 from discord.ext import commands
 from discord import app_commands
-from filobot.commands.hunts import Hunts
-from filobot.commands.admin import Admin
-from filobot.commands.misc import Misc
 from filobot.database import db
 from filobot.database.models import GuildSettings, KillLog, Player, ScoutingHunts, ScoutingSessions, Subscriptions, SubscriptionsMeta, Blacklist
-from filobot.hunts import hunts
-from filobot.fates import fates
 
 # Load our configuration
 config = ConfigParser()
@@ -37,9 +32,24 @@ intents = discord.Intents.default()
 intents.message_content = True
 
 bot = commands.Bot(command_prefix='g.', intents=intents)
+
+from filobot.subscriptions import SubscriptionManager
+subscriptions = SubscriptionManager()
+from filobot.notifications import NotificationManager
+notifications = NotificationManager()
+from filobot.tracker import Tracker
+tracker = Tracker(bot)
+from filobot.hunts import HuntManager
+hunts = HuntManager()
+from filobot.fates import FateManager
+fates = FateManager()
+from filobot.commands.hunts import Hunts
 asyncio.run(bot.add_cog(Hunts()))
+from filobot.commands.admin import Admin
 asyncio.run(bot.add_cog(Admin()))
+from filobot.commands.misc import Misc
 asyncio.run(bot.add_cog(Misc()))
+
 GAMES = ("with moogles", "in Totomo Omo's estate", "in the Izakaya Pub",
          "pranks on Joel Cleveland'", "with the hunt tracker", "Diabolos", "with hunts",
          "Marriage", "boredom", "with Sum", "with Eorzea", "Ascians", "Zodiark",

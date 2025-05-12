@@ -3,7 +3,6 @@ import asyncio
 import typing
 import discord
 import arrow
-import copy
 from filobot.database.models import SubscriptionsMeta, KillLog
 
 class NotificationManager:
@@ -104,4 +103,3 @@ class NotificationManager:
     def reload(self):
         self.subscriptions_meta = list(SubscriptionsMeta.select())
 
-notifications = NotificationManager()

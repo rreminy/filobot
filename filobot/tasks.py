@@ -10,10 +10,9 @@ import filobot.constants.datacenters as DATACENTERS
 import filobot.utilities.worlds as worlds
 import logging
 from aiohttp import web
-from filobot.filobot import config, bot, GAMES, hunts, fates, log
+from filobot.filobot import config, bot, GAMES, notifications, tracker, hunts, fates, log
 from filobot.database.models import Player
-from filobot.tracker import tracker, bear_handler
-from filobot.notifications import notifications
+from filobot.tracker import bear_handler
 
 logger = logging.getLogger(__name__)
 

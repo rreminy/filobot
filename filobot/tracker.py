@@ -6,7 +6,6 @@ import aiohttp
 import async_timeout
 import discord.ext
 from filobot.utilities.worlds import Worlds
-from filobot.filobot import hunts, fates, log
 from filobot.utilities.static_data import marks_info, fates_info
 from filobot.utilities.bear import BearHunt
 
@@ -117,10 +116,9 @@ class Tracker:
             async with session.get(url) as response:
                 return await response.text()
 
-tracker = Tracker(bot)
-
 # noinspection PyBroadException
 async def bear_handler(self, data):
+    from filobot.filobot import hunts, fates, tracker
     try:
         if data is not None and type(data) == dict and len(data) > 1:
             if 'Notification' in data and data['Notification'] == "FoundReport" and 'Reporter' in data and data['Reporter'] != "" and 'World' in data:
@@ -159,6 +157,7 @@ async def bear_handler(self, data):
 
                     await fates.process('FeedListener2', fateStruct, None)
     except:
-        log.exception(data)
-        log.exception("Exception occurred in feed listener associated with Bear while processing last message")
+        _log = logging.getLogger(__name__)
+        _log.exception(data)
+        _log.exception("Exception occurred in feed listener associated with Bear while processing last message")
         pass

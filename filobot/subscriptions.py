@@ -154,4 +154,3 @@ class SubscriptionManager:
         except discord.errors.Forbidden:
             self.log.warning(f"No permission to send to channel {sub.channel_id}")
 
-subscriptions = SubscriptionManager()

@@ -6,9 +6,7 @@ import filobot.constants.datacenters as DATACENTERS
 import filobot.utilities.zones as zones
 from filobot.utilities import *
 from filobot.utilities.worlds import Worlds
-from filobot.subscriptions import subscriptions
-from filobot.notifications import notifications
-from filobot.filobot import log as _log
+from filobot.filobot import subscriptions, notifications, log as _log
 
 class TrainManager:
 
@@ -18,12 +16,12 @@ class TrainManager:
     async def on_train(self, world: str, name: str, xivhunt: dict, complete: bool, instance=1):
         hunt = self._marks_info[name.lower()]
 
-        subs = subscriptions.get(None, world, getattr(SUB, "TRAINS"))
+        subs = await subscriptions.get(None, world, getattr(SUB, "TRAINS"))
 
         instance_symbol = {1:"①",2:"②",3:"③",4:"④",5:"⑤",6:"⑥"}[instance]
 
         for sub in subs:
-            role_mention = notifications.role(sub.channel_id, "trains")
+            role_mention = await notifications.role(sub.channel_id, "trains")
 
             # Attempt to edit an existing message first
             notification = await notifications.get(sub.channel_id, world, SUB.TRAINS, 1)

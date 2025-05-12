@@ -9,17 +9,14 @@ import filobot.constants.conditions as COND
 import filobot.constants.zones as ZONES
 import filobot.constants.datacenters as DATACENTERS
 import filobot.utilities.zones as zones
+from filobot.filobot import config, subscriptions, notifications, tracker, log
 from filobot.utilities import *
 from filobot.database.models import SubscriptionsMeta
 from filobot.utilities.embeds import hunt_report_embed
-from filobot.tracker import tracker
 from filobot.utilities.bear import BearHunt
 from filobot.utilities.worlds import Worlds
 from filobot.utilities.time_utils import RemainingTime
 from filobot.utilities.static_data import marks_info
-from filobot.subscriptions import subscriptions
-from filobot.notifications import notifications
-from filobot.filobot import log
 from filobot.trains import TrainManager
 
 class HuntManager:
@@ -55,7 +52,7 @@ class HuntManager:
         # Minions tracker
         self.minions = dict()
 
-        self.trains = TrainManager(self, self._marks_info)
+        self.trains = TrainManager(self._marks_info)
 
     async def process(self, source, data):
         try:
@@ -242,7 +239,7 @@ class HuntManager:
         if 'Category' not in hunt:
             return
         try:
-            subs = subscriptions.get(None, world, hunt['Category'])
+            subs = await subscriptions.get(None, world, hunt['Category'])
             embed = hunt_report_embed(new.name, new)
         except:
             # self._log.warning(f"""{hunt['Name']}""")
@@ -369,7 +366,7 @@ class HuntManager:
 
                 self._log.info(f"A hunt has been found on world {world} (Instance {instance}) :: {name}, Rank {xivhunt['rank']}")
 
-                subs = subscriptions.get(None, world, hunt['Category'])
+                subs = await subscriptions.get(None, world, hunt['Category'])
                 embed = hunt_report_embed(name, xivhunt=xivhunt)
 
                 #  Checks if another hunt from the same world and expansion has been reported since this one.
@@ -499,7 +496,7 @@ class HuntManager:
             if "BlueMageSpells" in hunt and hunt['BlueMageSpells']:
                 embed.description = f"""{embed.description}\nBlue Mage Spells: **{hunt['BlueMageSpells']}**"""
 
-                role = notifications.role(sub.channel_id, "blu_spell")
+                role = await notifications.role(sub.channel_id, "blu_spell")
 
                 if role:
                     content = f"""{content} {role}"""
@@ -515,5 +512,3 @@ class HuntManager:
 
     def get_marks_info(self):
         return self._marks_info
-
-hunts = HuntManager(bot)

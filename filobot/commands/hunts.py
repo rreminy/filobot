@@ -17,7 +17,7 @@ from discord import Locale
 from filobot.filobot import bot, subscriptions, notifications, hunts, fates
 from filobot.utilities import parse_name
 from filobot.utilities.embeds import hunt_info_embed, fate_info_embed
-from filobot.utilities.worlds import Worlds
+from filobot.utilities.worlds import worlds
 
 class Hunts(commands.Cog):
 
@@ -70,7 +70,7 @@ class Hunts(commands.Cog):
             user = await bot.fetch_user(payload.user_id)
             emoji = payload.emoji
             if emoji.name == "DEAD" and message.author.id == bot.user.id and message.content.find("~~") < 0 and message.embeds[0]:
-                worldId = Worlds.get_world_id(message.content[message.content.find("["):].split("]")[0].replace("[", ""))
+                worldId = worlds.get_world(message.content[message.content.find("["):].split("]")[0].replace("[", ""))
                 instance = 2 if message.content.find("②") > -1 else (3 if message.content.find("③") > -1 else 1)
                 x, z = message.content.split("(")[1].split(")")[0].strip().split(",")
                 if message.embeds[0].title.startswith("Rank"):
@@ -178,7 +178,7 @@ class Hunts(commands.Cog):
                     debuginfo = "in if statement"
                     x, y = paste.split("(")[1].split(")")[0].strip().split(",")
                     debuginfo = "done xy assignment"
-                    for world in Worlds.get_worlds():
+                    for world in worlds.get_worlds():
                         if paste.find(world):
                             debuginfo = "under paste.find()"
                             xivhunt = {
@@ -211,7 +211,7 @@ class Hunts(commands.Cog):
             for fate in fates.get_fates_info():
                 if paste.find(fate['Zone']) > -1:
                     x, y = paste.split("(")[1].split(")")[0].strip().split(",")
-                    for world in Worlds.get_worlds():
+                    for world in worlds.get_worlds():
                         if paste.find(world):
                             fateStruct = {
                                 'progress': 0,
@@ -296,7 +296,7 @@ class Hunts(commands.Cog):
         Return a list of commands
         """
         try:
-            datacenter = Worlds.get_world_datacenter(world)
+            datacenter = worlds.get_datacenter(world)
             if datacenter is None or datacenter.find("Admin") > -1 or datacenter.find("Mod") > -1 or datacenter.find("_") > -1 or datacenter.find("Bot") > -1 or datacenter.find("nothing") > -1 or datacenter.find("Founder") > -1:
                 await interaction.response.send_message("Failed", ephemeral=True)
                 return

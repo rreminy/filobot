@@ -14,7 +14,7 @@ from filobot.utilities import *
 from filobot.database.models import SubscriptionsMeta
 from filobot.utilities.embeds import hunt_report_embed
 from filobot.utilities.bear import BearHunt
-from filobot.utilities.worlds import Worlds
+from filobot.utilities.worlds import worlds
 from filobot.utilities.time_utils import RemainingTime
 from filobot.utilities.static_data import marks_info
 from filobot.trains import TrainManager
@@ -53,7 +53,7 @@ class HuntManager:
     async def process(self, source, data):
         try:
             alive   = data['lastAlive'] == 'True'
-            world   = Worlds.get_world_by_id(int(data['wId']))
+            world   = worlds.get_world(int(data['wId']))
             if world is None:
                 return
             hunt    = tracker.id_to_hunt(data['id'])
@@ -99,7 +99,7 @@ class HuntManager:
                datacenter = "Undecided"
 
                try:
-                  datacenter = worlds.Worlds.get_world_datacenter(world)
+                  datacenter = worlds.get_datacenter(world)
                except:
                   self._log.exception('Exception thrown obtaining datacenter')
 
@@ -307,11 +307,11 @@ class HuntManager:
             en_zone_name, ja_zone_name = hunt['ZoneName'], zones.get(str(hunt['ZoneID']))['name_ja']
             fr_zone_name, de_zone_name = zones.get(str(hunt['ZoneID']))['name_fr'], zones.get(str(hunt['ZoneID']))['name_de']
 
-            if Worlds.get_world_datacenter(world) in DATACENTERS.JA:
+            if worlds.get_datacenter(world) in DATACENTERS.JA:
                 content = f"""[{world}] {ja_zone_name} {hunt['ZoneName']} ({xivhunt['coords']}) {instance_symbol}"""
                 ja_description = f"""[{world}] {ja_zone_name} ({xivhunt['coords']}) {instance_symbol}"""
                 embed.description = f"""{ja_description}\n{hunt['ZoneName']} ({xivhunt['coords']}) {instance_symbol}"""
-            elif Worlds.get_world_datacenter(world) in DATACENTERS.EU:
+            elif worlds.get_datacenter(world) in DATACENTERS.EU:
                 fr_description = f"""\n{fr_zone_name} ({xivhunt['coords']}) {instance_symbol}""" if fr_zone_name != en_zone_name and fr_zone_name != de_zone_name else ""
                 de_description = f"""\n{de_zone_name} ({xivhunt['coords']}) {instance_symbol}""" if de_zone_name != en_zone_name else ""
                 embed.description = f"""{content}{fr_description}{de_description}"""
@@ -368,7 +368,7 @@ class HuntManager:
         if source is None:
             await tracker.update()
 
-            for world in Worlds.get_worlds():
+            for world in worlds.get_worlds():
                 if world not in self._hunts:
                     self._hunts[world] = {'tracker': {}, 'xivhunt': []}
 
@@ -441,7 +441,7 @@ class HuntManager:
                     ja_seconds = ""
                     ja_minutes = ""
 
-                    if Worlds.get_world_datacenter(world) in DATACENTERS.JA:
+                    if worlds.get_datacenter(world) in DATACENTERS.JA:
                         ja_seconds, ja_minutes = "秒", "分"
 
                     log.killed = killed
@@ -458,7 +458,7 @@ class HuntManager:
                             except:
                                 pass
 
-                            content = f"~~{content}~~ {get_killed_text(seconds, Worlds.get_world_datacenter(world) in DATACENTERS.JA)}" # Add dead timing
+                            content = f"~~{content}~~ {get_killed_text(seconds, worlds.get_datacenter(world) in DATACENTERS.JA)}" # Add dead timing
 
                             await notification.edit(content=content, embed=embed)
                     except discord.NotFound:

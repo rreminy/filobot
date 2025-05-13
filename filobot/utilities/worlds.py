@@ -6,43 +6,11 @@ import csv
 import asyncio
 import aiohttp
 
-# Constants
 UPDATE_INTERVAL = 60 * 60 * 24 # 24 hours in seconds
 logger = logging.getLogger(__name__)
 _path_base = os.path.dirname(os.path.realpath(sys.argv[0])) + os.sep
 
-worlds = {
-    'name': "Worlds",
-    'file_path': _path_base + os.path.join('data', 'worlds.csv'),
-    'url': 'https://api.ffxivsonar.com/filo/worlds',
-    'last_updated': 0,
-    'data': ""
-}
-
-datacenters = {
-    'name': "Datacenters",
-    'file_path': _path_base + os.path.join('data', 'datacenters.csv'),
-    'url': 'https://api.ffxivsonar.com/filo/datacenters',
-    'last_updated': 0,
-    'data': ""
-}
-
-def force_update_needed():
-    # Check if anything is outdated
-    for obj in [worlds, datacenters]:
-        if time.time() > get_last_update(obj) + UPDATE_INTERVAL:
-            return True
-    return False
-
-def update_needed_for(obj):
-    if (obj['data'] == ""):
-        return True
-    if time.time() > get_last_update(obj) + UPDATE_INTERVAL:
-        return True
-    return False
-
 def get_last_update(obj):
-    # If last updated time is 0 then ... check it up
     if obj['last_updated'] == 0:
         try:
             obj['last_updated'] = os.path.getmtime(obj['file_path'])
@@ -50,298 +18,152 @@ def get_last_update(obj):
             return 0
     return obj['last_updated']
 
-def read_file(path):
-    logger.debug(f"Reading file: {path}")
-    with open(path, 'rb') as file:
-        return file.read().decode('utf-8')
-
-def write_file(path, data):
-    logger.debug(f"Writing file: {path}")
-    with open(path, 'wb') as file:
-        return file.write(bytearray(data, 'utf-8'))
-
-async def fetch(url):
-    logger.debug(f"Fetching URL: {url}")
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
-            return await response.text()
-
-async def update(obj, force=False):
-    # Is the list updated? (Early check)
-    if (not update_needed_for(obj)) and (obj['data'] != "") and (not force):
-        logger.debug(f"update(): {obj['name']} data is already up to date")
+async def update_task(obj, force=False):
+    if (time.time() > get_last_update(obj) + UPDATE_INTERVAL) and (obj['data'] != "") and (not force):
         return
 
     try:
-        logger.debug(f"update(): Reading {obj['name']} data...")
-        obj['data'] = read_file(obj['file_path'])
+        with open(obj['file_path'], 'rb') as file:
+            obj['data'] = file.read().decode('utf-8')
 
-        if update_needed_for(obj) or (obj['data'] == "") or force:
+        if (time.time() > get_last_update(obj) + UPDATE_INTERVAL) or (obj['data'] == "") or force:
             raise Exception('Update needed')
-    except:
+    except Exception:
         try:
-            logger.debug(f"update(): Downloading {obj['name']} data...")
-            obj['data'] = await fetch(obj['url'])
-
+            async with aiohttp.ClientSession() as session:
+                async with session.get(obj['url']) as response:
+                    obj['data'] = await response.text()
             try:
-                logger.debug(f"update(): Saving {obj['name']} data...")
-                write_file(obj['file_path'], obj['data'])
+                with open(obj['file_path'], 'wb') as file:
+                    file.write(bytearray(obj['data'], 'utf-8'))
             except Exception:
-                logger.exception(f"update(): Unable to save {obj['name']} data")
                 obj['last_updated'] = time.time()
-        except:
+        except Exception:
             logger.exception(f"update(): Unable to download {obj['name']} data")
 
     if obj['data'] == "":
-        logger.exception(f"update(): {obj['name']} data unavailable!!")
         sys.exit(1)
 
-def process_datacenters():
-    # ======================
-    # Datacenters processing
-    # ======================
-    id_to_datacenter = {}
-    datacenter_to_id = {}
-    datacenter_worlds = {}
-    datacenter_data = {}
-    datacenter_list = []
+dcs = {
+    'name': "Datacenters",
+    'file_path': _path_base + os.path.join('data', 'datacenters.csv'),
+    'url': 'https://api.ffxivsonar.com/filo/datacenters',
+    'last_updated': 0, 'data': ""
+}
 
-    logger.debug("Processing Datacenters data...")
-
-    # Get datacenters data lines
-    lines = datacenters['data'].split('\n')
-
-    # First 3 lines are heading
-    lines.pop(0)
-    lines.pop(0)
-    lines.pop(0)
-
-    # Process each datacenter
-    for line in lines:
-        # Last line is empty...
-        if (len(line) == 0):
-            continue
-
-        # Split CSV file fields
-        field = line.split(',')
-
-        # Fields to variables
-        id = int(field[0])
-        name = field[1][1:-1]
-        region_id = int(field[2])
-
-        # If invalid, just continue
-        if region_id == 0:
-            continue
-
-        # Debug feedback
-        logger.debug(f"{id} => {name} (Region ID: {region_id})")
-
-        # Store the ID to Datacenter mapping
-        id_to_datacenter[id] = name
-        datacenter_to_id[name] = int(id)
-        datacenter_worlds[name] = []
-        datacenter_data[name] = {
-            'id': id,
-            'name': name,
-            'region_id': region_id
-        }
-        datacenter_list.append(name)
-
-    # Store all information
-    datacenters['id_to_datacenter'] = id_to_datacenter
-    datacenters['id_to_dc'] = id_to_datacenter # alias
-
-    datacenters['datacenter_to_id'] = datacenter_to_id
-    datacenters['dc_to_id'] = datacenter_to_id # alias
-
-    datacenters['datacenter_data'] = datacenter_data
-    datacenters['dc_data'] = datacenter_data # alias
-    datacenters['list'] = datacenter_list
-
-    # =================
-    # Worlds processing
-    # =================
-    world_data = {}
-    world_datacenter = {}
-    id_to_world = {}
-    world_to_id = {}
-    datacenter_list = []
-
-    logger.debug("Processing worlds...")
-
-    # Get worlds data lines
-    lines = worlds['data'].split('\n')
-
-    # First 3 lines are heading
-    lines.pop(0)
-    lines.pop(0)
-    lines.pop(0)
-
-    # Process each world
-    for line in lines:
-        # Last line is empty...
-        if (len(line) == 0):
-            continue
-
-        # Split CSV file fields
-        field = line.split(',')
-
-        # Fields to variables
-        id = int(field[0])
-        name = field[1][1:-1]
-        # user_type = field[2] # Unused
-        datacenter_id = int(field[5])
-        public = True if field[6][0] == 'T' else False
-
-        # If invalid or not public continue
-        if (not public) or (datacenter_id == 0):
-            continue
-
-        # Get the world datacenter
-        datacenter = datacenters['id_to_datacenter'][datacenter_id]
-
-        # Debug feedback
-        logger.debug(f"{name} => {datacenter} (id: {id})")
-
-        # Store the mappings
-        datacenter_worlds[datacenter].append(name)
-        world_datacenter[name] = datacenter
-        id_to_world[id] = name
-        world_to_id[name] = id
-
-        world_data[name] = {
-            'id': id,
-            'datacenter': datacenter
-        }
-        datacenter_list.append(name)
-
-    # Store all the information
-    datacenters['datacenter_worlds'] = datacenter_worlds
-    datacenters['dc_worlds'] = datacenter_worlds # alias
-
-    worlds['datacenter_worlds'] = datacenter_worlds # store in worlds too, because I'm dumb
-    worlds['dc_worlds'] = datacenter_worlds # alias
-
-    worlds['world_datacenter'] = world_datacenter
-    worlds['world_dc'] = world_datacenter # alias
-
-    worlds['id_to_world'] = id_to_world
-    worlds['world_to_id'] = world_to_id
-
-    worlds['world_data'] = world_data
-    worlds['list'] = datacenter_list
-
-async def do_update(force=False):
-    # Debug feedback additional string
-    forced_string = ""
-
-    # Should updating be forced?
-    if (force_update_needed()):
-        forced_string = " (auto-forced)"
-        force = True
-    elif (force is True):
-        forced_string = " (user-forced)"
-
-    # Debug feedback
-    logger.debug(f"Updating data{forced_string}...")
-
-    # Setup update tasks
-    tasks = []
-    for obj in [datacenters, worlds]:
-        tasks.append(asyncio.create_task(update(obj, force)))
-
-    # Await all tasks and proccess all data
-    await asyncio.wait(tasks)
-    process_datacenters()
-
-def debug_print():
-    logger.debug("Raw variable data")
-    logger.debug("=================")
-
-    logger.debug("datacenters:")
-    logger.debug(datacenters)
-    logger.debug("- - - - - - - - -")
-
-    logger.debug("worlds:")
-    logger.debug(worlds)
-    logger.debug("=================")
-
-    logger.debug(" ")
-    logger.debug("Data Centers Worlds")
-    logger.debug("===================")
-    for (dc, _dc) in worlds['datacenter_worlds'].items():
-        first = True
-        output = dc + ": "
-        for world in _dc:
-            output += "" if first else ", "
-            output += world
-            first = False
-        logger.debug(output)
-    logger.debug("------------------")
-
-    for (world, dc) in worlds['world_datacenter'].items():
-        logger.debug(f"{world} => {dc}")
+wlds = {
+    'name': "Worlds",
+    'file_path': _path_base + os.path.join('data', 'worlds.csv'),
+    'url': 'https://api.ffxivsonar.com/filo/worlds',
+    'last_updated': 0, 'data': ""
+}
 
 class Worlds:
-    # Datacenters functions
-    @staticmethod
-    def get_datacenters():
-        return datacenters['list']
 
-    @staticmethod
-    def get_datacenters_worlds():
-        return datacenters['datacenter_worlds']
-
-    @staticmethod
-    def get_datacenter_worlds(datacenter: str):
-        return datacenters['datacenter_worlds'][datacenter]
-
-    @staticmethod
-    def is_datacenter(datacenter: str):
-        return True if datacenter in datacenters['list'] else False
-
-    @staticmethod
-    def get_worlds():
-        return worlds['list'] if 'list' in worlds else None
-
-    @staticmethod
-    def get_worlds_id():
-        return worlds['world_to_id']
-
-    @staticmethod
-    def get_world_id(world: str):
-        return worlds['world_to_id'][world]
-
-    @staticmethod
-    def get_world_by_id(id: int):
+    @classmethod
+    async def init(self):
         try:
-            return worlds['id_to_world'][id]
-        except:
-            return None
-            raise IndexError(f'No world with the ID {id} could be found')
+            return await self.update(Worlds())
+        except Exception:
+            logger.exception("Data processing failed!!")
+            sys.exit(1)
 
-    @staticmethod
-    def get_world_datacenter(world: str):
-        return worlds['world_datacenter'][world]
+    def get_datacenters(self):
+        return dcs['list']
 
-    @staticmethod
-    def is_world(world: str):
-        return True if world in worlds['list'] else False
+    def get_datacenters(self):
+        return dcs['dc_worlds']
 
-    @staticmethod
-    def debug_get_datacenters():
-        return datacenters
+    # Get datacenter that world is on, or return a full list of worlds for a data center
+    def get_datacenter(self, parameter: str):
+        if parameter in wlds['world_dc']:
+            return wlds['world_dc'][parameter]
+        else:
+            return dcs['dc_worlds'][parameter]
 
-    @staticmethod
-    def debug_get_worlds():
-        return worlds
+    def is_datacenter(self, datacenter: str):
+        return True if datacenter in dcs['list'] else False
 
-async def init():
-    try:
-        await do_update()
-    except Exception:
-        logger.exception("Data processing failed!!")
-        sys.exit(1)
+    def get_worlds(self):
+        return wlds['list'] if 'list' in wlds else None
 
-    debug_print()
+    def get_worlds_id(self):
+        return wlds['world_to_id']
+
+    def get_world(self, world):
+        if isinstance(world, int) or isdigit(world):
+            try:
+                return wlds['id_to_world'][world]
+            except:
+                return None
+        else:
+            return wlds['world_to_id'][world]
+
+    def is_world(self, world: str):
+        return True if world in wlds['list'] else False
+
+    async def update(self, force=False):
+        for obj in [wlds, dcs]:
+            if time.time() > get_last_update(obj) + UPDATE_INTERVAL:
+                force = True
+                break
+
+        tasks, dcs['id_to_dc'], dcs['dc_to_id'], dcs['dc_worlds'], dcs['dc_data'], dcs['list'] = [], {}, {}, {}, {}, []
+
+        for obj in [dcs, wlds]:
+            tasks.append(asyncio.create_task(update_task(obj, force)))
+        await asyncio.wait(tasks)
+
+        lines = dcs['data'].split('\n')
+
+        for i in range(0, 3):
+            lines.pop(0)
+
+        for line in lines:
+            if (len(line) == 0):
+                continue
+
+            field = line.split(',')
+            id, name, region_id = int(field[0]), field[1][1:-1], int(field[2])
+
+            if region_id == 0:
+                continue
+
+            dcs['id_to_dc'][id], dcs['dc_to_id'][name], dcs['dc_worlds'][name] = name, int(id), []
+            dcs['dc_data'][name] = {
+                'id': id,
+                'name': name,
+                'region_id': region_id
+            }
+            dcs['list'].append(name)
+
+        wlds['world_data'], wlds['world_dc'], wlds['id_to_world'], wlds['world_to_id'], wlds['list'], lines = {}, {}, {}, {}, [], wlds['data'].split('\n')
+
+        for i in range(0, 3):
+            lines.pop(0)
+
+        for line in lines:
+            if (len(line) == 0):
+                continue
+
+            field = line.split(',')
+
+            id, name, dc_id, datacenter = int(field[0]), field[1][1:-1], int(field[5]), dcs['id_to_dc'][int(field[5])]
+            public = True if field[6][0] == 'T' else False
+
+            if (not public) or (dc_id == 0):
+                continue
+
+            dcs['dc_worlds'][datacenter].append(name)
+            wlds['world_dc'][name], wlds['id_to_world'][id], wlds['world_to_id'][name] = datacenter, name, id
+            wlds['world_data'][name] = {
+                'id': id,
+                'datacenter': datacenter
+            }
+            wlds['list'].append(name)
+
+        wlds['dc_worlds'] = dcs['dc_worlds']
+
+        return self
+
+worlds = asyncio.run(Worlds.init())

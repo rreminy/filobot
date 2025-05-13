@@ -12,7 +12,7 @@ from filobot.filobot import bot, subscriptions, notifications, hunts, tracker, c
 from filobot.utilities import *
 from filobot.database.models import SubscriptionsMeta
 from filobot.utilities.embeds import fate_report_embed
-from filobot.utilities.worlds import Worlds
+from filobot.utilities.worlds import worlds
 from filobot.utilities.time_utils import RemainingTime
 from filobot.utilities.static_data import fates_info, achievementfates_info
 
@@ -45,7 +45,7 @@ class FateManager:
             if (int(data['state']) == 255):
                 return
 
-            world   = data['world'] if 'world' in data and data['world'] is not None else Worlds.get_world_by_id(int(data[config.get(source, 'wId')]))
+            world   = data['world'] if 'world' in data and data['world'] is not None else worlds.get_world(int(data[config.get(source, 'wId')]))
             if world is None:
                 return
             fate    = tracker.id_to_fate(data[config.get(source, 'id')])
@@ -169,11 +169,11 @@ class FateManager:
             en_zone_name, ja_zone_name = fate['ZoneName'], zones.get(str(fate['ZoneID']))['name_ja']
             fr_zone_name, de_zone_name = zones.get(str(fate['ZoneID']))['name_fr'], zones.get(str(fate['ZoneID']))['name_de']
 
-            if Worlds.get_world_datacenter(world) in DATACENTERS.JA:
+            if worlds.get_datacenter(world) in DATACENTERS.JA:
                 content = f"""[{world}] {ja_zone_name} {fate['ZoneName']} ({xivhunt['coords']}) {instance_symbol}"""
                 ja_description = f"""[{world}] {ja_zone_name} ({xivhunt['coords']}) {instance_symbol}"""
                 embed.description = f"""{ja_description}\n{fate['ZoneName']} ({xivhunt['coords']}) {instance_symbol}"""
-            elif Worlds.get_world_datacenter(world) in DATACENTERS.EU:
+            elif worlds.get_datacenter(world) in DATACENTERS.EU:
                 fr_description = f"""\n{fr_zone_name} ({xivhunt['coords']}) {instance_symbol}""" if fr_zone_name != en_zone_name and fr_zone_name != de_zone_name else ""
                 de_description = f"""\n{de_zone_name} ({xivhunt['coords']}) {instance_symbol}""" if de_zone_name != en_zone_name else ""
                 embed.description = f"""{content}{fr_description}{de_description}"""
@@ -189,12 +189,12 @@ class FateManager:
                 if (fate['Duration'] > 0):
                     duration_str = f" / {RemainingTime(fate['Duration']).to_simple()}"
 
-                if Worlds.get_world_datacenter(world) in DATACENTERS.JA:
+                if worlds.get_datacenter(world) in DATACENTERS.JA:
                     embed.description = f"""{xivhunt['status']}% {ja_zone_name} {en_zone_name} ({xivhunt['coords']}) {instance_symbol}"""
 
                     if time_left > 0:
                         embed.set_footer(text=f"""残り{remaining_str}{duration_str} remaining""")
-                elif Worlds.get_world_datacenter(world) in DATACENTERS.EU:
+                elif worlds.get_datacenter(world) in DATACENTERS.EU:
                     en_description = f"""{xivhunt['status']}% {en_zone_name} ({xivhunt['coords']}) {instance_symbol}"""
                     fr_description = f"""\n{fr_zone_name} ({xivhunt['coords']}) {instance_symbol}""" if fr_zone_name != en_zone_name and fr_zone_name != de_zone_name else ""
                     de_description = f"""\n{de_zone_name} ({xivhunt['coords']}) {instance_symbol}""" if de_zone_name != en_zone_name else ""
@@ -319,7 +319,7 @@ class FateManager:
                         ja_seconds = ""
                         ja_minutes = ""
 
-                        if Worlds.get_world_datacenter(world) in DATACENTERS.JA:
+                        if worlds.get_datacenter(world) in DATACENTERS.JA:
                             ja_seconds, ja_minutes = "秒", "分"
 
                         kill_time = RemainingTime(seconds)
@@ -332,7 +332,7 @@ class FateManager:
                         #beg = content.find(f"[{world}]")
                         #content = content[beg:]
 
-                        is_jp = Worlds.get_world_datacenter(world) in DATACENTERS.JA
+                        is_jp = worlds.get_datacenter(world) in DATACENTERS.JA
 
                         if time_left:
                             self._log.debug(f"FATE {name} on world {world} instance {instance} killed [1]\n{repr(xivhunt)}")
@@ -372,9 +372,9 @@ class FateManager:
                         if (info['Duration'] > 0):
                             duration_str = f" / {RemainingTime(info['Duration']).to_simple()}"
 
-                        if Worlds.get_world_datacenter(world) in DATACENTERS.JA:
+                        if worlds.get_datacenter(world) in DATACENTERS.JA:
                             embed.set_footer(text=f"""残り{remaining_str}{duration_str} remaining""")
-                        elif Worlds.get_world_datacenter(world) in DATACENTERS.EU:
+                        elif worlds.get_datacenter(world) in DATACENTERS.EU:
                             embed.set_footer(text=f"""{remaining_str}{duration_str} remaining / restant""")
                         else:
                             embed.set_footer(text=f"""{remaining_str}{duration_str} remaining""")

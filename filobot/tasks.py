@@ -7,7 +7,7 @@ import discord
 import socketio
 import aiohttp
 import filobot.constants.datacenters as DATACENTERS
-import filobot.utilities.worlds as worlds
+from filobot.utilities.worlds import worlds
 import logging
 from aiohttp import web
 from filobot.filobot import config, bot, GAMES, notifications, tracker, hunts, fates, log
@@ -168,7 +168,7 @@ async def update_worlds():
     await bot.wait_until_ready()
 
     while not bot.is_closed():
-        await worlds.do_update()
+        await worlds.update()
         await asyncio.sleep(1800.0)
 
 async def track_stats():

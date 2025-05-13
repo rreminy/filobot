@@ -6,7 +6,7 @@ import aiohttp
 import async_timeout
 import discord.ext
 import filobot.utilities.zones as zones
-from filobot.utilities.worlds import Worlds
+from filobot.utilities.worlds import worlds
 from filobot.utilities.static_data import marks_info, fates_info
 from filobot.utilities.bear import BearHunt
 
@@ -19,7 +19,7 @@ class Tracker:
 
     def _get_endpoints(self):
         ret = []
-        for datacenter in Worlds.get_datacenters():
+        for datacenter in worlds.get_datacenters():
             if datacenter is not None and len(datacenter) > 0:
                 ret.append(self._get_endpoint(datacenter))
         return ret

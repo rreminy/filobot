@@ -3,7 +3,7 @@ import discord
 import typing
 from filobot.utilities.static_data import marks_info
 from filobot.utilities.static_data import fates_info
-from filobot.utilities.worlds import Worlds
+from filobot.utilities.worlds import worlds
 from filobot.utilities import parse_name
 
 COLOR_A = 0xFB6107
@@ -23,7 +23,7 @@ def hunt_report_embed(hunt_name: str, tracked: typing.Optional = None, xivhunt: 
             world = xivhunt['world'] if xivhunt else None
             world = tracked.world if tracked else world
 
-            if world and Worlds.get_world_datacenter(world) in ('Elemental', 'Gaia', 'Mana', 'Meteor'):
+            if world and worlds.get_datacenter(world) in ('Elemental', 'Gaia', 'Mana', 'Meteor'):
                 embed.title = f"Rankランク{mark['Rank']}: {mark['Name']}"
             else:
                 embed.title = f"Rank {mark['Rank']}: {mark['Name']}"
@@ -43,11 +43,11 @@ def hunt_report_embed(hunt_name: str, tracked: typing.Optional = None, xivhunt: 
                     embed.colour = COLOR_MAXED
                 elif tracked.status == tracked.STATUS_DIED:
                     embed.colour = COLOR_DIED
-                    embed.title += " デッド " if world and Worlds.get_world_datacenter(world) in ('Elemental', 'Gaia', 'Mana') else " "
+                    embed.title += " デッド " if world and worlds.get_datacenter(world) in ('Elemental', 'Gaia', 'Mana') else " "
                     embed.title += "DEAD"
                 else:
                     embed.colour = COLOR_CLOSED
-                    embed.title += " デッド " if world and Worlds.get_world_datacenter(world) in ('Elemental', 'Gaia', 'Mana') else " "
+                    embed.title += " デッド " if world and worlds.get_datacenter(world) in ('Elemental', 'Gaia', 'Mana') else " "
                     embed.title += " DEAD"
 
             if xivhunt is not None:
@@ -75,7 +75,7 @@ def fate_report_embed(fate_name: str, xivhunt: typing.Optional = None) -> discor
                 embed.colour = COLOR_DIED
 
             if xivhunt is not None and xivhunt['world']:
-                if Worlds.get_world_datacenter(xivhunt['world']) in ('Elemental', 'Gaia', 'Mana', 'Meteor') and xivhunt['zone_id'] != 1237:
+                if worlds.get_datacenter(xivhunt['world']) in ('Elemental', 'Gaia', 'Mana', 'Meteor') and xivhunt['zone_id'] != 1237:
                     embed.title = f"[{xivhunt['world']}] {fate['NameJa']} {fate['Name']}"
                 else:
                     embed.title = f"[{xivhunt['world']}] {fate['Name']}"

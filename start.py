@@ -1,9 +1,7 @@
 import asyncio
+from filobot.utilities.worlds import worlds
 from filobot.filobot import config, bot, hunts, fates
 from filobot.tasks import update_game, update_hunts, update_fates, update_worlds, start_server, discord_listener, track_stats, feed_listener, auto_restart
-import filobot.utilities.worlds as worlds
-
-asyncio.run(worlds.init())
 
 async def main():
     await bot.login(config.get('Bot', 'Token'))

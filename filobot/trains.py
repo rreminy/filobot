@@ -5,7 +5,7 @@ import filobot.constants.conditions as COND
 import filobot.constants.datacenters as DATACENTERS
 import filobot.utilities.zones as zones
 from filobot.utilities import *
-from filobot.utilities.worlds import Worlds
+from filobot.utilities.worlds import worlds
 from filobot.filobot import subscriptions, notifications, log as _log
 
 class TrainManager:
@@ -27,7 +27,7 @@ class TrainManager:
             notification = await notifications.get(sub.channel_id, world, SUB.TRAINS, 1)
 
             if not complete:
-                zone_name = f"""{hunt['ZoneName']} {zones.get(str(hunt['ZoneID']))['name_ja']} """ if Worlds.get_world_datacenter(world) in DATACENTERS.JA else f"""{hunt['ZoneName']} """
+                zone_name = f"""{hunt['ZoneName']} {zones.get(str(hunt['ZoneID']))['name_ja']} """ if worlds.get_datacenter(world) in DATACENTERS.JA else f"""{hunt['ZoneName']} """
 
                 if xivhunt is not None:
                     content = f"""[{world}] {zone_name}({xivhunt['coords']}) {instance_symbol}"""
@@ -40,7 +40,7 @@ class TrainManager:
                 if role_mention:
                     content = f"""{role_mention} {content}"""
             else:
-                content = f"""[{world}]狩ツアコンプリートComplete""" if Worlds.get_world_datacenter(world) in DATACENTERS.JA else f"""[{world}] Complete"""
+                content = f"""[{world}]狩ツアコンプリートComplete""" if worlds.get_datacenter(world) in DATACENTERS.JA else f"""[{world}] Complete"""
                 await notifications.delete(sub.channel_id, world, SUB.TRAINS, 1)
 
             if notification:

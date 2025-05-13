@@ -69,16 +69,16 @@ async def feed_listener(source):
                                 await _process_data(source, data, None)
                             except:
                                 pass
-                    hunt_queue = hunts.hunt_queue.copy()
+                    hunt_queue = hunts._hunt_queue.copy()
                     for key, value in hunt_queue.items():
                         try:
                             if not isinstance(value, list) or len(value) < 2 or value[0] == None or value[1] == None:
-                                hunts.hunt_queue.pop(key)
+                                hunts._hunt_queue.pop(key)
                                 continue
                             data = value[0]
                             hunt = value[1]
                             if (int(time.time()) - hunt['last_seen']) > 240:
-                                hunts.hunt_queue.pop(key)
+                                hunts._hunt_queue.pop(key)
                                 continue
                             if (int(time.time()) - hunt['last_seen']) >= 0:
                                 await _process_data(source, data, None)

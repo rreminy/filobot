@@ -31,10 +31,7 @@ class FateManager:
             category = getattr(SUB, f"""FATE""")
             self._fates_info[key]['Category'] = category
 
-        self._hunts = hunts._hunts
-        self._changed = hunts._changed
-        self._found = hunts._found
-        self._timers = hunts._timers
+        self._fates = tracker._tracked
         self._fate_timers = {}
         self._recent_fates = {}
         self._fate_progress = dict()
@@ -45,37 +42,35 @@ class FateManager:
             if (int(data['state']) == 255):
                 return
 
-            world   = data['world'] if 'world' in data and data['world'] is not None else worlds.get_world(int(data[config.get(source, 'wId')]))
+            world = data['world'] if 'world' in data and data['world'] is not None else worlds.get_world(int(data[config.get(source, 'wId')]))
+            fate = tracker.id_to_fate(data[config.get(source, 'id')])
+            _plus = 22.5 if fate['ZoneName'] in ZONES.HW else 21.5
+
             if world is None:
                 return
-            fate    = tracker.id_to_fate(data[config.get(source, 'id')])
-            _plus   = 22.5 if fate['ZoneName'] in ZONES.HW else 21.5
+
             if config.get(source, 'x') == config.get(source, 'y'): # Some JSON structs use an array for X and Y
                 data[config.get(source, 'x')] = data[config.get(source, 'x')]['x']
                 data[config.get(source, 'y')] = data[config.get(source, 'y')]['y']
-            x, y    = (data['x'], data['y']) if 'world' in data and data['world'] is not None else (round((float(data[config.get(source, 'x')]) * 0.02 + _plus)*10)/10, round((float(data[config.get(source, 'y')]) * 0.02 + _plus)*10)/10)
+
+            x, y = (data['x'], data['y']) if 'world' in data and data['world'] is not None else (round((float(data[config.get(source, 'x')]) * 0.02 + _plus)*10)/10, round((float(data[config.get(source, 'y')]) * 0.02 + _plus)*10)/10)
             i = data[config.get(source, 'i')] if config.get(source, 'i') in data else 0
             lastreported = data[config.get(source, 'lastReported')]
             last_seen = datetime.datetime.fromisoformat(lastreported).replace(tzinfo=datetime.timezone.utc).timestamp()
             startTimeEpoch = int(data['startTimeEpoch']) if 'startTimeEpoch' in data and data['startTimeEpoch'] and data['startTimeEpoch'].isnumeric() else 0
             duration = int(data['duration']) if 'duration' in data and data['duration'] and data['duration'].isnumeric() else 0
             time_left = (duration - (last_seen - startTimeEpoch)) if duration else -1
-            _log.debug(f"time_left is {time_left}")
-            xivhunt = { # Using this struct because the alternative is compatibility issues and endless copy & paste
+            
+            xivhunt = {
                 'rank': "F",
-                'i': i, # data['i'], Seeing as this isn't functional anywhere at the moment
-                'status': data[config.get(source, 'progress')],
-                'last_seen': time_left,
-                'coords': f"{x}, {y}",
+                'status': data[config.get(source, 'progress')], 'last_seen': time_left,
+                'coords': f"{x}, {y}", 'x': x, 'y': y,
                 'world': world,
-                'x': x,
-                'y': y,
-                'zone_id': int(data["zoneID"]),
+                'zone_id': int(data["zoneID"]), 'i': i,
                 'players': int(data["players"] if 'players' in data else 0)
             }
 
             key = f"{world}_{fate}_{i}"
-
             fate_info = self.get_fates_info()[fate['Name'].lower()]
 
             # Update interval
@@ -118,13 +113,13 @@ class FateManager:
     async def on_find(self, world: str, name: str, xivhunt: dict, instance=1):
         self._log.debug(f"fates.on_find: World = {world} | name = {name} | xivhunt = {xivhunt} | instance = {instance}")
 
-        if world not in self._hunts:
-            self._hunts[world] = {'tracker': {}, 'xivhunt': []}
+        if world not in self._fates:
+            self._fates[world] = {'tracker': {}, 'xivhunt': []}
 
         _key = f"{parse_name(name)}_{instance}"
 
         if name.lower() in self._fates_info.keys():
-            if _key in self._hunts[world]['xivhunt']:
+            if _key in self._fates[world]['xivhunt']:
                 self._log.debug(f"FATE {name} on {world} instance {instance} already logged, updating progress.")
                 async with self.lock:
                     await self.on_progress(world, name, xivhunt, instance)
@@ -240,7 +235,7 @@ class FateManager:
             await notifications.log(message, sub.channel_id, world, name, instance)
 
         if subs:
-            self._hunts[world]['xivhunt'].append(_key)
+            self._fates[world]['xivhunt'].append(_key)
 
     async def check(self):
         self._log.debug(f"""Checking FATES""")
@@ -251,8 +246,8 @@ class FateManager:
                     time_distance = (int(time.time()) - expired_time)
                     # self._log.debug(f"""recent_fate: {repr(recent_fate)}\nexpired_time: {repr(expired_time)}\ntime_distance: {repr(time_distance)}""")
                     if time_distance >= 60 and time_distance < 180:
-                        if recent_fate in self._hunts[world]['xivhunt']:
-                            self._hunts[world]['xivhunt'].remove(recent_fate)
+                        if recent_fate in self._fates[world]['xivhunt']:
+                            self._fates[world]['xivhunt'].remove(recent_fate)
 
             notifications_list = await notifications.list()
             job_list = list()
@@ -388,7 +383,7 @@ class FateManager:
         time_left = xivhunt['last_seen'] if xivhunt else 0
 
         if (not time_left or int(xivhunt['status']) == 100):
-            if _key in self._hunts[world]['xivhunt']:
+            if _key in self._fates[world]['xivhunt']:
                 if world not in self._recent_fates:
                     self._recent_fates[world] = {}
                 if _key not in self._recent_fates[world]:

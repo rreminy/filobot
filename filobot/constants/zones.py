@@ -14,3 +14,5 @@ EW = ('Labyrinthos', "Thavnair", 'Garlemald', 'Mare Lamentorum', 'Elpis', 'Ultim
 DT = ("Kozama'uka", "Yak T'el", "Urqopacha", "Shaaloani", "Heritage Found", "Living Memory")
 
 LIST = { 'ARR': ARR, 'HW': HW, 'SB': SB, 'SHB': SHB,'EW': EW, 'DT': DT }
+
+INSTANCE_SYMBOLS = {1: "①", 2: "②", 3: "③", 4: "④", 5: "⑤", 6: "⑥"}

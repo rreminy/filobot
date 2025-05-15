@@ -59,8 +59,7 @@ class FateManager:
                 'rank': "F",
                 'status': data[config.get(source, 'progress')], 'last_seen': time_left,
                 'coords': f"{x}, {y}", 'x': x, 'y': y,
-                'world': world,
-                'zone_id': int(data["zoneID"]), 'i': i,
+                'world': world, 'zone_id': int(data["zoneID"]), 'i': i,
                 'players': int(data["players"] if 'players' in data else 0)
             }
 

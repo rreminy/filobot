@@ -28,10 +28,8 @@ class FateManager:
             self._fates_info[key]['Category'] = category
 
         self._fates = tracker._tracked
-        self._fate_timers = {}
-        self._recent_fates = {}
-        self._fate_progress = dict()
-        self._fate_start = dict()
+        self._fate_timers, self._recent_fates = {}, {}
+        self._fate_start, self._fate_progress = dict(), dict()
 
     async def process(self, source, data):
         try:

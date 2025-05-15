@@ -38,11 +38,7 @@ class HuntManager:
                     self._log.info(f"""Not binding hunt {mark['Name']} to a subscription category""")
 
         self._hunts = tracker._tracked
-        self._changed = {}
-        self._found = {}
-        self._timers = {}
-        self._hunt_queue = {}
-        self.minions = dict()
+        self._timers, self._found, self._changed, self._hunt_queue, self.minions = {}, {}, {}, {}, dict()
         self.trains = TrainManager(self._marks_info)
 
     async def process(self, source, data):

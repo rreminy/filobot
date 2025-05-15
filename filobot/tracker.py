@@ -21,12 +21,9 @@ class Tracker:
     def __init__(self, bot: discord.ext.commands.Bot):
         self._log = logging.getLogger(__name__)
         self._bot = bot
-        self.marks_info = marks_info
-        self.fates_info = fates_info
-        self._cached_response = {}
-        self._cached_time = 0
-        self._tracker = {}
-        self._tracked = {}
+        self.marks_info, self.fates_info = marks_info, fates_info
+        self._cached_response, self._cached_time = {}, 0
+        self._tracker, self._tracked = {}, {}
 
     async def update_tracker(self, data, hunt_data, huntName, instance):
         world = data['worldName']

@@ -1,8 +1,4 @@
-import logging
-import asyncio
-import typing
-import discord
-import arrow
+import logging, asyncio, typing, discord, arrow
 from filobot.database.models import SubscriptionsMeta, KillLog
 
 class NotificationManager:

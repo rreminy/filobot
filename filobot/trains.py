@@ -1,5 +1,4 @@
-import time
-import datetime
+import time, datetime
 import filobot.constants.subscriptions as SUB
 import filobot.constants.conditions as COND
 import filobot.constants.datacenters as DATACENTERS

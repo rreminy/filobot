@@ -1,7 +1,4 @@
-import logging
-import asyncio
-import typing
-import discord
+import logging, asyncio, typing, discord
 import filobot.constants.subscriptions as SUB
 import filobot.constants.conditions as COND
 from discord.ext.commands import Bot

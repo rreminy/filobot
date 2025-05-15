@@ -1,9 +1,4 @@
-import logging
-import time
-import datetime
-import asyncio
-import arrow
-import discord
+import logging, time, datetime, asyncio, arrow, discord
 import filobot.constants.subscriptions as SUB
 import filobot.constants.conditions as COND
 import filobot.constants.zones as ZONES

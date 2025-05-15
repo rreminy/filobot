@@ -1,10 +1,4 @@
-import json
-import logging
-import time
-import datetime
-import aiohttp
-import async_timeout
-import discord.ext
+import json, logging, time, datetime, aiohttp, async_timeout, discord.ext
 import filobot.utilities.zones as zones
 from filobot.utilities.worlds import worlds
 from filobot.utilities.static_data import marks_info, fates_info

@@ -1,10 +1,4 @@
-import os
-import sys
-import logging
-import time
-import csv
-import asyncio
-import aiohttp
+import os, sys, logging, time, csv, asyncio, aiohttp
 
 UPDATE_INTERVAL = 60 * 60 * 24 # 24 hours in seconds
 logger = logging.getLogger(__name__)

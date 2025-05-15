@@ -1,7 +1,4 @@
-import datetime
-import logging
-import discord
-import git
+import datetime, logging, discord, git
 from discord.ext import commands
 from filobot.filobot import bot, notifications
 

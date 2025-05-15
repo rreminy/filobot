@@ -1,13 +1,4 @@
-import json
-import logging
-import os
-import sys
-import typing
-import time
-import asyncio
-import aiohttp
-import discord
-import collections
+import json, logging, os, sys, typing, time, asyncio, aiohttp, discord, collections
 import filobot.utilities.zones as zones
 import filobot.constants.subscriptions as SUBS
 from discord.ext import commands

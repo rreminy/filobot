@@ -1,8 +1,4 @@
-import logging
-import uuid
-import discord
-import typing
-import peewee
+import logging, uuid, discord, typing, peewee
 from discord import Guild
 from discord.ext import commands
 from filobot.database.models import Player, Blacklist

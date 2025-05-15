@@ -1,6 +1,4 @@
-import json
-import os
-import sys
+import json, os, sys
 
 marks_info = {}
 fates_info = {}

@@ -1,8 +1,4 @@
-import asyncio
-import logging
-import traceback
-import discord
-import math
+import asyncio, logging, traceback, discord, math
 from configparser import ConfigParser
 from discord.ext import commands
 from discord import app_commands

@@ -1,14 +1,6 @@
-import asyncio
-import random
-import time
-import os
-import json
-import discord
-import socketio
-import aiohttp
+import asyncio, random, time, os, json, discord, socketio, aiohttp, logging
 import filobot.constants.datacenters as DATACENTERS
 from filobot.utilities.worlds import worlds
-import logging
 from aiohttp import web
 from filobot.filobot import config, bot, GAMES, notifications, tracker, hunts, fates, log
 from filobot.database.models import Player

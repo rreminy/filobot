@@ -1,6 +1,4 @@
-import arrow
-import discord
-import typing
+import arrow, discord, typing
 from filobot.utilities.static_data import marks_info
 from filobot.utilities.static_data import fates_info
 from filobot.utilities.worlds import worlds

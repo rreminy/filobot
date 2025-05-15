@@ -13,6 +13,7 @@ from aiohttp import web
 from filobot.filobot import config, bot, GAMES, notifications, tracker, hunts, fates, log
 from filobot.database.models import Player
 from filobot.tracker import bear_handler
+#from filobot.mapmake import record
 
 logger = logging.getLogger(__name__)
 
@@ -111,6 +112,7 @@ async def _process_data(source, data, message):
                 await fates.process(source, data)
             elif data['id'] in marks_info: # It's a hunt
                 #logger.debug(f"Processing {data['id']} as a hunt")
+                #await record(marks_info[data['id']], data)
                 await hunts.process(source, data)
             else: # when all else fails
                 # logger.warning(f"Unable to determine {data}")

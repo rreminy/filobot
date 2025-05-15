@@ -171,7 +171,7 @@ class FateManager:
         if time_left > 0:
             embed.set_footer(text=footer)
 
-        for sub in subs:  # type: Subscriptions
+        for sub in subs:  # Subscriptions
             if COND.FIND != sub.event:
                 continue
 
@@ -217,8 +217,8 @@ class FateManager:
                         if recent_fate in self._fates[world]['xivhunt']:
                             self._fates[world]['xivhunt'].remove(recent_fate)
 
-            notifications_list = await notifications.list()
-            job_list = list()
+            notifications_list, job_list = await notifications.list(), list()
+            
             for channel in notifications_list:
                 for world in notifications_list[channel]:
                     for key in notifications_list[channel][world]:
@@ -230,7 +230,7 @@ class FateManager:
 
                             try:
                                 embed = message.embeds[0]
-                            except:
+                            except Exception:
                                 continue
 
                             if not embed:
@@ -241,61 +241,37 @@ class FateManager:
 
                             self._log.info(f"""edited_at: {repr(message.edited_at)}\ncreated_at: {repr(message.created_at)}""")
 
-                            if int(time.time()) >= int(message_time.timestamp()) + seconds_left:
-                                #  Strikethrough the fate!
+                            if int(time.time()) >= int(message_time.timestamp()) + seconds_left: # Strikethrough the fate!
                                 # self._log.info(f"""Expiring? Fate: {self._fates_info[name]['Name']} ({world})\n{time.time()} >= {int(message_time.replace(tzinfo=datetime.timezone.utc).timestamp())} + {seconds_left} ({int(message_time.replace(tzinfo=datetime.timezone.utc).timestamp()) + seconds_left})""")
                                 job_list.append(self.on_progress(world, self._fates_info[name]['Name'], None, int(key.rsplit("_")[1])))
-            result = await asyncio.gather(*job_list, return_exceptions=True)
-            if isinstance(result, Exception):
-                self._log.exception("Job failed with exception", exc_info=result)
+            for result in await asyncio.gather(*job_list, return_exceptions=True):
+                if isinstance(result, Exception):
+                    self._log.exception("Job failed with exception", exc_info=result)
 
     async def on_progress(self, world: str, name: str, xivhunt: dict, instance=1):
-        """
-        FATE progress event handler
-        """
-
         _key = f"{parse_name(name)}_{instance}"
-
         fate = self._fates_info[name.lower()]
         subs = await subscriptions.get(None, world, fate['Category'])
         embed = fate_report_embed(name, xivhunt)
-
-        info = self._fates_info[name.lower()]
+        time_left = xivhunt['last_seen'] if xivhunt else 0
+        is_jp = worlds.get_datacenter(world) in DATACENTERS.JA
+        ja_seconds, ja_minutes = ("秒", "分") if is_jp else ("", "")
 
         for sub in subs:  # type: Subscriptions
             try:
-                # If we previously sent a notification that the fate was found, edit that message instead of sending a new one
-                notification = await notifications.get(sub.channel_id, world, name, instance)
+                notification = await notifications.get(sub.channel_id, world, name, instance) # Editing existing message, hopefully
 
                 if notification:
                     notification, log = notification
                     notification = await notification.fetch()
-
-                    # Get the original content
                     content = notification.content
-
-                    time_left = xivhunt['last_seen'] if xivhunt else 0
+                    embed = notification.embeds[0]
 
                     if (not time_left or int(xivhunt['status']) == 100) and COND.DEAD == sub.event:
-                        killed  = notification.edited_at.replace(tzinfo=datetime.timezone.utc).timestamp() if not time_left and notification.edited_at is not None else int(time.time())
+                        killed = notification.edited_at.replace(tzinfo=datetime.timezone.utc).timestamp() if not time_left and notification.edited_at is not None else int(time.time())
                         seconds = killed - log.found
-                        ja_seconds = ""
-                        ja_minutes = ""
-
-                        if worlds.get_datacenter(world) in DATACENTERS.JA:
-                            ja_seconds, ja_minutes = "秒", "分"
-
-                        kill_time = RemainingTime(seconds)
-
-                        log.killed = killed
-                        log.kill_time = seconds
+                        log.killed, log.kill_time = killed, seconds
                         log.save()
-
-                        # Remove the ping mention
-                        #beg = content.find(f"[{world}]")
-                        #content = content[beg:]
-
-                        is_jp = worlds.get_datacenter(world) in DATACENTERS.JA
 
                         if time_left:
                             self._log.debug(f"FATE {name} on world {world} instance {instance} killed [1]\n{repr(xivhunt)}")
@@ -316,41 +292,30 @@ class FateManager:
 
                         await notifications.delete(sub.channel_id, world, name, instance)
 
-                    # if not notification.author.bot:
-                    #     continue
-
-                    # Set embed description
-                    embed = notification.embeds[0]
-
                     if xivhunt:
                         self._log.debug(f"FATE {name} on world {world} instance {instance} data\n{repr(xivhunt)}")
                         embed.description = embed.description[embed.description.find("%") + 1:]
                         embed.description = f"{xivhunt['status']}%{embed.description}"
+
                     if content[0] == "~":
                         embed.set_image(url=None)
 
                     if time_left >= 0:
                         remaining_str = RemainingTime(time_left).to_simple()
-                        duration_str = ""
-                        if (info['Duration'] > 0):
-                            duration_str = f" / {RemainingTime(info['Duration']).to_simple()}"
+                        duration_str = f" / {RemainingTime(fate['Duration']).to_simple()}" if fate['Duration'] > 0 else ""
 
-                        if worlds.get_datacenter(world) in DATACENTERS.JA:
+                        if is_jp:
                             embed.set_footer(text=f"""残り{remaining_str}{duration_str} remaining""")
                         elif worlds.get_datacenter(world) in DATACENTERS.EU:
                             embed.set_footer(text=f"""{remaining_str}{duration_str} remaining / restant""")
                         else:
                             embed.set_footer(text=f"""{remaining_str}{duration_str} remaining""")
 
-                    # Edit the message
                     await notification.edit(content=content, embed=embed)
-                    #  await self.log_notification(notification, sub.channel_id, world, fate['Category'], instance) #  I think this isn't needed and it'll break another thing
             except discord.NotFound:
                 self._log.warning(f"Notification message for FATE {name} on world {world} has been deleted")
 
-        time_left = xivhunt['last_seen'] if xivhunt else 0
-
-        if (not time_left or int(xivhunt['status']) == 100):
+        if (not time_left or int(xivhunt['status']) == 100): 
             if _key in self._fates[world]['xivhunt']:
                 if world not in self._recent_fates:
                     self._recent_fates[world] = {}

@@ -156,159 +156,135 @@ class HuntManager:
 
         _key = f"{parse_name(name)}_{instance}"
 
-        if name.lower() not in self._marks_info.keys():
-            # self._log.debug(f"""Ignoring notifications for {hunt['Rank']} rank hunts""")
+        if name.lower() not in self._marks_info or self._marks_info[name.lower()]['Rank'] not in ('A', 'S', 'SS', 'SS Minion'):
+            self._log.debug(f"""Ignoring notifications for {name}""")
             return
 
         hunt = self._marks_info[name.lower()]
 
-        if hunt['Rank'] in ('A', 'S', 'SS', 'SS Minion'):
-
-            if hunt['Rank'] == 'A' and hunt['ZoneName'] in ZONES.EW and self._hunts[world]['tracker'] is not None:
-                #self._log.info("Endwalker A rank - checking for train...")
-                for key, trackerHunt in self._hunts[world]['tracker'].items():
-                    if trackerHunt.rank == 'A' and trackerHunt.zone in ZONES.EW:
-                        if trackerHunt.status == trackerHunt.STATUS_DIED and int(time.time()) - (int(trackerHunt.last_alive) / 1000) <= 120:
-                            #self._log.info("Train detected")
-                            await self.trains.on_train(world, name, xivhunt, False, instance)
-                            #self._log.info("On train call successful")
-                            break
-
-            if _key in self._hunts[world]['tracker'].keys():
-                if int(time.time()) - (int(self._hunts[world]['tracker'][_key].last_alive) / 1000) <= 3600:
-                    #self._log.info(f"A hunt was found that just died! Laggy computer? World: {world} (Instance {instance}) :: {name}, Rank {xivhunt['rank']}")
-                    return  # Trying to report a hunt that already died in the last 5 minutes. Someone's laggy computer?
-
-            if (xivhunt is not None):
-                if f"{world}_{_key}" in self._timers:
-                    if int(time.time()) - (int(self._timers[f"{world}_{_key}"]) / 1000) <= 3600:
-                        #self._log.info(f"A hunt was found that just found! Laggy computer? World: {world} (Instance {instance}) :: {name}, Rank {xivhunt['rank']}")
-                        return
-                self._timers[f"{world}_{_key}"] = time.time() * 1000;
-
-            self._log.info(f"A hunt has been found on world {world} (Instance {instance}) :: {name}, Rank {xivhunt['rank']}")
-
-            subs = await subscriptions.get(None, world, hunt['Category'])
-            embed = hunt_report_embed(name, xivhunt=xivhunt)
-
-            #  Checks if another hunt from the same world and expansion has been reported since this one.
-            #  If so, report as a new discord message instead of editing.
-            #  Fixes the issue of someone scouting hunts in advance and then them not being re-reported when the actual train happens
-            if _key in self._hunts[world]['xivhunt']:
-                notifications_list = await notifications.list()
-
-                lastNotificationTime = None
-
-                if lastNotificationTime is None:
-                    lastNotificationTime = time.time();
-
-                try:
-
-                    lastNotificationTime = int(
-                        (
-                            # Thanks to the sorting below, [0] will hopefully not be None, if at all possible. Attempt to extract lastNotificationTime
-                            lambda f : f[0][0].created_at.replace(tzinfo=datetime.timezone.utc).timestamp() if f[0] is not None else time.time()
-                        )
-                        (
-                            sorted
-                            (
-                                # Order the list of notifications, putting any "None" values to the back (there should not be a list though)
-                                (lambda n : [(notifications_list[c][world][_key] if world in notifications_list[c] and _key in notifications_list[c][world] else None) for c in n])
-                                (notifications_list.keys()), # Pass list of notifications keys to n
-                                key=lambda e: e is None # If the previous lamda function returned None, push it to the back of the list
-                            )
-                        )
-                    )
-                except:
-                    self._log.exception("Exception thrown")
-
-                lastNotificationName = name
-
-                if hunt['Rank'] == 'A':
-                    for n_channel in notifications_list:
-                        if world in notifications_list[n_channel]:  # Same world?
-                            for n_key in notifications_list[n_channel][world]:
-                                n_name = n_key.rsplit("_")[0]
-
-                                if n_name in self._marks_info and self._marks_info[n_name]['Rank'] == 'A':
-                                    if zones.expansion(int(self._marks_info[n_name]['ZoneID'])) == zones.expansion(int(hunt['ZoneID'])): # Same expansion?
-                                        if notifications_list[n_channel][world][n_key]:
-                                            message = notifications_list[n_channel][world][n_key][0]
-                                            if int(message.created_at.replace(tzinfo=datetime.timezone.utc).timestamp()) > lastNotificationTime:
-                                                lastNotificationTime = int(message.created_at.replace(tzinfo=datetime.timezone.utc).timestamp())
-                                                lastNotificationName = n_name
-
-                if lastNotificationName == name and (int(time.time()) - lastNotificationTime) < 3600:  # If there's been no new reports since, re-report only after 60 minutes
-                    self._log.debug(f"{name} on instance {instance} already logged")
-                    return
-                else: # Delete the notification from memory so it sends a new one instead of editing it
-                    await notifications.delete(n_channel, world, name, instance)
-        else:
-            self._log.debug(f"""Ignoring notifications for {name}""")
+        if xivhunt and 'hp' in xivhunt and xivhunt['hp'] < 100 and time.time() - self._timers[f"{world}_{_key}"] <= 15:
+            #await self.on_progress(world, name, xivhunt, instance)
             return
 
-        # Avoid double relaying minions
-        if xivhunt['rank'] == "SS Minion":
-            minion_key = f"{world}_{_key}"
-            if minion_key in self.minions and time.time() - self.minions[minion_key] < 3600: return
-            self.minions[minion_key] = time.time()
+        if hunt['Rank'] == 'A' and xivhunt and 'hp' in xivhunt' and 'players' in xivhunt and xivhunt['hp'] < 99 and xivhunt['players'] > 11:
+            await self.trains.on_train(world, name, xivhunt, False, instance)
 
-        for sub in subs:  # type: Subscriptions
+        if ((_key in self._hunts[world]['tracker'] and time.time() - (int(self._hunts[world]['tracker'][_key].last_alive) / 1000) <= 3600)
+        or (xivhunt and f"{world}_{_key}" in self._timers and time.time() - self._timers[f"{world}_{_key}"] <= 3600)):
+            return # Trying to report a hunt that already died in the last 5 minutes. Someone's laggy computer?
+
+        if xivhunt:
+            self._timers[f"{world}_{_key}"] = time.time();
+
+        self._log.info(f"A hunt has been found on world {world} (Instance {instance}) :: {name}, Rank {xivhunt['rank']}")
+
+        #  Checks if another hunt from the same world and expansion has been reported since this one.
+        #  If so, report as a new discord message instead of editing.
+        #  Fixes the issue of someone scouting hunts in advance and then them not being re-reported when the actual train happens
+        if _key in self._hunts[world]['xivhunt']:
+            notifications_list = await notifications.list()
+
+            lastNotificationTime = None
+
+            if lastNotificationTime is None:
+                lastNotificationTime = time.time();
+
+            try:
+
+                lastNotificationTime = int(
+                    (
+                        # Thanks to the sorting below, [0] will hopefully not be None, if at all possible. Attempt to extract lastNotificationTime
+                        lambda f : f[0][0].created_at.replace(tzinfo=datetime.timezone.utc).timestamp() if f[0] is not None else time.time()
+                    )
+                    (
+                        sorted
+                        (
+                            # Order the list of notifications, putting any "None" values to the back (there should not be a list though)
+                            (lambda n : [(notifications_list[c][world][_key] if world in notifications_list[c] and _key in notifications_list[c][world] else None) for c in n])
+                            (notifications_list.keys()), # Pass list of notifications keys to n
+                            key=lambda e: e is None # If the previous lamda function returned None, push it to the back of the list
+                        )
+                    )
+                )
+            except:
+                self._log.exception("Exception thrown")
+
+            lastNotificationName = name
+
+            if hunt['Rank'] == 'A':
+                for n_channel in notifications_list:
+                    if world in notifications_list[n_channel]:  # Same world?
+                        for n_key in notifications_list[n_channel][world]:
+                            n_name = n_key.rsplit("_")[0]
+
+                            if n_name in self._marks_info and self._marks_info[n_name]['Rank'] == 'A':
+                                if zones.expansion(int(self._marks_info[n_name]['ZoneID'])) == zones.expansion(int(hunt['ZoneID'])): # Same expansion?
+                                    if notifications_list[n_channel][world][n_key]:
+                                        message = notifications_list[n_channel][world][n_key][0]
+                                        if int(message.created_at.replace(tzinfo=datetime.timezone.utc).timestamp()) > lastNotificationTime:
+                                            lastNotificationTime = int(message.created_at.replace(tzinfo=datetime.timezone.utc).timestamp())
+                                            lastNotificationName = n_name
+
+            if lastNotificationName == name and (int(time.time()) - lastNotificationTime) < 3600:  # If there's been no new reports since, re-report only after 60 minutes
+                self._log.debug(f"{name} on instance {instance} already logged")
+                return
+            else: # Delete the notification from memory so it sends a new one instead of editing it
+                await notifications.delete(n_channel, world, name, instance)
+
+        if xivhunt['rank'] == "SS Minion":
+            if f"{world}_{_key}" in self.minions and time.time() - self.minions[minion_key] < 86410:
+                return
+            self.minions[f"{world}_{_key}"] = time.time()
+
+        subs = await subscriptions.get(None, world, hunt['Category'])
+        instance_symbol = ZONES.INSTANCE_SYMBOLS.get(instance, str(instance))
+        content = f"""[{world}] {hunt['ZoneName']} ({xivhunt['coords']}) {instance_symbol}"""
+        embed = hunt_report_embed(name, xivhunt=xivhunt)
+        attach_category = (f"{hunt['Name']}_{hunt['Rank'][0:1]}" if 'Rank' in hunt and hunt['Rank'] else hunt['Name']).lower()
+
+        for prefix, zone_set in ZONES.LIST.items():
+            if hunt['ZoneName'] in zone_set:
+                attach_category = prefix
+                break
+
+        en_zone_name, ja_zone_name = hunt['ZoneName'], zones.get(str(hunt['ZoneID']))['name_ja']
+        fr_zone_name, de_zone_name = zones.get(str(hunt['ZoneID']))['name_fr'], zones.get(str(hunt['ZoneID']))['name_de']
+
+        if worlds.get_datacenter(world) in DATACENTERS.JA:
+            content = f"""[{world}] {ja_zone_name} {hunt['ZoneName']} ({xivhunt['coords']}) {instance_symbol}"""
+            ja_description = f"""[{world}] {ja_zone_name} ({xivhunt['coords']}) {instance_symbol}"""
+            embed.description = f"""{ja_description}\n{hunt['ZoneName']} ({xivhunt['coords']}) {instance_symbol}"""
+        elif worlds.get_datacenter(world) in DATACENTERS.EU:
+            fr_description = f"""\n{fr_zone_name} ({xivhunt['coords']}) {instance_symbol}""" if fr_zone_name != en_zone_name and fr_zone_name != de_zone_name else ""
+            de_description = f"""\n{de_zone_name} ({xivhunt['coords']}) {instance_symbol}""" if de_zone_name != en_zone_name else ""
+            embed.description = f"""{content}{fr_description}{de_description}"""
+        else:
+             embed.description = content
+
+        for sub in subs: # Subscriptions
             if COND.FIND != sub.event:
                 continue
-
-            attach_category = hunt["Name"].lower()
-
-            for prefix, zone_set in {'ARR':ZONES.ARR,'HW':ZONES.HW,'SB':ZONES.SB,'SHB':ZONES.SHB,'EW':ZONES.EW,'DT': ZONES.DT}.items():
-                if hunt['ZoneName'] in zone_set:
-                    attach_category = prefix
-                    break
-
-            if 'Rank' in hunt and hunt['Rank']:
-                attach_category = '_'.join((attach_category, hunt['Rank'][0:1])).lower()
 
             _meta = SubscriptionsMeta.select().where((SubscriptionsMeta.channel_id == sub.channel_id)
             & ((SubscriptionsMeta.attachName == hunt["Name"].lower()) | (SubscriptionsMeta.attachName == attach_category) | (SubscriptionsMeta.attachName is None)))
             # Matches this hunt, hunt category or all's notifier (in that order)
             meta  = {m.name : m.value for m in _meta}
             role_mention = meta['notifier'] if 'notifier' in meta else None
-
-            instance_symbol = {1:"①",2:"②",3:"③",4:"④",5:"⑤",6:"⑥"}[instance]
-            content = f"""[{world}] {hunt['ZoneName']} ({xivhunt['coords']}) {instance_symbol}"""
-
-            en_zone_name, ja_zone_name = hunt['ZoneName'], zones.get(str(hunt['ZoneID']))['name_ja']
-            fr_zone_name, de_zone_name = zones.get(str(hunt['ZoneID']))['name_fr'], zones.get(str(hunt['ZoneID']))['name_de']
-
-            if worlds.get_datacenter(world) in DATACENTERS.JA:
-                content = f"""[{world}] {ja_zone_name} {hunt['ZoneName']} ({xivhunt['coords']}) {instance_symbol}"""
-                ja_description = f"""[{world}] {ja_zone_name} ({xivhunt['coords']}) {instance_symbol}"""
-                embed.description = f"""{ja_description}\n{hunt['ZoneName']} ({xivhunt['coords']}) {instance_symbol}"""
-            elif worlds.get_datacenter(world) in DATACENTERS.EU:
-                fr_description = f"""\n{fr_zone_name} ({xivhunt['coords']}) {instance_symbol}""" if fr_zone_name != en_zone_name and fr_zone_name != de_zone_name else ""
-                de_description = f"""\n{de_zone_name} ({xivhunt['coords']}) {instance_symbol}""" if de_zone_name != en_zone_name else ""
-                embed.description = f"""{content}{fr_description}{de_description}"""
-            else:
-                embed.description = content
-
-            if role_mention:
-                content = f"""{role_mention} {content}"""
+            content = f"""{role_mention} {content}""" if role_mention else content
 
             if "BlueMageSpells" in hunt and hunt['BlueMageSpells']:
                 embed.description = f"""{embed.description}\nBlue Mage Spells: **{hunt['BlueMageSpells']}**"""
-
                 role = await notifications.role(sub.channel_id, "blu_spell")
-
-                if role:
-                    content = f"""{content} {role}"""
+                content = f"""{content} {role}""" if role else content
 
             message = await subscriptions.send_message(content, embed, sub)
+
             if not message:
                 continue
 
             await notifications.log(message, sub.channel_id, world, name, instance)
 
-        if subs or name.lower() in self._marks_info.keys():
-            self._hunts[world]['xivhunt'].append(_key)
+        self._hunts[world]['xivhunt'].append(_key)
 
     def get(self, world: str, hunt_name: str, instance=1) -> BearHunt:
         _key = f"{parse_name(hunt_name)}_{instance}"

@@ -115,6 +115,8 @@ class FateManager:
             self._log.debug(f"""Ignoring notifications for {name}""")
             return
 
+        fate = self._fates_info[name.lower()]
+
         if _key in self._fates[world]['xivhunt']:
             self._log.debug(f"FATE {name} on {world} instance {instance} already logged, updating progress.")
             async with self.lock:
@@ -122,12 +124,11 @@ class FateManager:
             return
 
         if f"{world}_{_key}" in self._fate_timers:
-            if int(time.time()) - (int(self._fate_timers[f"{world}_{_key}"]) / 1000) <= 3600:
-                self._log.info(f"A FATE was found that just found! Laggy computer? World: {world} (Instance {instance}) :: {name}")
+            if int(time.time()) - (int(self._fate_timers[f"{world}_{_key}"]) / 1000) <= 86400:
+                self._log.info(f"A FATE was found that just died! Laggy computer? World: {world} (Instance {instance}) :: {name}")
                 return
         self._fate_timers[f"{world}_{_key}"] = time.time() * 1000;
 
-        fate = self._fates_info[name.lower()]
         self._log.info(f"A FATE has been found on world {world} (Instance {instance}) :: {name}")
 
         subs = await subscriptions.get(None, world, fate['Category'])
@@ -164,7 +165,7 @@ class FateManager:
         if time_left > 0:
             embed.set_footer(text=footer)
 
-        for sub in subs:  # Subscriptions
+        for sub in subs: # Subscriptions
             if COND.FIND != sub.event:
                 continue
 
@@ -179,14 +180,12 @@ class FateManager:
                     if instance != i and f"{world}_{_key[:-1]}{i}" in self._fate_timers and (int(time.time()) - (int(self._fate_timers[f"{world}_{_key[:-1]}{i}"]) / 1000)) <= 2400:
                         role_mention = None
 
-            if role_mention:
-                content = f"""{role_mention} {content}"""
+            content = f"""{role_mention} {content}""" if role_mention else content
 
             if "BlueMageSpells" in fate and fate['BlueMageSpells']:
                 embed.description = f"""{embed.description}\nBlue Mage Spells: **{fate['BlueMageSpells']}**"""
                 role = await notifications.role(sub.channel_id, "blu_spell")
-                if role:
-                    content = f"""{content} {role}"""
+                content = f"""{content} {role}""" if role else content
 
             message = await subscriptions.send_message(content, embed, sub)
 

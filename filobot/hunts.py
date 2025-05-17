@@ -153,6 +153,7 @@ class HuntManager:
 
         if world not in self._hunts:
             self._hunts[world] = {'tracker': {}, 'xivhunt': []}
+            self._timers[world] = {}
 
         _key = f"{parse_name(name)}_{instance}"
 
@@ -162,79 +163,20 @@ class HuntManager:
 
         hunt = self._marks_info[name.lower()]
 
-        if xivhunt and 'hp' in xivhunt and xivhunt['hp'] < 100 and time.time() - self._timers[f"{world}_{_key}"] <= 15:
+        if xivhunt and 'hp' in xivhunt and xivhunt['hp'] < 100 and _key in self._timers[world] and time.time() - self._timers[f"{world}_{_key}"] <= 15:
             #await self.on_progress(world, name, xivhunt, instance)
             return
 
         if hunt['Rank'] == 'A' and xivhunt and 'hp' in xivhunt' and 'players' in xivhunt and xivhunt['hp'] < 99 and xivhunt['players'] > 11:
             await self.trains.on_train(world, name, xivhunt, False, instance)
 
-        if ((_key in self._hunts[world]['tracker'] and time.time() - (int(self._hunts[world]['tracker'][_key].last_alive) / 1000) <= 3600)
-        or (xivhunt and f"{world}_{_key}" in self._timers and time.time() - self._timers[f"{world}_{_key}"] <= 3600)):
-            return # Trying to report a hunt that already died in the last 5 minutes. Someone's laggy computer?
+        if ((_key in self._hunts[world]['tracker'] and time.time() - (int(self._hunts[world]['tracker'][_key].last_alive) / 1000) <= 86410) or
+        (_key in self._timers[world] and self._timers[world][_key] <= 86410):
+            return
 
-        if xivhunt:
-            self._timers[f"{world}_{_key}"] = time.time();
+        self._timers[world][_key] = time.time()
 
         self._log.info(f"A hunt has been found on world {world} (Instance {instance}) :: {name}, Rank {xivhunt['rank']}")
-
-        #  Checks if another hunt from the same world and expansion has been reported since this one.
-        #  If so, report as a new discord message instead of editing.
-        #  Fixes the issue of someone scouting hunts in advance and then them not being re-reported when the actual train happens
-        if _key in self._hunts[world]['xivhunt']:
-            notifications_list = await notifications.list()
-
-            lastNotificationTime = None
-
-            if lastNotificationTime is None:
-                lastNotificationTime = time.time();
-
-            try:
-
-                lastNotificationTime = int(
-                    (
-                        # Thanks to the sorting below, [0] will hopefully not be None, if at all possible. Attempt to extract lastNotificationTime
-                        lambda f : f[0][0].created_at.replace(tzinfo=datetime.timezone.utc).timestamp() if f[0] is not None else time.time()
-                    )
-                    (
-                        sorted
-                        (
-                            # Order the list of notifications, putting any "None" values to the back (there should not be a list though)
-                            (lambda n : [(notifications_list[c][world][_key] if world in notifications_list[c] and _key in notifications_list[c][world] else None) for c in n])
-                            (notifications_list.keys()), # Pass list of notifications keys to n
-                            key=lambda e: e is None # If the previous lamda function returned None, push it to the back of the list
-                        )
-                    )
-                )
-            except:
-                self._log.exception("Exception thrown")
-
-            lastNotificationName = name
-
-            if hunt['Rank'] == 'A':
-                for n_channel in notifications_list:
-                    if world in notifications_list[n_channel]:  # Same world?
-                        for n_key in notifications_list[n_channel][world]:
-                            n_name = n_key.rsplit("_")[0]
-
-                            if n_name in self._marks_info and self._marks_info[n_name]['Rank'] == 'A':
-                                if zones.expansion(int(self._marks_info[n_name]['ZoneID'])) == zones.expansion(int(hunt['ZoneID'])): # Same expansion?
-                                    if notifications_list[n_channel][world][n_key]:
-                                        message = notifications_list[n_channel][world][n_key][0]
-                                        if int(message.created_at.replace(tzinfo=datetime.timezone.utc).timestamp()) > lastNotificationTime:
-                                            lastNotificationTime = int(message.created_at.replace(tzinfo=datetime.timezone.utc).timestamp())
-                                            lastNotificationName = n_name
-
-            if lastNotificationName == name and (int(time.time()) - lastNotificationTime) < 3600:  # If there's been no new reports since, re-report only after 60 minutes
-                self._log.debug(f"{name} on instance {instance} already logged")
-                return
-            else: # Delete the notification from memory so it sends a new one instead of editing it
-                await notifications.delete(n_channel, world, name, instance)
-
-        if xivhunt['rank'] == "SS Minion":
-            if f"{world}_{_key}" in self.minions and time.time() - self.minions[minion_key] < 86410:
-                return
-            self.minions[f"{world}_{_key}"] = time.time()
 
         subs = await subscriptions.get(None, world, hunt['Category'])
         instance_symbol = ZONES.INSTANCE_SYMBOLS.get(instance, str(instance))
@@ -378,15 +320,16 @@ class HuntManager:
         # Maybe check HP here
 
         # Check if all A ranks are dead yet so we can end the train
+        # Make this work for multiple expansions
         if hunt['Rank'] == 'A' and hunt['ZoneName'] in ZONES.EW and self._hunts[world]['tracker'] is not None and new.status == new.STATUS_DIED:
             hunts_living, previous_death = False, 0
 
-            for key, trackerHunt in self._hunts[world]['tracker'].items():
-                if trackerHunt.rank == 'A' and trackerHunt.zone in ZONES.EW and trackerHunt.name != new.name:
-                    if trackerHunt.status != trackerHunt.STATUS_DIED:
+            for key, tracker_hunt in self._hunts[world]['tracker'].items():
+                if tracker_hunt.rank == 'A' and tracker_hunt.zone in ZONES.EW and tracker_hunt.name != new.name:
+                    if tracker_hunt.status != tracker_hunt.STATUS_DIED:
                         hunts_living = True
-                    if trackerHunt.status == trackerHunt.STATUS_DIED and int(trackerHunt.last_alive) / 1000 > previous_death:
-                        previous_death = int(trackerHunt.last_alive) / 1000
+                    if tracker_hunt.status == tracker_hunt.STATUS_DIED and int(tracker_hunt.last_alive) / 1000 > previous_death:
+                        previous_death = int(tracker_hunt.last_alive) / 1000
 
             if not hunts_living and int(time.time()) - (int(new.last_alive) / 1000) < 60:  # If last death report is retroactive, don't send a random "Complete" message
                 # All A ranks are dead, alter the train message

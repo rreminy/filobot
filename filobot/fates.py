@@ -127,6 +127,7 @@ class FateManager:
             if int(time.time()) - (int(self._fate_timers[f"{world}_{_key}"]) / 1000) <= 86400:
                 self._log.info(f"A FATE was found that just died! Laggy computer? World: {world} (Instance {instance}) :: {name}")
                 return
+
         self._fate_timers[f"{world}_{_key}"] = time.time() * 1000;
 
         self._log.info(f"A FATE has been found on world {world} (Instance {instance}) :: {name}")
@@ -236,6 +237,7 @@ class FateManager:
                             if int(time.time()) >= int(message_time.timestamp()) + seconds_left: # Strikethrough the fate!
                                 # self._log.info(f"""Expiring? Fate: {self._fates_info[name]['Name']} ({world})\n{time.time()} >= {int(message_time.replace(tzinfo=datetime.timezone.utc).timestamp())} + {seconds_left} ({int(message_time.replace(tzinfo=datetime.timezone.utc).timestamp()) + seconds_left})""")
                                 job_list.append(self.on_progress(world, self._fates_info[name]['Name'], None, int(key.rsplit("_")[1])))
+
             for result in await asyncio.gather(*job_list, return_exceptions=True):
                 if isinstance(result, Exception):
                     self._log.exception("Job failed with exception", exc_info=result)

@@ -18,7 +18,7 @@ class SubscriptionManager:
         try:
             sub = getattr(SUB, f"""{subscription.upper()}""")
         except AttributeError:
-            return "Invalid subscription provided, valid subscriptions are: dt_a, dt_s, ew_a, ew_s, shb_a, shb_s, sb_a, sb_s, hw_a, hw_s, arr_a, arr_s, fate, trains"
+            return "Invalid subscription provided, valid subscriptions are: dt_a, dt_s, ew_a, ew_s, shb_a, shb_s, sb_a, sb_s, hw_a, hw_s, arr_a, arr_s, fate, trains_dt, trains_ew, trains_shb, trains_sb"
 
         if conditions == 'all':
             conditions = list(COND.CONDITIONS)
@@ -65,7 +65,7 @@ class SubscriptionManager:
         try:
             sub = getattr(SUB, f"""{subscription.upper()}""")
         except AttributeError:
-            return "Invalid subscription provided, valid subscriptions are: dt_a, dt_s, ew_a, ew_s, shb_a, shb_s, sb_a, sb_s, hw_a, hw_s, arr_a, arr_s, fate, trains"
+            return "Invalid subscription provided, valid subscriptions are: dt_a, dt_s, ew_a, ew_s, shb_a, shb_s, sb_a, sb_s, hw_a, hw_s, arr_a, arr_s, fate, trains_dt, trains_ew, trains_shb, trains_sb"
 
         if conditions == 'all':
             conditions = list(COND.CONDITIONS)
@@ -115,7 +115,7 @@ class SubscriptionManager:
         try:
             sub = getattr(SUB, f"""{subscription.upper()}""")
         except AttributeError:
-            return "Invalid subscription provided, valid subscriptions are: dt_a, dt_s, ew_a, ew_s, shb_a, shb_s, sb_a, sb_s, hw_a, hw_s, arr_a, arr_s, fate, trains"
+            return "Invalid subscription provided, valid subscriptions are: dt_a, dt_s, ew_a, ew_s, shb_a, shb_s, sb_a, sb_s, hw_a, hw_s, arr_a, arr_s, fate, trains_dt, trains_ew, trains_shb, trains_sb"
 
         async with self.lock:
             Subscriptions.delete().where(

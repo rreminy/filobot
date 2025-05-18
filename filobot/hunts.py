@@ -164,11 +164,14 @@ class HuntManager:
         hunt = self._marks_info[name.lower()]
 
         if xivhunt and 'hp' in xivhunt and xivhunt['hp'] < 100 and _key in self._timers[world] and time.time() - self._timers[f"{world}_{_key}"] <= 15:
-            #await self.on_progress(world, name, xivhunt, instance)
+            await self.on_progress(world, name, xivhunt, instance)
             return
 
-        if hunt['Rank'] == 'A' and xivhunt and 'hp' in xivhunt' and 'players' in xivhunt and xivhunt['hp'] < 99 and xivhunt['players'] > 11:
-            await self.trains.on_train(world, name, xivhunt, False, instance)
+        if hunt['Rank'] == 'A' and xivhunt and 'hp' in xivhunt' and 'players' in xivhunt:
+            if xivhunt['hp'] < 99 and xivhunt['players'] > 11:
+                await self.trains.on_train(world, name, xivhunt, instance)
+            if xivhunt['players'] > 4:
+                await self.trains.on_progress(world, name, xivhunt, instance)
 
         if ((_key in self._hunts[world]['tracker'] and time.time() - (int(self._hunts[world]['tracker'][_key].last_alive) / 1000) <= 86410) or
         (_key in self._timers[world] and self._timers[world][_key] <= 86410):
@@ -203,6 +206,8 @@ class HuntManager:
         else:
              embed.description = content
 
+        embed.description = f"{xivhunt['status']}%{embed.description}"
+
         for sub in subs: # Subscriptions
             if COND.FIND != sub.event:
                 continue
@@ -227,6 +232,22 @@ class HuntManager:
             await notifications.log(message, sub.channel_id, world, name, instance)
 
         self._hunts[world]['xivhunt'].append(_key)
+
+    async def on_progress(self, world: str, name: str, xivhunt: dict, instance=1):
+        subs = await subscriptions.get(None, world, fate['Category'])
+
+        for sub in subs:
+            notification = await notifications.get(sub.channel_id, world, name, instance)
+
+            if notification:
+                notification, log = notification
+                content = notification.content
+                #content = content.replace(content.rsplit(" ", 1)[1], f"{xivhunt['hp'}%")
+                embed = notification.embeds[0]
+                embed.description = embed.description[embed.description.find("%") + 1:]
+                embed.description = f"{xivhunt['status']}%{embed.description}"
+
+                await notification.edit(content=content, embed=embed)
 
     def get(self, world: str, hunt_name: str, instance=1) -> BearHunt:
         _key = f"{parse_name(hunt_name)}_{instance}"
@@ -317,30 +338,27 @@ class HuntManager:
             if _key in self._hunts[world]['xivhunt']:
                 self._hunts[world]['xivhunt'].remove(_key)
 
-        # Maybe check HP here
-
         # Check if all A ranks are dead yet so we can end the train
-        # Make this work for multiple expansions
-        if hunt['Rank'] == 'A' and hunt['ZoneName'] in ZONES.EW and self._hunts[world]['tracker'] is not None and new.status == new.STATUS_DIED:
-            hunts_living, previous_death = False, 0
+        if hunt['Rank'] == 'A' and self._hunts[world]['tracker'] is not None and new.status == new.STATUS_DIED:
+            hunts_living, previous_death, expansion = False, 0, zones.expansion(hunt['ZoneID'])
 
             for key, tracker_hunt in self._hunts[world]['tracker'].items():
-                if tracker_hunt.rank == 'A' and tracker_hunt.zone in ZONES.EW and tracker_hunt.name != new.name:
+                if tracker_hunt.rank == 'A' and tracker_hunt.zone in getattr(ZONES, f"{expansion}".toupper()) and tracker_hunt.name != new.name:
                     if tracker_hunt.status != tracker_hunt.STATUS_DIED:
                         hunts_living = True
                     if tracker_hunt.status == tracker_hunt.STATUS_DIED and int(tracker_hunt.last_alive) / 1000 > previous_death:
                         previous_death = int(tracker_hunt.last_alive) / 1000
 
-            if not hunts_living and int(time.time()) - (int(new.last_alive) / 1000) < 60:  # If last death report is retroactive, don't send a random "Complete" message
-                # All A ranks are dead, alter the train message
-                await self.trains.on_train(world, new.name, None, True, new.instance)
+            if not hunts_living and int(time.time()) - (int(new.last_alive) / 1000) < 60: # If last death report is retroactive, don't send a random "Complete" message
+                await self.trains.on_end(world, new.name, None, new.instance)
                 return
 
             if previous_death and int(int(new.last_alive) / 1000) == int(int(new.last_mark) / 1000): # Don't report a train if it's a retroactive mark
                 time_between = (int(new.last_alive) / 1000) - previous_death
 
-                if time_between > 40 and time_between < 240:  # More than 40 seconds, less than 4 minutes between deaths?
-                    await self.trains.on_train(world, new.name, None, False, new.instance)  # It's a train then
+                if time_between > 40 and time_between < 240: # More than 40 seconds, less than 4 minutes between deaths?
+                    await self.trains.on_train(world, new.name, None, new.instance)
+                    await self.trains.on_progress(world, new.name, None, new.instance)
 
     def get_marks_info(self):
         return self._marks_info

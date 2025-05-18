@@ -219,7 +219,6 @@ class FateManager:
 
                         if name in self._fates_info and notifications_list[channel][world][key]:
                             message, log = notifications_list[channel][world][key]
-                            message = await message.fetch()
 
                             try:
                                 embed = message.embeds[0]
@@ -257,7 +256,6 @@ class FateManager:
 
                 if notification:
                     notification, log = notification
-                    notification = await notification.fetch()
                     content = notification.content
                     embed = notification.embeds[0]
 

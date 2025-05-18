@@ -1027,7 +1027,7 @@ class Hunts(commands.Cog):
             found = False
             attachname = attachname.strip().lower()
 
-            if attachname in SUBS.HUNT_SUBSCRIPTIONS or attachname == "trains":
+            if attachname in SUBS.HUNT_SUBSCRIPTIONS or attachname in SUBS.TRAIN_SUBSCRIPTIONS:
                 found = True
 
             for fate in fates.get_fates_info().keys():
@@ -1072,7 +1072,7 @@ class Hunts(commands.Cog):
             found = False
             attachname = attachname.strip().lower()
 
-            if attachname in SUBS.HUNT_SUBSCRIPTIONS or attachname == "trains" or attachname == "blu_spell":
+            if attachname in SUBS.HUNT_SUBSCRIPTIONS or attachname in SUBS.TRAIN_SUBSCRIPTIONS or attachname == "blu_spell":
                 found = True
 
             for fate in fates.get_fates_info().keys():
@@ -1098,7 +1098,7 @@ class Hunts(commands.Cog):
     async def sub(self, ctx: commands.context.Context, world: str, category: str, *, conditions: typing.Optional[str] = 'FINDS, DEATHS'):
         """
         Subscribe the channel to hunt and fate events
-        Allowed categories: EW_A, EW_S, SHB_A, SHB_S, SB_A, SB_S, HW_A, HW_S, ARR_A, ARR_S, FATE, TRAINS
+        Allowed categories: DT_A, DT_S, EW_A, EW_S, SHB_A, SHB_S, SB_A, SB_S, HW_A, HW_S, ARR_A, ARR_S, FATE, TRAINS_DT, TRAINS_EW, TRAINS_SHB, TRAINS_SB
         Allowed conditions: FINDS, DEATHS, OPENINGS
         """
         message = await subscriptions.subscribe(ctx.channel.id, world, category, conditions)
@@ -1112,7 +1112,7 @@ class Hunts(commands.Cog):
         """
         Subscribe the channel to hunt and fate events on ALL of a datacenters worlds
         Allowed datacenters: Elemental, Gaia, Mana, Aether, Primal, Crystal, Chaos, Light, Materia
-        Allowed categories: EW_A, EW_S, SHB_A, SHB_S, SB_A, SB_S, HW_A, HW_S, ARR_A, ARR_S, FATE, TRAINS
+        Allowed categories: DT_A, DT_S, EW_A, EW_S, SHB_A, SHB_S, SB_A, SB_S, HW_A, HW_S, ARR_A, ARR_S, FATE, TRAINS_DT, TRAINS_EW, TRAINS_SHB, TRAINS_SB
         Allowed conditions: FINDS, DEATHS, OPENINGS
         """
         message = await subscriptions.subscribe_all(datacenter, ctx.channel.id, category, conditions)
@@ -1125,7 +1125,7 @@ class Hunts(commands.Cog):
     async def unsub(self, ctx: commands.context.Context, world: str, category: str):
         """
         Unsubscribe the channel from hunt and fate events
-        Allowed categories: EW_A, EW_S, SHB_A, SHB_S, SB_A, SB_S, HW_A, HW_S, ARR_A, ARR_S, FATE, TRAINS
+        Allowed categories: DT_A, DT_S, EW_A, EW_S, SHB_A, SHB_S, SB_A, SB_S, HW_A, HW_S, ARR_A, ARR_S, FATE, TRAINS_DT, TRAINS_EW, TRAINS_SHB, TRAINS_SB
         """
         message = await subscriptions.unsubscribe(ctx.channel.id, world, category)
         if message:

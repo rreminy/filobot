@@ -209,7 +209,7 @@ class HuntManager:
         else:
              embed.description = f"{en_zone_name} ({xivhunt['coords']})" #embed.description = content
 
-        embed.description = f"{xivhunt['hp']}% {embed.description}" if xivhunt and 'hp' in xivhunt else f"100% {embed.description}"
+        embed.description = f"{int(float(xivhunt['hp']))}% {embed.description}" if xivhunt and 'hp' in xivhunt else f"100% {embed.description}"
 
         for sub in subs: # Subscriptions
             if COND.FIND != sub.event:

@@ -56,8 +56,8 @@ def hunt_report_embed(hunt_name: str, tracked: typing.Optional = None, xivhunt: 
                 else:
                     embed.set_image(url=f"https://api.ffxivsonar.com/render/map?zoneid={xivhunt['zone_id']}&flagx={xivhunt['x']}&flagy={xivhunt['y']}")
 
-                if 'hp' in xivhunt:
-                    embed.title = f"{embed.title} {int(float(xivhunt['hp']))}%"
+                #if 'hp' in xivhunt:
+                    #embed.title = f"{embed.title} {int(float(xivhunt['hp']))}%"
                     #embed.set_footer(text=f"HP Remaining: {xivhunt['hp']}%")
 
             return embed

@@ -18,11 +18,11 @@ class TrainManager:
         hunt = self._marks_info[name.lower()]
         expansion = zones.expansion(hunt['ZoneID'])
 
-        if expansion not in self._trains or (world in self._trains[expansion] and time.time() - self._trains[expansion][world] < 7200):
+        if expansion not in self._trains or (world in self._trains[expansion] and int(time.time()) - self._trains[expansion][world] < 7200):
             return
 
-        self._trains[expansion][world] = time.time()
-        subs = await subscriptions.get(None, world, getattr(SUB, f"TRAINS_{expansion}".toupper()))
+        self._trains[expansion][world] = int(time.time())
+        subs = await subscriptions.get(None, world, getattr(SUB, f"TRAINS_{expansion}".upper()))
         instance_symbol = ZONES.INSTANCE_SYMBOLS.get(instance, str(instance))
         zone_name = f"""{hunt['ZoneName']} {zones.get(str(hunt['ZoneID']))['name_ja']} """ if worlds.get_datacenter(world) in DATACENTERS.JA else f"""{hunt['ZoneName']} """
 
@@ -41,24 +41,24 @@ class TrainManager:
             if not message:
                 continue
 
-            await notifications.log(message, sub.channel_id, world, getattr(SUB, f"TRAINS_{expansion}".toupper()), 1)
+            await notifications.log(message, sub.channel_id, world, getattr(SUB, f"TRAINS_{expansion}".upper()), 1)
 
     async def on_progress(self, world: str, name: str, xivhunt: dict, instance=1):
         hunt = self._marks_info[name.lower()]
         expansion = zones.expansion(hunt['ZoneID'])
 
-        if expansion not in self._trains or (world in self._trains[expansion] and time.time() - self._trains[expansion][world] >= 7200):
+        if expansion not in self._trains or (world in self._trains[expansion] and int(time.time()) - self._trains[expansion][world] >= 7200):
             return
 
-        if not xivhunt and world in self._trains[expansion] and time.time() - self._trains[expansion][world] < 5:
+        if not xivhunt and world in self._trains[expansion] and int(time.time()) - self._trains[expansion][world] < 5:
             return
 
-        subs = await subscriptions.get(None, world, getattr(SUB, f"TRAINS_{expansion}".toupper()))
+        subs = await subscriptions.get(None, world, getattr(SUB, f"TRAINS_{expansion}".upper()))
         instance_symbol = ZONES.INSTANCE_SYMBOLS.get(instance, str(instance))
         zone_name = f"""{hunt['ZoneName']} {zones.get(str(hunt['ZoneID']))['name_ja']} """ if worlds.get_datacenter(world) in DATACENTERS.JA else f"""{hunt['ZoneName']} """
 
         for sub in subs:
-            notification = await notifications.get(sub.channel_id, world, getattr(SUB, f"TRAINS_{expansion}".toupper()), 1)
+            notification = await notifications.get(sub.channel_id, world, getattr(SUB, f"TRAINS_{expansion}".upper()), 1)
 
             if xivhunt is not None:
                 content = f"""[{world}] {zone_name}({xivhunt['coords']}) {instance_symbol}"""
@@ -78,7 +78,7 @@ class TrainManager:
                         return
 
                     await notification.edit(content=content) #  Edit the message
-                    await notifications.log(notification, sub.channel_id, world, getattr(SUB, f"TRAINS_{expansion}".toupper()), 1)
+                    await notifications.log(notification, sub.channel_id, world, getattr(SUB, f"TRAINS_{expansion}".upper()), 1)
                     continue
                 except discord.NotFound:
                     _log.warning(f"Train announcement was deleted for {world}.")
@@ -89,16 +89,16 @@ class TrainManager:
         hunt = self._marks_info[name.lower()]
         expansion = zones.expansion(hunt['ZoneID'])
 
-        if expansion not in self._trains or (world in self._trains[expansion] and time.time() - self._trains[expansion][world] >= 7200):
+        if expansion not in self._trains or (world in self._trains[expansion] and int(time.time()) - self._trains[expansion][world] >= 7200):
             return
 
-        self._trains[expansion][world] = time.time()
-        subs = await subscriptions.get(None, world, getattr(SUB, f"TRAINS_{expansion}".toupper()))
+        self._trains[expansion][world] = int(time.time())
+        subs = await subscriptions.get(None, world, getattr(SUB, f"TRAINS_{expansion}".upper()))
         role_mention = await notifications.role(sub.channel_id, f"trains_{expansion}")
         instance_symbol = ZONES.INSTANCE_SYMBOLS.get(instance, str(instance))
 
         for sub in subs:
-            notification = await notifications.get(sub.channel_id, world, getattr(SUB, f"TRAINS_{expansion}".toupper()), 1)
+            notification = await notifications.get(sub.channel_id, world, getattr(SUB, f"TRAINS_{expansion}".upper()), 1)
 
             content = f"""[{world}]狩ツアコンプリートComplete""" if worlds.get_datacenter(world) in DATACENTERS.JA else f"""[{world}] Complete"""
 
@@ -113,4 +113,4 @@ class TrainManager:
                 except Exception:
                         _log.exception("Exception thrown")
 
-                await notifications.delete(sub.channel_id, world, getattr(SUB, f"TRAINS_{expansion}".toupper()), 1)
+                await notifications.delete(sub.channel_id, world, getattr(SUB, f"TRAINS_{expansion}".upper()), 1)

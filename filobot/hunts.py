@@ -108,9 +108,8 @@ class HuntManager:
                return
 
             return await self.on_find(world, hunt['Name'], xivhunt, int(i) or 1)
-
-        except:
-            self._log.exception('Exception thrown') # for testing fates stuff
+        except Exception:
+            self._log.exception('Exception thrown')
             return
 
     async def process_chaos(self, source, data, message):
@@ -153,6 +152,8 @@ class HuntManager:
 
         if world not in self._hunts:
             self._hunts[world] = {'tracker': {}, 'xivhunt': []}
+
+        if world not in self._timers:
             self._timers[world] = {}
 
         _key = f"{parse_name(name)}_{instance}"
@@ -163,21 +164,21 @@ class HuntManager:
 
         hunt = self._marks_info[name.lower()]
 
-        if xivhunt and 'hp' in xivhunt and xivhunt['hp'] < 100 and _key in self._timers[world] and time.time() - self._timers[f"{world}_{_key}"] <= 15:
-            await self.on_progress(world, name, xivhunt, instance)
-            return
-
-        if hunt['Rank'] == 'A' and xivhunt and 'hp' in xivhunt' and 'players' in xivhunt:
-            if xivhunt['hp'] < 99 and xivhunt['players'] > 11:
+        if hunt['Rank'] == 'A' and 'hp' in xivhunt and 'players' in xivhunt:
+            if int(float(xivhunt['hp'])) < 99 and xivhunt['players'] > 8:
                 await self.trains.on_train(world, name, xivhunt, instance)
             if xivhunt['players'] > 4:
                 await self.trains.on_progress(world, name, xivhunt, instance)
 
-        if ((_key in self._hunts[world]['tracker'] and time.time() - (int(self._hunts[world]['tracker'][_key].last_alive) / 1000) <= 86410) or
-        (_key in self._timers[world] and self._timers[world][_key] <= 86410):
+        if 'hp' in xivhunt and int(float(xivhunt['hp'])) < 100 and _key in self._timers[world] and int(time.time()) - self._timers[world][_key] > 5:
+            await self.on_progress(world, name, xivhunt, instance)
             return
 
-        self._timers[world][_key] = time.time()
+        if ((_key in self._hunts[world]['tracker'] and int(time.time()) - (int(self._hunts[world]['tracker'][_key].last_alive) / 1000) <= 86410) or
+        (_key in self._timers[world] and (int(time.time()) - self._timers[world][_key]) <= 86410)):
+            return
+
+        self._timers[world][_key] = int(time.time())
 
         self._log.info(f"A hunt has been found on world {world} (Instance {instance}) :: {name}, Rank {xivhunt['rank']}")
 
@@ -197,16 +198,18 @@ class HuntManager:
 
         if worlds.get_datacenter(world) in DATACENTERS.JA:
             content = f"""[{world}] {ja_zone_name} {hunt['ZoneName']} ({xivhunt['coords']}) {instance_symbol}"""
-            ja_description = f"""[{world}] {ja_zone_name} ({xivhunt['coords']}) {instance_symbol}"""
+            #ja_description = f"""[{world}] {ja_zone_name} ({xivhunt['coords']}) {instance_symbol}"""
+            ja_description = f"""{ja_zone_name} ({xivhunt['coords']}) {instance_symbol}"""
             embed.description = f"""{ja_description}\n{hunt['ZoneName']} ({xivhunt['coords']}) {instance_symbol}"""
         elif worlds.get_datacenter(world) in DATACENTERS.EU:
             fr_description = f"""\n{fr_zone_name} ({xivhunt['coords']}) {instance_symbol}""" if fr_zone_name != en_zone_name and fr_zone_name != de_zone_name else ""
             de_description = f"""\n{de_zone_name} ({xivhunt['coords']}) {instance_symbol}""" if de_zone_name != en_zone_name else ""
-            embed.description = f"""{content}{fr_description}{de_description}"""
+            #embed.description = f"""{content}{fr_description}{de_description}"""
+            embed.description = f"""{en_zone_name} ({xivhunt['coords']}){fr_description}{de_description}"""
         else:
-             embed.description = content
+             embed.description = f"{en_zone_name} ({xivhunt['coords']})" #embed.description = content
 
-        embed.description = f"{xivhunt['status']}%{embed.description}"
+        embed.description = f"{xivhunt['hp']}% {embed.description}" if xivhunt and 'hp' in xivhunt else f"100% {embed.description}"
 
         for sub in subs: # Subscriptions
             if COND.FIND != sub.event:
@@ -234,7 +237,12 @@ class HuntManager:
         self._hunts[world]['xivhunt'].append(_key)
 
     async def on_progress(self, world: str, name: str, xivhunt: dict, instance=1):
-        subs = await subscriptions.get(None, world, fate['Category'])
+        hunt = self._marks_info[name.lower()]
+
+        if hunt['Rank'] != 'S' or int(float(xivhunt['hp'])) == 0:
+            return
+
+        subs = await subscriptions.get(None, world, hunt['Category'])
 
         for sub in subs:
             notification = await notifications.get(sub.channel_id, world, name, instance)
@@ -242,10 +250,10 @@ class HuntManager:
             if notification:
                 notification, log = notification
                 content = notification.content
-                #content = content.replace(content.rsplit(" ", 1)[1], f"{xivhunt['hp'}%")
+                #content = content.replace(content.rsplit(" ", 1)[1], f"{int(float(xivhunt['hp']))}%")
                 embed = notification.embeds[0]
                 embed.description = embed.description[embed.description.find("%") + 1:]
-                embed.description = f"{xivhunt['status']}%{embed.description}"
+                embed.description = f"{int(float(xivhunt['hp']))}%{embed.description}"
 
                 await notification.edit(content=content, embed=embed)
 
@@ -343,7 +351,7 @@ class HuntManager:
             hunts_living, previous_death, expansion = False, 0, zones.expansion(hunt['ZoneID'])
 
             for key, tracker_hunt in self._hunts[world]['tracker'].items():
-                if tracker_hunt.rank == 'A' and tracker_hunt.zone in getattr(ZONES, f"{expansion}".toupper()) and tracker_hunt.name != new.name:
+                if tracker_hunt.rank == 'A' and tracker_hunt.zone in getattr(ZONES, f"{expansion}".upper()) and tracker_hunt.name != new.name:
                     if tracker_hunt.status != tracker_hunt.STATUS_DIED:
                         hunts_living = True
                     if tracker_hunt.status == tracker_hunt.STATUS_DIED and int(tracker_hunt.last_alive) / 1000 > previous_death:

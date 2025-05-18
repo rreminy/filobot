@@ -170,7 +170,7 @@ class HuntManager:
             if xivhunt['players'] > 4:
                 await self.trains.on_progress(world, name, xivhunt, instance)
 
-        if 'hp' in xivhunt and int(float(xivhunt['hp'])) < 100 and _key in self._timers[world] and int(time.time()) - self._timers[world][_key] > 15:
+        if 'hp' in xivhunt and int(float(xivhunt['hp'])) < 100 and _key in self._timers[world] and int(time.time()) - self._timers[world][_key] > 20:
             await self.on_progress(world, name, xivhunt, instance)
             return
 

@@ -186,7 +186,7 @@ class HuntManager:
         instance_symbol = ZONES.INSTANCE_SYMBOLS.get(instance, str(instance))
         content = f"""[{world}] {hunt['ZoneName']} ({xivhunt['coords']}) {instance_symbol}"""
         embed = hunt_report_embed(name, xivhunt=xivhunt)
-        attach_category = hunt['Name']).lower()
+        attach_category = hunt['Name'].lower()
 
         for prefix, zone_set in ZONES.LIST.items():
             if hunt['ZoneName'] in zone_set:

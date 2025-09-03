@@ -10948,5 +10948,21 @@
     "name_fr": "Sinus Ardorum",
     "name_ja": "焦がれの入江",
     "expac": "DT"
+  },
+  "1291": {
+    "id": 1291,
+    "mapId": 1066,
+    "scale": 1,
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "name": "Phaenna",
+    "name_de": "Phaenna",
+    "name_en": "Phaenna",
+    "name_fr": "Phaenna",
+    "name_ja": "惑星パエンナ",
+    "expac": "DT"
   }
 }
+

@@ -163,7 +163,7 @@ def fate_simple_embed(fate_name: str, xivhunt: typing.Optional = None) -> discor
                 embed.colour = COLOR_DIED
 
             if xivhunt is not None and xivhunt['world']:
-                if Worlds.get_world_datacenter(xivhunt['world']) in ('Elemental', 'Gaia', 'Mana', 'Meteor') and xivhunt['zone_id'] != 1237:
+                if Worlds.get_world_datacenter(xivhunt['world']) in ('Elemental', 'Gaia', 'Mana', 'Meteor') and xivhunt['zone_id'] != 1237 and xivhunt['zone_id'] != 1291:
                     embed.title = f"[{xivhunt['world']}] {fate['NameJa']} {fate['Name']}"
                 else:
                     embed.title = f"[{xivhunt['world']}] {fate['Name']}"
@@ -171,7 +171,7 @@ def fate_simple_embed(fate_name: str, xivhunt: typing.Optional = None) -> discor
             else:
                 embed.title = f"{fate['Name']}"
 
-            if xivhunt is not None and xivhunt['zone_id'] != 1237 and xivhunt['zone_id'] != 886:
+            if xivhunt is not None and xivhunt['zone_id'] != 1237 and xivhunt['zone_id'] != 1291 and xivhunt['zone_id'] != 886:
                 embed.set_image(url=f"https://api.ffxivsonar.com/render/map?zoneid={xivhunt['zone_id']}&flagx={xivhunt['x']}&flagy={xivhunt['y']}&fate=true");
 
             return embed
@@ -285,3 +285,4 @@ def parse_duration_string(start: float, end: float):
 
     duration.append(f"""{int(seconds)} seconds""")
     return ', '.join(duration)
+

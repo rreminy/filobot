@@ -60,6 +60,8 @@ class HuntManager:
 
     DT_ZONES = ("Kozama'uka", "Yak T'el", "Urqopacha", "Shaaloani", "Heritage Found", "Living Memory")
 
+    COSMIC_ZONES = {1237, 1291, 1310}
+    
     COND_DEAD = 'deaths'
     COND_OPEN = 'openings'
     COND_FIND = 'finds'
@@ -915,7 +917,7 @@ class HuntManager:
 
             if role_mention:
                 mentionARole = True
-                if hunt['ZoneID'] == 1237 or hunt['ZoneID'] == 1291:
+                if hunt['ZoneID'] in COSMIC_ZONES:
                     if instance != 1 and f"{world}_{_key[:-1]}1" in self._fate_timers and (int(time.time()) - (int(self._fate_timers[f"{world}_{_key[:-1]}1"]) / 1000)) <= 2400:
                         mentionARole = False
                         #embed.set_image(url=None)
@@ -1080,4 +1082,5 @@ class HuntManager:
 
     def getzonesinfo(self):
         return self._zones_info
+
 

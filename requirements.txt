@@ -1,9 +1,9 @@
-aiohttp
+aiohttp>=3.13.3
 peewee
 discord.py>=2.0.0
 arrow
 PyYAML
 gitpython
 beautifulsoup4
-socketio
+python-socketio>=5.16.0
 async-timeout>=4.0.3

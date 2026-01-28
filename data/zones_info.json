@@ -10963,6 +10963,22 @@
     "name_fr": "Phaenna",
     "name_ja": "惑星パエンナ",
     "expac": "DT"
+  },
+  "1310": {
+    "id": 1310,
+    "mapId": 1139,
+    "scale": 1,
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "name": "Oizys",
+    "name_de": "Oizys",
+    "name_en": "Oizys",
+    "name_fr": "Oizys",
+    "name_ja": "惑星オイジュス",
+    "expac": "DT"
   }
 }
+
 

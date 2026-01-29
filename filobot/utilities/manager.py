@@ -917,7 +917,7 @@ class HuntManager:
 
             if role_mention:
                 mentionARole = True
-                if hunt['ZoneID'] in COSMIC_ZONES:
+                if hunt['ZoneID'] in self.COSMIC_ZONES:
                     if instance != 1 and f"{world}_{_key[:-1]}1" in self._fate_timers and (int(time.time()) - (int(self._fate_timers[f"{world}_{_key[:-1]}1"]) / 1000)) <= 2400:
                         mentionARole = False
                         #embed.set_image(url=None)

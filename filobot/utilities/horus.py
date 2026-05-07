@@ -127,7 +127,7 @@ class Horus:
         return self.fates_info[id]
 
     async def _fetch(self, session, url):
-        with async_timeout.timeout(15):
+        async with async_timeout.timeout(15):
             async with session.get(url) as response:
                 return await response.text()
 

@@ -10978,7 +10978,20 @@
     "name_fr": "Oizys",
     "name_ja": "惑星オイジュス",
     "expac": "DT"
+  },
+  "1319": {
+    "id": 1319,
+    "mapId": 1246,
+    "scale": 1,
+    "offset": {
+      "x": 0,
+      "y": 0
+    },
+    "name": "Auxesia",
+    "name_de": "Auxesia",
+    "name_en": "Auxesia",
+    "name_fr": "Auxesia",
+    "name_ja": "惑星アウクセシア",
+    "expac": "DT"
   }
 }
-
-

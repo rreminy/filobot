@@ -60,7 +60,7 @@ class HuntManager:
 
     DT_ZONES = ("Kozama'uka", "Yak T'el", "Urqopacha", "Shaaloani", "Heritage Found", "Living Memory")
 
-    COSMIC_ZONES = {1237, 1291, 1310}
+    COSMIC_ZONES = {1237, 1291, 1310, 1319}
     
     COND_DEAD = 'deaths'
     COND_OPEN = 'openings'

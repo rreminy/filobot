@@ -88,7 +88,7 @@ SB_ALIASES = [('aqra', 'aqrabuamelu'), ('voch', 'vochstein'), ('lumi', 'luminare
               ('funa', 'funa yurei'), ('oni', 'oni yumemi'), ('anga', 'angada'), ('gaja', 'gajasura'),
               ('giri', 'girimekhala')]
 
-COSMIC_AREAS = {1237, 1291, 1310}
+COSMIC_AREAS = {1237, 1291, 1310, 1319}
 
 def hunt_simple_embed(hunt_name: str, horus: typing.Optional = None, xivhunt: typing.Optional = None) -> discord.Embed:
     for _id, mark in marks_info.items():

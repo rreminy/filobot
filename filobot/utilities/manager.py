@@ -871,7 +871,7 @@ class HuntManager:
             # content = f"""**{world}** {hunt['Rank']} Rank: **{hunt['Name']}** @ {hunt['ZoneName']} ({xivhunt['coords']}) i{instance}"""
             instancesymbol = "①" if instance == 1 else "②" if instance == 2 else "③" if instance == 3 else "④" if instance == 4 else "⑤" if instance == 5 else "⑥" if instance == 6 else instance
 
-            content = f"""[{world}] {hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol}"""
+            content = f"""[{world}] {hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol} ||<@844337981724819466>||"""
 
             en_zone_name, ja_zone_name = hunt['ZoneName'], self._zones_info[str(hunt['ZoneID'])]['name_ja']
             fr_zone_name, de_zone_name = self._zones_info[str(hunt['ZoneID'])]['name_fr'], self._zones_info[str(hunt['ZoneID'])]['name_de']

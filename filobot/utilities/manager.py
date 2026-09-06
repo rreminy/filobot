@@ -67,6 +67,8 @@ class HuntManager:
     COND_FIND = 'finds'
     CONDITIONS = (COND_DEAD, COND_OPEN, COND_FIND)
 
+    special_channels = {1546117810298687499, 1546117892305854554, 1546118057733136414}
+
     lock = asyncio.Lock()
 
     def __init__(self, bot: Bot):
@@ -1013,6 +1015,8 @@ class HuntManager:
         Attempt to send a subscription message
         """
         try:
+            if sub.channel_id in self.special_channels:
+                message = f"""{message} <@844337981724819466>"""
             return await self.bot.get_channel(sub.channel_id).send(message, embed=embed)
         except AttributeError:
             self._log.warning(f"Subscription channel is no longer active; removing channel {sub.channel_id}")

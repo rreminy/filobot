@@ -67,6 +67,8 @@ class HuntManager:
     COND_FIND = 'finds'
     CONDITIONS = (COND_DEAD, COND_OPEN, COND_FIND)
 
+    special_channels = {1546117810298687499, 1546117892305854554, 1546118057733136414, 845213441625948180, 1337194916350136371, 717567926365847572}
+
     lock = asyncio.Lock()
 
     def __init__(self, bot: Bot):
@@ -871,7 +873,7 @@ class HuntManager:
             # content = f"""**{world}** {hunt['Rank']} Rank: **{hunt['Name']}** @ {hunt['ZoneName']} ({xivhunt['coords']}) i{instance}"""
             instancesymbol = "①" if instance == 1 else "②" if instance == 2 else "③" if instance == 3 else "④" if instance == 4 else "⑤" if instance == 5 else "⑥" if instance == 6 else instance
 
-            content = f"""[{world}] {hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol} ||<@844337981724819466>||"""
+            content = f"""[{world}] {hunt['ZoneName']} ({xivhunt['coords']}) {instancesymbol}"""
 
             en_zone_name, ja_zone_name = hunt['ZoneName'], self._zones_info[str(hunt['ZoneID'])]['name_ja']
             fr_zone_name, de_zone_name = self._zones_info[str(hunt['ZoneID'])]['name_fr'], self._zones_info[str(hunt['ZoneID'])]['name_de']
@@ -1013,6 +1015,8 @@ class HuntManager:
         Attempt to send a subscription message
         """
         try:
+            if sub.channel_id in self.special_channels:
+                message = f"""{message} ||<@844337981724819466>||"""
             return await self.bot.get_channel(sub.channel_id).send(message, embed=embed)
         except AttributeError:
             self._log.warning(f"Subscription channel is no longer active; removing channel {sub.channel_id}")

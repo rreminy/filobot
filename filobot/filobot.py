@@ -37,7 +37,7 @@ db.create_tables([Subscriptions, SubscriptionsMeta, ScoutingSessions, ScoutingHu
 
 intents = discord.Intents.default()
 
-bot = commands.Bot(command_prefix='g.', intents=intents)
+bot = commands.Bot(command_prefix=['g.', '<@642052857666994229> ', '<@716405081133547543> ', '<@753199175549845624> ', '<@1121299520156860477> '], intents=intents)
 hunt_manager = HuntManager(bot)
 asyncio.run(bot.add_cog(Hunts(bot, hunt_manager)))
 # asyncio.run(bot.add_cog(Scouting(bot, hunt_manager)))
